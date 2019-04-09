@@ -15,8 +15,9 @@ This project takes many of the same ideas in [Vuex-Router-Sync](https://github.c
 npm install --save nativescript-vue-dynamo
 ```
 
-Inside your `main.js` or `main.native.js` if you are using the [Nativescript-Vue Plugin for vue-cli@3.0](https://github.com/nativescript-vue/vue-cli-plugin-nativescript-vue).  Please note the `appMode` option being sent to the component.  If you want to use this on the native side, then `appMode` should = `native` and on the web side `web`.  These are this standards established in the Nativescript-Vue Plugin for vue-cli@3.0 mentioned above.  In the example below we are showing this coming from the state manager, but that's an artifact of the demo app included in this repository where we are storing the value.  
+Inside your `main.js` or `main.native.js` if you are using the [Nativescript-Vue Plugin for vue-cli@3.0](https://github.com/nativescript-vue/vue-cli-plugin-nativescript-vue).  Please note the `appMode` option being sent to the component.  If you want to use this on the native side, then `appMode` should = `native` and on the web side it should = `web`.  These are this standards established in the Nativescript-Vue Plugin for vue-cli@3.0 mentioned above.  In the example below we are showing this coming from the state manager, but that's an artifact of the demo app included in this repository where we are storing the value.  
 
+## Main entry point (main.js or main.native.js)
 ```js
 import Vue from 'nativescript-vue';
 import App from './App.vue';
@@ -37,7 +38,7 @@ If `appMode` = `native`, then the underlying component is injecting the followin
 </template>
 ```
 
-If `appMod` = `web`, then the underlying component is injecting the following:
+If `appMode` = `web`, then the underlying component is injecting the following:
 ```html
 <template>
   <div>
@@ -46,6 +47,7 @@ If `appMod` = `web`, then the underlying component is injecting the following:
 </template>
 ```
 
+## Vue-Router Config
 Inside or your `Vue-Router` config, you will want to split out your route config into it's own array as modeled below. You can then use many of the extra options provided by `Vue-Router` out of the box such as adding the `meta` object.  Most built in router hooks should be available to help assist you as well.
 
 ```js
@@ -71,6 +73,7 @@ export const routes = [
 ]
 ```
 
+## App.vue
 Inside of your App.vue,  you can do something simple like this:
 ```html
 <template>
@@ -100,7 +103,7 @@ Then inside of `App.vue`, you would then need to provide your own wrapper.  This
 
 ## Navigating
 
-Because we are pluggin into `Vue-Router` many of the same programmatic navigation aides available there should be usable within `Nativescript-Vue`.  So things like `route.push()` and `route.back()` should work.  Others may not and if you find something that is not working, please submit an issue.
+Because we are plugging into `Vue-Router` many of the same programmatic navigation aides available there should be usable within `Nativescript-Vue`.  So things like `route.push()` and `route.back()` should work.  Others may not and if you find something that is not working, please submit an issue.
 
 There is even the option of simulating Nativescript's built in `clearHistory` navigation option.  You can provide a route parameter named `clearHistory` and this will reset the route history state.
 
