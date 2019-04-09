@@ -17,8 +17,8 @@
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  // import { releaseNativeObject } from 'tns-core-modules/utils/utils';
-  // import { topmost } from 'tns-core-modules/ui/frame';
+  import { releaseNativeObject } from 'tns-core-modules/utils/utils';
+  import { topmost } from 'tns-core-modules/ui/frame';
   
   @Component({
     name: 'first',
@@ -26,39 +26,43 @@
   export default class First extends Vue {
     private navbarTitle: string = `First.vue`;
 
-    // public created() {
-    //   (this as any).$BackButton();
-    // }
+    public mounted(){
+      // @ts-ignore
+      console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+    }
 
-    // public mounted(){
-    //   // console.log('First.vue - mounted - topmost().currentPage = ', topmost().currentPage);
-    //   console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView);
-    // }
+    public beforeDestroy() {
+      try {
+        console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
+        // @ts-ignore
+        console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // @ts-ignore
+        console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        // @ts-ignore
+        // use buit in NS function to destroy the native component
+        releaseNativeObject(this.$refs.page.nativeView.nativeViewProtected);
+        console.log("RELEASED!");
+        console.log("beforeDestroy - this.$refs.page 2 - " + this.$refs.page);
+        // @ts-ignore
+        console.log("beforeDestroy - this.$refs.page.nativeView 2 - " + this.$refs.page.nativeView.toString());
+        // @ts-ignore
+        console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 2 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+      } catch (err) {
+        console.log(err);
+      }
+    }
 
-    // public beforeDestroy() {
-    //   try {
-    //     console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
-    //     console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView);
-    //     console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected);
-    //     releaseNativeObject(this.$refs.page.nativeView.nativeViewProtected);
-    //     console.log("RELEASED!");
-    //     console.log("beforeDestroy - this.$refs.page 2 - " + this.$refs.page);
-    //     console.log("beforeDestroy - this.$refs.page.nativeView 2 - " + this.$refs.page.nativeView);
-    //     console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 2 - " + this.$refs.page.nativeView.nativeViewProtected);
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // }
-
-    // public destroyed() {
-    //   try {
-    //     console.log("destroyed - this.$refs.page 1 - " + this.$refs.page);
-    //     console.log("destroyed - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView);
-    //     console.log("destroyed - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected);
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // }
+    public destroyed() {
+      try {
+        console.log("destroyed - this.$refs.page 1 - " + this.$refs.page);
+        // @ts-ignore
+        console.log("destroyed - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // @ts-ignore
+        console.log("destroyed - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+      } catch (err) {
+        console.log(err);
+      }
+    }
   }
 
 </script>

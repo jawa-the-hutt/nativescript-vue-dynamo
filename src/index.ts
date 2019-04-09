@@ -1,4 +1,4 @@
-import Vue, { VueConstructor, PluginObject, PluginFunction } from 'vue';
+import Vue, { VueConstructor, PluginFunction } from 'vue';
 import componentRouter from "./component-router";
 
 // export let _Vue: VueConstructor;

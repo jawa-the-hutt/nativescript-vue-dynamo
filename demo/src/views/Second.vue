@@ -8,8 +8,6 @@
 <template native>
   <Page ref="page">
     <ActionBar :title="navbarTitle" />
-      <!-- <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$router.back()"/>
-    </ActionBar> -->
     <GridLayout>
       <Label text="This is the second page" textWrap="true" horizontalAlignment="center" verticalAlignment="center"/>
     </GridLayout>
@@ -17,79 +15,86 @@
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  // import { topmost } from 'tns-core-modules/ui/frame';
+  import { topmost } from 'tns-core-modules/ui/frame';
 
   @Component({
     name: 'second',
   })
   export default class Second extends Vue {
     private navbarTitle: string = `Second.vue`;
-    // private checkCount: number = 0;
-    // private maxChecks: number = 5;
-    // private timerEnd!: number;
+    private originalPageId: string = ``;
+    private checkCount: number = 0;
+    private maxChecks: number = 10;
+    private timerEnd!: number;
+    private msWait: number = 50;
+    private totalMSWait: number = 0;
 
-    // public created() {
-    //   (this as any).$BackButton();
-    // }
+    public mounted(){
+      // @ts-ignore
+      console.log("Second.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView.toString());
+      // @ts-ignore
+      this.originalPageId =  this.$refs.page.nativeView.toString();
+    }
 
-    // public mounted(){
-    //   // console.log('Second.vue - mounted - topmost().currentPage = ', topmost().currentPage);
-    //   console.log("Second.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView);
-    // }
+    public check() {
+      try {
+        if (topmost().currentPage === undefined  && this.checkCount <= this.maxChecks) {
+          console.log('Second.vue - topmost().currentPage is UNDEFINED');
+          // @ts-ignore
+          clearInterval(this.timerEnd);
+          return;
+        } else if (topmost().currentPage !== undefined && topmost().currentPage.toString() !== this.originalPageId) {
+          console.log(`Second.vue - the current topmost().currentPage no longer equals the original topmost().currentPage so the original page has been garbage collected`);
+          // @ts-ignore
+          clearInterval(this.timerEnd);
+          return;
+        } else if (topmost().currentPage !== undefined && this.checkCount > this.maxChecks) {
+          console.log(`Second.vue - checkCount hit maxChecks = ${this.maxChecks}, but topmost().currentPage is still there so we will exit`);
+          // @ts-ignore
+          clearInterval(this.timerEnd);
+          return;       
+        } else {
+          this.totalMSWait += this.msWait;
+          console.log(`Second.vue - ${topmost().currentPage.toString()} is still there after ${this.checkCount} checks and ${this.totalMSWait} milliseconds`);
+          // console.log(`we have checked ${this.checkCount} times`);
+          this.checkCount++;
+          return;
+        }
 
-    // public check() {
-    //   try {
-    //     if (topmost().currentPage === undefined  && this.checkCount <= this.maxChecks) {
-    //       console.log('Second.vue - topmost().currentPage is UNDEFINED');
-    //       // @ts-ignore
-    //       clearInterval(this.timerEnd);
-    //       return;
-    //     } else if (topmost().currentPage !== undefined && this.checkCount > this.maxChecks) {
-    //       console.log('Second.vue - checkCount hit 100, but topmost().currentPage is still there so we will exit');
-    //       // @ts-ignore
-    //       clearInterval(this.timerEnd);
-    //       return;        
-    //     } else {
-    //       console.log(`Second.vue - ${topmost().currentPage} is still there after ${this.checkCount} checks`);
-    //       // console.log(`we have checked ${this.checkCount} times`);
-    //       this.checkCount++;
-    //       return;
-    //     }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    public timer() {
+      // @ts-ignore
+      this.timerEnd = setInterval(this.check, this.msWait)
+    }
 
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // }
-    // public timer() {
-    //   // @ts-ignore
-    //   this.timerEnd = setInterval(this.check, 50)
-    // }
+    public beforeDestroy() {
+      try {
+        console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
+        // @ts-ignore
+        console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // @ts-ignore
+        console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        console.log("beforeDestroy - topmost().currentPage 1 - " + topmost().currentPage.toString());
 
-    // public beforeDestroy() {
-    //   try {
-    //     console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
-    //     console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView);
-    //     console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected);
-    //     console.log("beforeDestroy - topmost().currentPage 1 - " + topmost().currentPage);
+      } catch (err) {
+        console.log(err);
+      }
+    }
 
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // }
+    public destroyed() {
+      try {
+        console.log("destroyed - this.$refs.page 1 - " + this.$refs.page.toString());
+        console.log("destroyed - topmost().currentPage 1 - " + topmost().currentPage.toString());
 
-    // public destroyed() {
-    //   try {
-    //     console.log("destroyed - this.$refs.page 1 - " + this.$refs.page);
-    //     // console.log("destroyed - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView);
-    //     // console.log("destroyed - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected);
-
-    //     console.log("destroyed - topmost().currentPage 1 - " + topmost().currentPage);
-    //     // check to see when the currentPage is garbage collected
-    //     this.timer();
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // }
+        // check to see when the currentPage is garbage collected
+        this.timer();
+      } catch (err) {
+        console.log(err);
+      }
+    }
 
 
   }

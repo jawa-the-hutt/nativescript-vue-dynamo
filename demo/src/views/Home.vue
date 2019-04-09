@@ -15,22 +15,20 @@
   </div>
 </template>
 <template native>
+  <!-- eslint-disable vue/valid-template-root -->
   <Page ref="page">
     <ActionBar :title="navbarTitle"/>
     <GridLayout rows="auto, auto, auto">
-      <!-- <Button text="First" @tap="shared.$goTo('first')" row="0" />
-      <Button text="Second" @tap="shared.$goTo('second')" row="1" /> -->
       <Button text="First" @tap="$router.push('first')" row="0" />
       <Button text="Second" @tap="$router.push('second')" row="1" />
       <Button text="Logout" @tap="shared.$logout" row="2" />
     </GridLayout>
   </Page>
+  <!--eslint-enable-->
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
   // import { topmost } from 'tns-core-modules/ui/frame';
-  // @ts-ignore
-  // import Second from "./Second";
 
   @Component({
     name: 'home'
@@ -38,19 +36,28 @@
   export default class Home extends Vue {
     private navbarTitle: string = `Home.vue`;
 
-    // public created() {
-    //   (this as any).$BackButton();
-    // }
+    public beforeMount() {
+    }
 
-    // public mounted(){
-    //   // console.log('Home.vue - mounted - topmost().currentPage = ', topmost().currentPage);
-    //   console.log("Home.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView);
-    // }
+    public mounted(){
+      // @ts-ignore
+      console.log("Home.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView);
+      // @ts-ignore
+      this.$store.dispatch('updateOriginalHomePageId',  this.$refs.page.nativeView.toString() );
+      console.log("Home.vue - mounted - original Home.vue Page Id - " + this.originalHomePageId);
 
-    // public goTo(route: string) {
-    //   // @ts-ignore
-    //   this.$router.push(route)
-    // }
+      // @ts-ignore
+      if (this.$refs.page.nativeView.toString() === this.originalHomePageId ) {
+        console.log("Home.vue - mounted - original Home.vue Page Id is the same as the current Home.vue Page");
+      } else {
+        console.log("Home.vue - mounted - original Home.vue Page Id is NOT the same as the current Home.vue Page Id");
+      }
+
+    }
+
+    public get originalHomePageId () {
+      return this.$store.getters.getOriginalHomePageId;
+    }
   }
 
 </script>

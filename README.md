@@ -11,13 +11,14 @@ This project takes many of the same ideas in [Vuex-Router-Sync](https://github.c
 
 ## Quick Start
 
-```
+```shell
 npm install --save nativescript-vue-dynamo
 ```
 
 Inside your `main.js` or `main.native.js` if you are using the [Nativescript-Vue Plugin for vue-cli@3.0](https://github.com/nativescript-vue/vue-cli-plugin-nativescript-vue).  Please note the `appMode` option being sent to the component.  If you want to use this on the native side, then `appMode` should = `native` and on the web side it should = `web`.  These are this standards established in the Nativescript-Vue Plugin for vue-cli@3.0 mentioned above.  In the example below we are showing this coming from the state manager, but that's an artifact of the demo app included in this repository where we are storing the value.  
 
 ## Main entry point (main.js or main.native.js)
+
 ```js
 import Vue from 'nativescript-vue';
 import App from './App.vue';
@@ -30,6 +31,7 @@ Vue.use( Dynamo, { appMode: store.state.appMode } );
 ```
 
 If `appMode` = `native`, then the underlying component is injecting the following:
+
 ```html
 <template>
   <StackLayout>
@@ -39,6 +41,7 @@ If `appMode` = `native`, then the underlying component is injecting the followin
 ```
 
 If `appMode` = `web`, then the underlying component is injecting the following:
+
 ```html
 <template>
   <div>
@@ -48,6 +51,7 @@ If `appMode` = `web`, then the underlying component is injecting the following:
 ```
 
 ## Vue-Router Config
+
 Inside or your `Vue-Router` config, you will want to split out your route config into it's own array as modeled below. You can then use many of the extra options provided by `Vue-Router` out of the box such as adding the `meta` object.  Most built in router hooks should be available to help assist you as well.
 
 ```js
@@ -74,7 +78,9 @@ export const routes = [
 ```
 
 ## App.vue
+
 Inside of your App.vue,  you can do something simple like this:
+
 ```html
 <template>
   <Dynamo />
@@ -90,6 +96,7 @@ Regarding the `appMode` discussion earlier:  If you do not supply anything for `
 ```
 
 Then inside of `App.vue`, you would then need to provide your own wrapper.  This could still be a `StackLayout` or any of the other layout components such as `GridLayout`.  Just be aware that any alternative layout items will not be replaced when the `Dynamo` component updates itself.  This might be useful if you want a bottom navigation button area and then have the buttons selected switch out the item in the first row of the Grid:
+
 ```html
 <template>
   <GridLayout row="*, auto, auto, auto">
@@ -108,10 +115,13 @@ Because we are plugging into `Vue-Router` many of the same programmatic navigati
 There is even the option of simulating Nativescript's built in `clearHistory` navigation option.  You can provide a route parameter named `clearHistory` and this will reset the route history state.
 
 For example, given you are on a Login page, and successfully log in you would navigate to the Home page with
+
 ```js
 router.push({ name: 'home', params: { clearHistory: 'true'}})
 ```
+
 Note that we used `clearHistory: true` to prevent the back button from going back to the login page.
 
 ### Demo project
+
 Take a look at the demo project for a simplistic project that implements this plugin.
