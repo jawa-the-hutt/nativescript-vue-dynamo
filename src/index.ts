@@ -1,14 +1,16 @@
-import Vue, { VueConstructor, PluginFunction } from 'vue';
+import { VueConstructor, PluginFunction } from 'vue';
+import Router, { Route, RouteConfig } from 'vue-router';
+import { Store } from 'vuex';
 import componentRouter from "./component-router";
 
-// export let _Vue: VueConstructor;
+export function install(Vue: VueConstructor, options: any) {
 
-export function install(Vue: VueConstructor, options?: any) {
   if(install.installed) {
+    console.log('not installed')
     return;
   } else {
+    console.log('not installed yet')
     install.installed = true;
-   // _Vue = Vue;
     Vue.component("Dynamo", {
       template:
         options.appMode === undefined
@@ -22,19 +24,23 @@ export function install(Vue: VueConstructor, options?: any) {
       computed: {
         computedCurrentRoute() {
           // @ts-ignore
-          return this.$store.getters["componentRouter/getCurrentRoute"];
+          return this.$store.getters[options.moduleName + "/getCurrentRoute"];
         }
       }
     });
   }
 
   // Vue.mixin({
-  //   beforeCreate() {},
+  //   beforeCreate() {
+  //   },
   // });
 };
 
 class Dynamo {
   static install: PluginFunction<never>;
+  static componentRouter(store: Store<any>, router: Router, routes: RouteConfig[], moduleName: string): PluginFunction<any> {
+    return componentRouter( store, router, routes, moduleName );
+  };
 }
 
 export namespace install {
@@ -42,6 +48,8 @@ export namespace install {
 }
 
 Dynamo.install = install;
+Dynamo.componentRouter = componentRouter;
+
 
 // To auto-install when vue is found
 /* global window global */
@@ -56,4 +64,4 @@ if (GlobalVue) {
 }
 
 export default Dynamo;
-export { componentRouter };
+// export { componentRouter };

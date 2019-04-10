@@ -14,13 +14,14 @@ export default class GlobalMixinNative extends Vue {
   }
 
   // intercept the back-button
-  public async $CanGoBack(): Promise<void> {
+  public async $CanGoBack(moduleName?: string): Promise<void> {
     if (platform.android) {
       const activity = application.android.startActivity || application.android.foregroundActivity;
       activity.onBackPressed = async () => {
         console.log(`${topmost().currentPage} - topmost().canGoBack() - `, topmost().canGoBack())
         if(topmost().canGoBack()) {
-          const routeHistory = await this.$store.getters['componentRouter/getRouteHistory'];
+          moduleName = moduleName === undefined ? 'componentRouter' : moduleName
+          const routeHistory = await this.$store.getters[moduleName + '/getRouteHistory'];
           console.log(`routeHistory.length - `, routeHistory.length)
           if(routeHistory.length > 1 ) {
             router.back();

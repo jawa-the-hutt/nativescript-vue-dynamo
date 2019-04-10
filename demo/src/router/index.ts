@@ -50,6 +50,28 @@ export const routes: RouteConfig[] = [
       auth: true,
     },
   },
+  {
+    name: 'dynamo-one',
+    path: '/dynamo-one',
+    // @ts-ignore
+    // eslint-disable-next-line
+    component: () => import(/* webpackChunkName: "dynamo-one" */ '~/views/Dynamo-One'),
+    meta: {
+      title: 'Dynamo One',
+      auth: true,
+    },
+  },
+  {
+    name: 'dynamo-two',
+    path: '/dynamo-two',
+    // @ts-ignore
+    // eslint-disable-next-line
+    component: () => import(/* webpackChunkName: "dynamo-two" */ '~/views/Dynamo-Two'),
+    meta: {
+      title: 'Dynamo Two',
+      auth: true,
+    },
+  },
 ];
 
 const router = new Router({routes})

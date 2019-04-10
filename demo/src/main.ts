@@ -5,9 +5,9 @@ import store from './store';
 
 Vue.config.productionTip = false;
 
-import Dynamo, { componentRouter } from '../../';
-componentRouter(store, router, routes );
-Vue.use(Dynamo, { appMode: store.state.appMode });
+// import Dynamo, { componentRouter } from '../../';
+// componentRouter(store, router, routes );
+// Vue.use(Dynamo, { appMode: store.state.appMode });
 
 // @ts-ignore
 import GlobalMixinWeb from '~/utils/global-mixin/global-mixin';

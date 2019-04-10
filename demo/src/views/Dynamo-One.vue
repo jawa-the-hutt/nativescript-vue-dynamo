@@ -1,63 +1,33 @@
 <template web>
   <div class="w-page">
     <div class="w-container">
-      <span>This is the first page</span>
+      <router-link id="dynamoTwoButton" tag="button" class="w-button" to="dynamo-two">Dynamo Two</router-link>
     </div>
   </div>
 </template>
 <template native>
-  <Page ref="page">
-    <ActionBar :title="navbarTitle">
-      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$router.back()"/>
-    </ActionBar>
-    <GridLayout>
-      <Label text="This is the first page" textWrap="true" horizontalAlignment="center" verticalAlignment="center"/>
+  <Page actionBarHidden="true">
+    <GridLayout rows="auto">
+      <Button text="Dynamo Two" @tap="$router.push('dynamo-two')" row="0" />
     </GridLayout>
-      <!-- <component v-bind:is="'one'" /> -->
-      <!-- <Dynamo /> -->
   </Page>
-
-
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
   // import { releaseNativeObject } from 'tns-core-modules/utils/utils';
-  // import { routes } from '../router';
-  // import Dynamo from '../../../';
-
-  import DynamoOne from './Dynamo-One.vue'
 
   @Component({
-    name: 'first',
-    components: {
-      one: DynamoOne
-    }
+    name: 'dynamo-one',
   })
-  export default class First extends Vue {
-    private navbarTitle: string = `First.vue`;
-    public moduleName: string = 'firstVueRouter';
+  export default class DynamoOne extends Vue {
 
-    // public created() {
-    //   const moduleName = 'firstVueRouter';
-    //   Vue.prototype['$' + moduleName] = Dynamo.componentRouter( this.$store, this.$router, routes, moduleName );
-    //   Vue.use( Dynamo, { appMode: this.$store.state.appMode, moduleName } );
+    // public mounted(){
+    //   // @ts-ignore
+    //   console.log("DynamoOne.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
     // }
 
-    public mounted(){
-      try {
-        // const hello = Dynamo.componentRouter( this.$store, this.$router, routes, this.moduleName );
-        // Vue.use( Dynamo, { appMode: this.$store.state.appMode, moduleName: this.moduleName } );
-      } catch(err) {
-        throw err;
-      }
-      // // @ts-ignore
-      // console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
-    }
-
-    public beforeDestroy() {
-      try {
-        Vue.prototype['$' + this.moduleName]();
-
+    // public beforeDestroy() {
+    //   try {
     //     console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
     //     // @ts-ignore
     //     console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
@@ -72,10 +42,10 @@
     //     console.log("beforeDestroy - this.$refs.page.nativeView 2 - " + this.$refs.page.nativeView.toString());
     //     // @ts-ignore
     //     console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 2 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
-      } catch (err) {
-        console.log(err);
-      }
-    }
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // }
 
     // public destroyed() {
     //   try {

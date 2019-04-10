@@ -3,9 +3,10 @@ import App from './App.vue';
 import store from './store';
 import router, { routes } from './router';
 
-import Dynamo, { componentRouter } from '../../';
-componentRouter( store, router, routes );
-Vue.use( Dynamo, { appMode: store.state.appMode } );
+import Dynamo from '../../';
+const moduleName = 'componentRouter';
+Vue.prototype['$' + moduleName] = Dynamo.componentRouter( store, router, routes, moduleName );
+Vue.use( Dynamo, { appMode: store.state.appMode, moduleName } );
 
 // Set the following to `true` to hide the logs created by nativescript-vue
 Vue.config.silent = false;
