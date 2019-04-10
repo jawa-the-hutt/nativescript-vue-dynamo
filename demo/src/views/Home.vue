@@ -15,7 +15,6 @@
   </div>
 </template>
 <template native>
-  <!-- eslint-disable vue/valid-template-root -->
   <Page ref="page">
     <ActionBar :title="navbarTitle"/>
     <GridLayout rows="auto, auto, auto">
@@ -24,20 +23,15 @@
       <Button text="Logout" @tap="shared.$logout" row="2" />
     </GridLayout>
   </Page>
-  <!--eslint-enable-->
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  // import { topmost } from 'tns-core-modules/ui/frame';
 
   @Component({
     name: 'home'
   })
   export default class Home extends Vue {
     private navbarTitle: string = `Home.vue`;
-
-    public beforeMount() {
-    }
 
     public mounted(){
       // @ts-ignore
@@ -52,7 +46,6 @@
       } else {
         console.log("Home.vue - mounted - original Home.vue Page Id is NOT the same as the current Home.vue Page Id");
       }
-
     }
 
     public get originalHomePageId () {

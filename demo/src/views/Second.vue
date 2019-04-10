@@ -39,17 +39,17 @@
     public check() {
       try {
         if (topmost().currentPage === undefined  && this.checkCount <= this.maxChecks) {
-          console.log('Second.vue - topmost().currentPage is UNDEFINED');
+          console.log('Second.vue - Page is UNDEFINED');
           // @ts-ignore
           clearInterval(this.timerEnd);
           return;
         } else if (topmost().currentPage !== undefined && topmost().currentPage.toString() !== this.originalPageId) {
-          console.log(`Second.vue - the current topmost().currentPage no longer equals the original topmost().currentPage so the original page has been garbage collected`);
+          console.log(`Second.vue - the current Page no longer equals the original Page so the original page has been garbage collected`);
           // @ts-ignore
           clearInterval(this.timerEnd);
           return;
         } else if (topmost().currentPage !== undefined && this.checkCount > this.maxChecks) {
-          console.log(`Second.vue - checkCount hit maxChecks = ${this.maxChecks}, but topmost().currentPage is still there so we will exit`);
+          console.log(`Second.vue - checkCount hit maxChecks = ${this.maxChecks}, but the Page is still there so we will exit`);
           // @ts-ignore
           clearInterval(this.timerEnd);
           return;       

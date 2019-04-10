@@ -18,7 +18,6 @@
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
   import { releaseNativeObject } from 'tns-core-modules/utils/utils';
-  import { topmost } from 'tns-core-modules/ui/frame';
   
   @Component({
     name: 'first',
