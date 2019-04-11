@@ -10,11 +10,13 @@
     <ActionBar :title="navbarTitle">
       <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$router.back()"/>
     </ActionBar>
-    <GridLayout>
+    <!-- <GridLayout>
       <Label text="This is the first page" textWrap="true" horizontalAlignment="center" verticalAlignment="center"/>
-    </GridLayout>
+    </GridLayout> -->
+    <Frame>
       <!-- <component v-bind:is="'one'" /> -->
-      <!-- <Dynamo /> -->
+      <!-- <DynamoFirstVueRouter /> -->
+    </Frame>
   </Page>
 
 
@@ -22,31 +24,38 @@
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
   // import { releaseNativeObject } from 'tns-core-modules/utils/utils';
-  // import { routes } from '../router';
+  // import router, { routes } from '../router';
   // import Dynamo from '../../../';
+  // import store from '../store';
+  // import DynamoOne from './Dynamo-One.vue'
 
-  import DynamoOne from './Dynamo-One.vue'
+
+      // Vue.prototype['$' + this.moduleName] = Dynamo.componentRouter( store, router, routes, 'FirstVueRouter' );
+      // Vue.use( Dynamo, { appMode: store.state.appMode, moduleName: 'FirstVueRouter' } );
 
   @Component({
     name: 'first',
-    components: {
-      one: DynamoOne
-    }
+    // components: {
+    //   dynamoFirstVueRouter: Dynamo
+    // }
   })
   export default class First extends Vue {
     private navbarTitle: string = `First.vue`;
-    public moduleName: string = 'firstVueRouter';
+    public moduleName: string = 'FirstVueRouter';
 
-    // public created() {
-    //   const moduleName = 'firstVueRouter';
-    //   Vue.prototype['$' + moduleName] = Dynamo.componentRouter( this.$store, this.$router, routes, moduleName );
-    //   Vue.use( Dynamo, { appMode: this.$store.state.appMode, moduleName } );
-    // }
+    public created() {
+      // const moduleName = 'firstVueRouter';
+      // Vue.prototype['$' + this.moduleName] = Dynamo.componentRouter( this.$store, this.$router, routes, this.moduleName );
+      // Vue.use( Dynamo, { appMode: this.$store.state.appMode, moduleName: this.moduleName } );
+      //  Vue.use( Dynamo, { appMode: store.state.appMode, store, router, routes, moduleName: 'FirstVueRouter' } );
+
+    }
 
     public mounted(){
       try {
-        // const hello = Dynamo.componentRouter( this.$store, this.$router, routes, this.moduleName );
+        // const dfd = Dynamo.componentRouter( this.$store, this.$router, routes, this.moduleName );
         // Vue.use( Dynamo, { appMode: this.$store.state.appMode, moduleName: this.moduleName } );
+
       } catch(err) {
         throw err;
       }

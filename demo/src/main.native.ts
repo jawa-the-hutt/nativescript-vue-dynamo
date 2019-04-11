@@ -5,8 +5,23 @@ import router, { routes } from './router';
 
 import Dynamo from '../../';
 const moduleName = 'componentRouter';
-Vue.prototype['$' + moduleName] = Dynamo.componentRouter( store, router, routes, moduleName );
-Vue.use( Dynamo, { appMode: store.state.appMode, moduleName } );
+Vue.prototype['$componentRouter'] = Dynamo.componentRouter( store, router, routes, 'componentRouter' );
+Vue.use( Dynamo, { 
+  appMode: store.state.appMode, 
+  // store,
+  // router,
+  // routes,
+  moduleName 
+});
+
+Vue.prototype['$FirstRouter'] = Dynamo.componentRouter( store, router, routes, 'FirstRouter' );
+Vue.use( Dynamo, { 
+  appMode: store.state.appMode, 
+  // store,
+  // router,
+  // routes,
+  moduleName 
+});
 
 // Set the following to `true` to hide the logs created by nativescript-vue
 Vue.config.silent = false;

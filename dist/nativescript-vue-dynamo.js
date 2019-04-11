@@ -46,7 +46,6 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                         if (state.routeHistory.length > 0) {
                             const path = state.routeHistory[state.routeHistory.length - 1].path;
                             const filter = routes.filter((route) => Object.keys(route).some((key) => route[key] && route[key] === path));
-                            console.log(moduleName + ' - getCurrentRoute - filter[0].component - ', filter[0].component);
                             return filter[0].component;
                         }
                         else {
@@ -110,32 +109,26 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
         throw err;
     }
 };function install(Vue, options) {
-    if (install.installed) {
-        console.log('not installed');
-        return;
-    }
-    else {
-        console.log('not installed yet');
-        install.installed = true;
-        Vue.component("Dynamo", {
-            template: options.appMode === undefined
-                ? `<component v-bind:is="computedCurrentRoute" />`
-                : options.appMode === "web"
-                    ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
-                    : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
-            data() {
-                return {};
-            },
-            computed: {
-                computedCurrentRoute() {
-                    return this.$store.getters[options.moduleName + "/getCurrentRoute"];
-                }
+    install.installed = true;
+    Vue.component("Dynamo-" + options.moduleName, {
+        template: options.appMode === undefined
+            ? `<component v-bind:is="computedCurrentRoute" />`
+            : options.appMode === "web"
+                ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
+                : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
+        data() {
+            return {};
+        },
+        computed: {
+            computedCurrentRoute() {
+                return this.$store.getters[options.moduleName + "/getCurrentRoute"];
             }
-        });
-    }
+        },
+    });
 }
 class Dynamo {
     static componentRouter(store, router, routes, moduleName) {
+        console.log('moduleName - ', moduleName);
         return componentRouter(store, router, routes, moduleName);
     }
     ;

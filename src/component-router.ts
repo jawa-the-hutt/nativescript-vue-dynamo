@@ -2,7 +2,7 @@ import Router, { Route, RouteConfig } from 'vue-router';
 import Vuex, { Store } from 'vuex';
 
 const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[], moduleName: string) => {
-  console.log('starting componentRouter');
+  console.log('starting componentRouter function');
   // const moduleName: string ='componentRouter';
 
   try {
@@ -62,7 +62,7 @@ const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[
             if (state.routeHistory.length > 0 ) {
               const path = state.routeHistory[state.routeHistory.length - 1].path;
               const filter = routes.filter( (route: RouteConfig) => Object.keys(route).some((key: string) => route[key] && route[key] === path ));
-              console.log(moduleName + ' - getCurrentRoute - filter[0].component - ', filter[0].component)
+              // console.log(moduleName + ' - getCurrentRoute - filter[0].component - ', filter[0].component)
               return filter[0].component; 
             } else {
               return undefined;

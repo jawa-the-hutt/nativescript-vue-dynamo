@@ -5,13 +5,13 @@ import componentRouter from "./component-router";
 
 export function install(Vue: VueConstructor, options: any) {
 
-  if(install.installed) {
-    console.log('not installed')
-    return;
-  } else {
-    console.log('not installed yet')
+  // if(install.installed) {
+  //   console.log('not installed')
+  //   return;
+  // } else {
+  //   console.log('not installed yet - options.moduleName - ', options.moduleName)
     install.installed = true;
-    Vue.component("Dynamo", {
+    Vue.component("Dynamo-"+options.moduleName, {
       template:
         options.appMode === undefined
           ? `<component v-bind:is="computedCurrentRoute" />`
@@ -26,19 +26,26 @@ export function install(Vue: VueConstructor, options: any) {
           // @ts-ignore
           return this.$store.getters[options.moduleName + "/getCurrentRoute"];
         }
-      }
+      },
+      // mounted(){
+      //   Vue.prototype['$' + options.moduleName] = componentRouter(options.store, options.router, options.routes, options.moduleName);
+      // }
     });
-  }
+  // }
 
   // Vue.mixin({
   //   beforeCreate() {
+      
   //   },
   // });
 };
 
+
+
 class Dynamo {
   static install: PluginFunction<never>;
   static componentRouter(store: Store<any>, router: Router, routes: RouteConfig[], moduleName: string): PluginFunction<any> {
+    console.log('moduleName - ', moduleName)
     return componentRouter( store, router, routes, moduleName );
   };
 }

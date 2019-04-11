@@ -7,7 +7,7 @@
   </div>
 </template>
 <template native>
-  <Dynamo />
+  <Dynamo-componentRouter />
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
