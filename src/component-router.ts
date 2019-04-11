@@ -74,6 +74,10 @@ const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[
         }
       })
 
+      // return () => {
+      //   return;
+      // };
+
       let isTimeTraveling: boolean = false
       let currentPath: string = ``;
 
@@ -111,7 +115,7 @@ const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[
           currentPath = to.fullPath
 
           //console.log('dynamo - afterEach - store - ', store);
-          store.dispatch(moduleName + '/updateRouteHistory', { to, from });
+          store.dispatch(to.params.moduleName + '/updateRouteHistory', { to, from });
         } catch (err) {
           console.log('err - ', err);
         }

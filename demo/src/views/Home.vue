@@ -18,8 +18,8 @@
   <Page ref="page">
     <ActionBar :title="navbarTitle"/>
     <GridLayout rows="auto, auto, auto">
-      <Button text="First" @tap="$router.push('first')" row="0" />
-      <Button text="Second" @tap="$router.push('second')" row="1" />
+      <Button text="First" @tap="$router.push({ name: 'first', params: { moduleName: 'ComponentRouter'}})" row="0" />
+      <Button text="Second" @tap="$router.push({ name: 'second', params: { moduleName: 'ComponentRouter'}})" row="1" />
       <Button text="Logout" @tap="shared.$logout" row="2" />
     </GridLayout>
   </Page>

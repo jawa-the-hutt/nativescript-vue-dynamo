@@ -6,9 +6,9 @@
   </div>
 </template>
 <template native>
-  <Page actionBarHidden="true">
+  <Page actionBarHidden="true" ref="page">
     <GridLayout rows="auto">
-      <Button text="Dynamo One" @tap="$router.push('dynamo-one')" row="0" />
+      <Button text="Dynamo One" @tap="$router.push({ name: 'dynamo-one', params: { moduleName: 'FirstRouter'}})" row="0" />
     </GridLayout>
   </Page>
 </template>
@@ -28,20 +28,20 @@
 
     public beforeDestroy() {
       try {
-        console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
-        // @ts-ignore
-        // use buit in NS function to destroy the native component
-        releaseNativeObject(this.$refs.page.nativeView.nativeViewProtected);
-        console.log("RELEASED!");
-        console.log("beforeDestroy - this.$refs.page 2 - " + this.$refs.page);
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView 2 - " + this.$refs.page.nativeView.toString());
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 2 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        // console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        // // @ts-ignore
+        // // use buit in NS function to destroy the native component
+        // releaseNativeObject(this.$refs.page.nativeView.nativeViewProtected);
+        // console.log("RELEASED!");
+        // console.log("beforeDestroy - this.$refs.page 2 - " + this.$refs.page);
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView 2 - " + this.$refs.page.nativeView.toString());
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 2 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
       } catch (err) {
         console.log(err);
       }
@@ -49,11 +49,11 @@
 
     public destroyed() {
       try {
-        console.log("destroyed - this.$refs.page 1 - " + this.$refs.page);
-        // @ts-ignore
-        console.log("destroyed - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
-        // @ts-ignore
-        console.log("destroyed - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        // console.log("destroyed - this.$refs.page 1 - " + this.$refs.page);
+        // // @ts-ignore
+        // console.log("destroyed - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // // @ts-ignore
+        // console.log("destroyed - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
       } catch (err) {
         console.log(err);
       }

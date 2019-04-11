@@ -9,28 +9,29 @@ export function install(Vue: VueConstructor, options: any) {
   //   console.log('not installed')
   //   return;
   // } else {
-  //   console.log('not installed yet - options.moduleName - ', options.moduleName)
-    install.installed = true;
-    Vue.component("Dynamo-"+options.moduleName, {
-      template:
-        options.appMode === undefined
-          ? `<component v-bind:is="computedCurrentRoute" />`
-          : options.appMode === "web"
-          ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
-          : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
-      data() {
-        return {};
-      },
-      computed: {
-        computedCurrentRoute() {
-          // @ts-ignore
-          return this.$store.getters[options.moduleName + "/getCurrentRoute"];
-        }
-      },
-      // mounted(){
-      //   Vue.prototype['$' + options.moduleName] = componentRouter(options.store, options.router, options.routes, options.moduleName);
-      // }
-    });
+    for(const moduleName of options.moduleName) {
+      console.log('not installed yet - moduleName - ', moduleName)
+      //  install.installed = true;
+      Vue.component("Dynamo" + moduleName, {
+        template:
+          options.appMode === undefined
+            ? `<component v-bind:is="computedCurrentRoute" />`
+            : options.appMode === "web"
+            ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
+            : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
+        data() {
+          return {};
+        },
+        computed: {
+          computedCurrentRoute() {
+            // @ts-ignore
+            return this.$store.getters[moduleName + "/getCurrentRoute"];
+          }
+        },
+      });
+
+      Vue.prototype['$' + moduleName] = componentRouter(options.store, options.router, options.routes, moduleName);
+    }
   // }
 
   // Vue.mixin({
@@ -40,6 +41,65 @@ export function install(Vue: VueConstructor, options: any) {
   // });
 };
 
+
+// let isTimeTraveling: boolean = false
+// let currentPath: string = ``;
+
+// // sync router on store change
+// const unWatch = store.watch(
+//   state => state.routeHistory,
+//   routeHistory => {
+//     console.log('dyname - starting store.watch')
+//     const route  = routeHistory[routeHistory.length - 1];
+//     const { fullPath } = route
+//     if (fullPath === currentPath) {
+//       console.log('fullPath === currentPath');
+//       return
+//     }
+//     if (currentPath != null) {
+//       console.log('currentPath != null');
+//       isTimeTraveling = true
+//       router.push(route)
+//     }
+//     currentPath = fullPath
+//   },
+//   // { sync: true }
+// )
+
+// // sync store on router navigation
+// const removeRouteHook = router.afterEach((to: Route, from: Route) => {
+//   console.log('starting afterEachUnHook');
+//   try {
+//     if (isTimeTraveling) {
+//       console.log('we are timeTraveling so do nothing');
+//       isTimeTraveling = false
+//       return
+//     }
+
+//     currentPath = to.fullPath
+
+//     //console.log('dynamo - afterEach - store - ', store);
+//     store.dispatch(moduleName + '/updateRouteHistory', { to, from });
+//   } catch (err) {
+//     console.log('err - ', err);
+//   }
+// })
+
+// return () => {
+//   console.log(moduleName + ' - calling remove function for moduleName : ', moduleName);
+//   // On unsync, remove router hook
+//   if (removeRouteHook != null) {
+//     removeRouteHook();
+//   }
+
+//   // On unsync, remove store watch
+//   if (unWatch != null) {
+//     unWatch();
+//   }
+
+//   // On unsync, unregister Module with store
+//   store.unregisterModule(moduleName);
+// }
 
 
 class Dynamo {

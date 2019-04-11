@@ -5,7 +5,7 @@ Vue.use(Router);
 
 export const routes: RouteConfig[] = [
   // otherwise redirect to home
-  // { path: '*', redirect: '/' },
+  { path: '*', redirect: '/' },
   {
     name: 'home',
     path: '/home',
@@ -74,6 +74,21 @@ export const routes: RouteConfig[] = [
   },
 ];
 
+
+
 const router = new Router({routes})
+
+// router.beforeEach((to, from, next) => {
+//   console.log('global router.beforeEach')
+//   console.log('to - ', to)
+//   console.log('from - ', from)
+//   next();
+// })
+
+// router.afterEach((to, from) => {
+//   console.log('global router.afterEach')
+//   console.log('to - ', to)
+//   console.log('from - ', from)
+// })
 
 export default router;

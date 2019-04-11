@@ -7,15 +7,27 @@
   </div>
 </template>
 <template native>
-  <Dynamo-componentRouter />
+  <DynamoComponentRouter />
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-
+  import '~/utils/class-component-hooks';
+  // import Dynamo from '../../';
+  // import { routes } from './router';
 
   @Component
   export default class App extends Vue {
 
+    // mounted() {
+    //   Vue.prototype['$ComponentRouter'] = Dynamo.componentRouter( this.$store, this.$router, routes, 'ComponentRouter' );
+    //   Vue.use( Dynamo, { 
+    //     appMode: this.$store.state.appMode, 
+    //     // store,
+    //     // router,
+    //     // routes,
+    //     moduleName: 'ComponentRouter' 
+    //   });
+    // }
   }
 
 </script>

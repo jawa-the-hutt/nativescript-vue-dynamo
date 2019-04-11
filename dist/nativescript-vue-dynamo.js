@@ -1,5 +1,5 @@
 var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter = (store, router, routes, moduleName) => {
-    console.log('starting componentRouter');
+    console.log('starting componentRouter function');
     try {
         moduleName = moduleName !== undefined ? moduleName : 'componentRouter';
         console.log('moduleName - ', moduleName);
@@ -83,7 +83,7 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                         return;
                     }
                     currentPath = to.fullPath;
-                    store.dispatch(moduleName + '/updateRouteHistory', { to, from });
+                    store.dispatch(to.params.moduleName + '/updateRouteHistory', { to, from });
                 }
                 catch (err) {
                     console.log('err - ', err);
@@ -109,22 +109,25 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
         throw err;
     }
 };function install(Vue, options) {
-    install.installed = true;
-    Vue.component("Dynamo-" + options.moduleName, {
-        template: options.appMode === undefined
-            ? `<component v-bind:is="computedCurrentRoute" />`
-            : options.appMode === "web"
-                ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
-                : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
-        data() {
-            return {};
-        },
-        computed: {
-            computedCurrentRoute() {
-                return this.$store.getters[options.moduleName + "/getCurrentRoute"];
-            }
-        },
-    });
+    for (const moduleName of options.moduleName) {
+        console.log('not installed yet - moduleName - ', moduleName);
+        Vue.component("Dynamo" + moduleName, {
+            template: options.appMode === undefined
+                ? `<component v-bind:is="computedCurrentRoute" />`
+                : options.appMode === "web"
+                    ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
+                    : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
+            data() {
+                return {};
+            },
+            computed: {
+                computedCurrentRoute() {
+                    return this.$store.getters[moduleName + "/getCurrentRoute"];
+                }
+            },
+        });
+        Vue.prototype['$' + moduleName] = componentRouter(options.store, options.router, options.routes, moduleName);
+    }
 }
 class Dynamo {
     static componentRouter(store, router, routes, moduleName) {
