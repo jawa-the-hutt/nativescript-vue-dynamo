@@ -29,37 +29,42 @@
     private msWait: number = 50;
     private totalMSWait: number = 0;
 
+    public created() {
+      // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
+      (this as any).$CanGoBack('ComponentRouter');
+    }
+
     public mounted(){
-      // @ts-ignore
-      console.log("Second.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView.toString());
-      // @ts-ignore
-      this.originalPageId =  this.$refs.page.nativeView.toString();
+      // // @ts-ignore
+      // console.log("Second.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView.toString());
+      // // @ts-ignore
+      // this.originalPageId =  this.$refs.page.nativeView.toString();
     }
 
     public check() {
       try {
-        if (topmost().currentPage === undefined  && this.checkCount <= this.maxChecks) {
-          console.log('Second.vue - Page is UNDEFINED');
-          // @ts-ignore
-          clearInterval(this.timerEnd);
-          return;
-        } else if (topmost().currentPage !== undefined && topmost().currentPage.toString() !== this.originalPageId) {
-          console.log(`Second.vue - the current Page no longer equals the original Page so the original page has been garbage collected`);
-          // @ts-ignore
-          clearInterval(this.timerEnd);
-          return;
-        } else if (topmost().currentPage !== undefined && this.checkCount > this.maxChecks) {
-          console.log(`Second.vue - checkCount hit maxChecks = ${this.maxChecks}, but the Page is still there so we will exit`);
-          // @ts-ignore
-          clearInterval(this.timerEnd);
-          return;       
-        } else {
-          this.totalMSWait += this.msWait;
-          console.log(`Second.vue - ${topmost().currentPage.toString()} is still there after ${this.checkCount} checks and ${this.totalMSWait} milliseconds`);
-          // console.log(`we have checked ${this.checkCount} times`);
-          this.checkCount++;
-          return;
-        }
+        // if (topmost().currentPage === undefined  && this.checkCount <= this.maxChecks) {
+        //   console.log('Second.vue - Page is UNDEFINED');
+        //   // @ts-ignore
+        //   clearInterval(this.timerEnd);
+        //   return;
+        // } else if (topmost().currentPage !== undefined && topmost().currentPage.toString() !== this.originalPageId) {
+        //   console.log(`Second.vue - the current Page no longer equals the original Page so the original page has been garbage collected`);
+        //   // @ts-ignore
+        //   clearInterval(this.timerEnd);
+        //   return;
+        // } else if (topmost().currentPage !== undefined && this.checkCount > this.maxChecks) {
+        //   console.log(`Second.vue - checkCount hit maxChecks = ${this.maxChecks}, but the Page is still there so we will exit`);
+        //   // @ts-ignore
+        //   clearInterval(this.timerEnd);
+        //   return;       
+        // } else {
+        //   this.totalMSWait += this.msWait;
+        //   console.log(`Second.vue - ${topmost().currentPage.toString()} is still there after ${this.checkCount} checks and ${this.totalMSWait} milliseconds`);
+        //   // console.log(`we have checked ${this.checkCount} times`);
+        //   this.checkCount++;
+        //   return;
+        // }
 
       } catch (err) {
         console.log(err);
@@ -72,12 +77,12 @@
 
     public beforeDestroy() {
       try {
-        console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
-        console.log("beforeDestroy - topmost().currentPage 1 - " + topmost().currentPage.toString());
+        // console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        // console.log("beforeDestroy - topmost().currentPage 1 - " + topmost().currentPage.toString());
 
       } catch (err) {
         console.log(err);
@@ -86,11 +91,11 @@
 
     public destroyed() {
       try {
-        console.log("destroyed - this.$refs.page 1 - " + this.$refs.page.toString());
-        console.log("destroyed - topmost().currentPage 1 - " + topmost().currentPage.toString());
+        // console.log("destroyed - this.$refs.page 1 - " + this.$refs.page.toString());
+        // console.log("destroyed - topmost().currentPage 1 - " + topmost().currentPage.toString());
 
-        // check to see when the currentPage is garbage collected
-        this.timer();
+        // // check to see when the currentPage is garbage collected
+        // this.timer();
       } catch (err) {
         console.log(err);
       }

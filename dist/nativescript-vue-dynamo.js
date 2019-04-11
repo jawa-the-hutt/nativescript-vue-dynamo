@@ -1,11 +1,7 @@
 var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter = (store, router, routes, moduleName) => {
-    console.log('starting componentRouter function');
     try {
         moduleName = moduleName !== undefined ? moduleName : 'componentRouter';
-        console.log('moduleName - ', moduleName);
-        console.log(moduleName + ' - !store.state[moduleName] - ', store.state[moduleName]);
         if (!store.state[moduleName]) {
-            console.log(moduleName + ' - module does not exist in the store');
             store.registerModule(moduleName, {
                 namespaced: true,
                 state: {
@@ -13,43 +9,50 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                 },
                 mutations: {
                     updateRouteHistory(state, routeHistory) {
-                        console.log(moduleName + ' - starting dynamo - mutations - updateRouteHistory');
                         state.routeHistory = routeHistory;
                     }
                 },
                 actions: {
                     updateRouteHistory({ state, commit }, payload) {
-                        console.log(moduleName + ' - starting dynamo - actions - updateRouteHistory');
                         let newRouteHistory;
+                        const to = payload.to;
+                        console.log('to - ', to);
+                        if (payload.to.meta && payload.to.params && payload.to.params.moduleName) {
+                            to.meta.moduleName = payload.to.params.moduleName;
+                        }
                         if (!payload.to.params.clearHistory) {
                             if (state) {
                                 newRouteHistory = [...state.routeHistory];
                             }
-                            if (newRouteHistory.length > 1 && payload.to.fullPath === newRouteHistory[newRouteHistory.length - 2].fullPath) {
+                            if (newRouteHistory.length > 1 && to.fullPath === newRouteHistory[newRouteHistory.length - 2].fullPath) {
                                 newRouteHistory.pop();
                             }
-                            else if (newRouteHistory.length > 0 && payload.to.fullPath === newRouteHistory[newRouteHistory.length - 1].fullPath) ;
+                            else if (newRouteHistory.length > 0 && to.fullPath === newRouteHistory[newRouteHistory.length - 1].fullPath) {
+                                console.log('why are we navigating to the same place: ', to.fullPath);
+                            }
                             else {
-                                newRouteHistory.push(payload.to);
+                                newRouteHistory.push(to);
                             }
                         }
                         else {
                             newRouteHistory = [];
-                            newRouteHistory.push(payload.to);
+                            newRouteHistory.push(to);
                         }
                         commit('updateRouteHistory', newRouteHistory);
                     }
                 },
                 getters: {
                     getCurrentRoute: state => {
-                        console.log(moduleName + ' - starting getCurrentRoute');
-                        if (state.routeHistory.length > 0) {
-                            const path = state.routeHistory[state.routeHistory.length - 1].path;
-                            const filter = routes.filter((route) => Object.keys(route).some((key) => route[key] && route[key] === path));
-                            return filter[0].component;
+                        try {
+                            if (state.routeHistory.length > 0) {
+                                return getMatchingRouteRecord(state.routeHistory)[0].components;
+                            }
+                            else {
+                                return undefined;
+                            }
                         }
-                        else {
-                            return undefined;
+                        catch (err) {
+                            console.log(err);
                         }
                     },
                     getRouteHistory: state => {
@@ -60,24 +63,21 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
             let isTimeTraveling = false;
             let currentPath = ``;
             const unWatch = store.watch(state => state.routeHistory, routeHistory => {
-                console.log('dyname - starting store.watch');
                 const route = routeHistory[routeHistory.length - 1];
                 const { fullPath } = route;
                 if (fullPath === currentPath) {
-                    console.log('fullPath === currentPath');
                     return;
                 }
                 if (currentPath != null) {
-                    console.log('currentPath != null');
                     isTimeTraveling = true;
                     router.push(route);
                 }
                 currentPath = fullPath;
             });
             const removeRouteHook = router.afterEach((to, from) => {
-                console.log('starting afterEachUnHook');
                 try {
-                    if (isTimeTraveling) {
+                    const routeHistory = store.getters[to.params.moduleName + '/getRouteHistory'];
+                    if (isTimeTraveling || (routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath)) {
                         console.log('we are timeTraveling so do nothing');
                         isTimeTraveling = false;
                         return;
@@ -108,38 +108,46 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
     catch (err) {
         throw err;
     }
+};
+const getMatchingRouteRecord = (routeHistory) => {
+    const matched = routeHistory[routeHistory.length - 1].matched;
+    const path = routeHistory[routeHistory.length - 1].path;
+    return matched.filter((record) => Object.keys(record).some((key) => record[key] && record[key] === path));
 };function install(Vue, options) {
-    for (const moduleName of options.moduleName) {
-        console.log('not installed yet - moduleName - ', moduleName);
-        Vue.component("Dynamo" + moduleName, {
-            template: options.appMode === undefined
-                ? `<component v-bind:is="computedCurrentRoute" />`
-                : options.appMode === "web"
-                    ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
-                    : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
-            data() {
-                return {};
-            },
-            computed: {
-                computedCurrentRoute() {
-                    return this.$store.getters[moduleName + "/getCurrentRoute"];
-                }
-            },
-        });
-        Vue.prototype['$' + moduleName] = componentRouter(options.store, options.router, options.routes, moduleName);
+    if (install.installed) {
+        console.log('not installed');
+        return;
+    }
+    else {
+        for (const moduleName of options.moduleName) {
+            console.log('not installed yet - moduleName - ', moduleName);
+            install.installed = true;
+            Vue.component("Dynamo" + moduleName, {
+                template: options.appMode === undefined
+                    ? `<component v-bind:is="computedCurrentRoute" />`
+                    : options.appMode === "web"
+                        ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
+                        : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
+                data() {
+                    return {};
+                },
+                computed: {
+                    computedCurrentRoute() {
+                        if (this.$store.getters[moduleName + "/getRouteHistory"].length > 0) {
+                            return this.$store.getters[moduleName + "/getCurrentRoute"].default;
+                        }
+                    }
+                },
+            });
+            Vue.prototype['$' + moduleName] = componentRouter(options.store, options.router, options.routes, moduleName);
+        }
     }
 }
 class Dynamo {
-    static componentRouter(store, router, routes, moduleName) {
-        console.log('moduleName - ', moduleName);
-        return componentRouter(store, router, routes, moduleName);
-    }
-    ;
 }
 (function (install) {
 })(install || (install = {}));
 Dynamo.install = install;
-Dynamo.componentRouter = componentRouter;
 let GlobalVue;
 if (typeof window !== "undefined" && typeof window.Vue !== 'undefined') {
     GlobalVue = window.Vue;

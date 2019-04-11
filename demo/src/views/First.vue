@@ -8,13 +8,9 @@
 <template native>
   <Page ref="page">
     <ActionBar :title="navbarTitle">
-      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$router.back()"/>
+      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$router.push({ name: routeHistory[routeHistory.length - 2].name, params: {  moduleName: 'ComponentRouter' }})"/>
     </ActionBar>
-    <!-- <GridLayout>
-      <Label text="This is the first page" textWrap="true" horizontalAlignment="center" verticalAlignment="center"/>
-    </GridLayout> -->
     <Frame>
-      <!-- <component v-bind:is="'one'" /> -->
       <DynamoFirstRouter />
     </Frame>
   </Page>
@@ -23,42 +19,45 @@
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  import { releaseNativeObject } from 'tns-core-modules/utils/utils';
+  // import { releaseNativeObject } from 'tns-core-modules/utils/utils';
 
   @Component({
     name: 'first',
   })
   export default class First extends Vue {
     private navbarTitle: string = `First.vue`;
+    private routeHistory: any = this.$store.getters['ComponentRouter' + '/getRouteHistory'];
 
     public beforeCreate() {
       this.$router.push({ name: 'dynamo-one', params: { moduleName: 'FirstRouter'}})
     }
 
-
-    public mounted(){
-      // @ts-ignore
-      console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+    public created() {
+      // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
+      (this as any).$CanGoBack('ComponentRouter');
     }
+
+    // public mounted(){
+    //   // @ts-ignore
+    //   console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+    // }
 
     public beforeDestroy() {
       try {
-        Vue.prototype['$FirstRouter']();
-
-        console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
-        // @ts-ignore
-        // use buit in NS function to destroy the native component
-        releaseNativeObject(this.$refs.page.nativeView.nativeViewProtected);
-        console.log("RELEASED!");
-        console.log("beforeDestroy - this.$refs.page 2 - " + this.$refs.page);
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView 2 - " + this.$refs.page.nativeView.toString());
-        // @ts-ignore
-        console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 2 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        // console.log("beforeDestroy - this.$refs.page 1 - " + this.$refs.page);
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        // // @ts-ignore
+        // // use buit in NS function to destroy the native component
+        // releaseNativeObject(this.$refs.page.nativeView.nativeViewProtected);
+        // console.log("RELEASED!");
+        // console.log("beforeDestroy - this.$refs.page 2 - " + this.$refs.page);
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView 2 - " + this.$refs.page.nativeView.toString());
+        // // @ts-ignore
+        // console.log("beforeDestroy - this.$refs.page.nativeView.nativeViewProtected 2 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
       } catch (err) {
         console.log(err);
       }
@@ -66,11 +65,11 @@
 
     public destroyed() {
       try {
-        console.log("destroyed - this.$refs.page 1 - " + this.$refs.page);
-        // @ts-ignore
-        console.log("destroyed - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
-        // @ts-ignore
-        console.log("destroyed - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
+        // console.log("destroyed - this.$refs.page 1 - " + this.$refs.page);
+        // // @ts-ignore
+        // console.log("destroyed - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // // @ts-ignore
+        // console.log("destroyed - this.$refs.page.nativeView.nativeViewProtected 1 - " + this.$refs.page.nativeView.nativeViewProtected.toString());
       } catch (err) {
         console.log(err);
       }

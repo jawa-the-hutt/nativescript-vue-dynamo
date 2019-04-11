@@ -6,10 +6,10 @@
       </ul>
     </nav>
     <div class="w-container">
-      <router-link id="firstButton" tag="button" class="w-button" to="first">First</router-link>
-      <router-link id="secondButton" tag="button" class="w-button" to="second">Second</router-link>
+      <router-link id="firstButton" tag="button" class="w-button" to="{ name: first, params: { moduleName: 'ComponentRouter'}}">First</router-link>
+      <router-link id="secondButton" tag="button" class="w-button" to="{ name: second, params: { moduleName: 'ComponentRouter'}}">Second</router-link>
       <!-- alternate way to route manually and use the same method as native -->
-      <button id="logoutButton" class="w-button" @click="shared.$logout">Logout</button>
+      <button id="logoutButton" class="w-button" @click="shared.$logout('ComponentRouter')">Logout</button>
       <router-view />
     </div>
   </div>
@@ -20,7 +20,7 @@
     <GridLayout rows="auto, auto, auto">
       <Button text="First" @tap="$router.push({ name: 'first', params: { moduleName: 'ComponentRouter'}})" row="0" />
       <Button text="Second" @tap="$router.push({ name: 'second', params: { moduleName: 'ComponentRouter'}})" row="1" />
-      <Button text="Logout" @tap="shared.$logout" row="2" />
+      <Button text="Logout" @tap="shared.$logout('ComponentRouter')" row="2" />
     </GridLayout>
   </Page>
 </template>
@@ -33,24 +33,29 @@
   export default class Home extends Vue {
     private navbarTitle: string = `Home.vue`;
 
-    public mounted(){
-      // @ts-ignore
-      console.log("Home.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView);
-      // @ts-ignore
-      this.$store.dispatch('updateOriginalHomePageId',  this.$refs.page.nativeView.toString() );
-      console.log("Home.vue - mounted - original Home.vue Page Id - " + this.originalHomePageId);
-
-      // @ts-ignore
-      if (this.$refs.page.nativeView.toString() === this.originalHomePageId ) {
-        console.log("Home.vue - mounted - original Home.vue Page Id is the same as the current Home.vue Page");
-      } else {
-        console.log("Home.vue - mounted - original Home.vue Page Id is NOT the same as the current Home.vue Page Id");
-      }
+    public created() {
+      // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
+      (this as any).$CanGoBack('ComponentRouter');
     }
 
-    public get originalHomePageId () {
-      return this.$store.getters.getOriginalHomePageId;
-    }
+    // public mounted(){
+    //   // @ts-ignore
+    //   console.log("Home.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView);
+    //   // @ts-ignore
+    //   this.$store.dispatch('updateOriginalHomePageId',  this.$refs.page.nativeView.toString() );
+    //   console.log("Home.vue - mounted - original Home.vue Page Id - " + this.originalHomePageId);
+
+    //   // @ts-ignore
+    //   if (this.$refs.page.nativeView.toString() === this.originalHomePageId ) {
+    //     console.log("Home.vue - mounted - original Home.vue Page Id is the same as the current Home.vue Page");
+    //   } else {
+    //     console.log("Home.vue - mounted - original Home.vue Page Id is NOT the same as the current Home.vue Page Id");
+    //   }
+    // }
+
+    // public get originalHomePageId () {
+    //   return this.$store.getters.getOriginalHomePageId;
+    // }
   }
 
 </script>

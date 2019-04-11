@@ -1,7 +1,7 @@
 <template web>
   <div class="w-page">
     <div class="w-container">
-      <router-link id="dynamoTwoButton" tag="button" class="w-button" to="dynamo-two">Dynamo Two</router-link>
+      <router-link id="dynamoTwoButton" tag="button" class="w-button" to="{ name: dynamo-two, params: { moduleName: 'FirstRouter'}}">Dynamo Two</router-link>
     </div>
   </div>
 </template>
@@ -14,16 +14,21 @@
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  import { releaseNativeObject } from 'tns-core-modules/utils/utils';
+  // import { releaseNativeObject } from 'tns-core-modules/utils/utils';
 
   @Component({
     name: 'dynamo-one',
   })
   export default class DynamoOne extends Vue {
 
+    public created() {
+      // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
+      (this as any).$CanGoBack('FirstRouter');
+    }
+
     public mounted(){
-      // @ts-ignore
-      console.log("DynamoOne.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+      // // @ts-ignore
+      // console.log("DynamoOne.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
     }
 
     public beforeDestroy() {

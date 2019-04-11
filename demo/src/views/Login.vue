@@ -1,7 +1,7 @@
 <template web>
   <div class="w-page">
     <div class="w-container">
-      <router-link id="loginButton" tag="button" class="w-button" to="home">Login</router-link>
+      <router-link id="loginButton" tag="button" class="w-button" to="{ name: login, params: { moduleName: 'ComponentRouter'}}">Login</router-link>
       <!-- <button id="loginButton" class="w-button" @click="shared.$login">Login</button> -->
     </div>
   </div>
@@ -9,7 +9,7 @@
 <template native>
   <Page actionBarHidden="true">
     <GridLayout rows="auto">
-      <Button text="Login" @tap="shared.$login" row="0"/>
+      <Button text="Login" @tap="shared.$login('ComponentRouter')" row="0"/>
     </GridLayout>
   </Page>
 </template>
@@ -20,7 +20,10 @@
     name: 'login',
   })
   export default class About extends Vue {
-    //
+    public created() {
+      // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
+      (this as any).$CanGoBack('ComponentRouter');
+    }
   }
 
 </script>

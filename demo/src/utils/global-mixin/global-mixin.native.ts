@@ -10,11 +10,11 @@ export default class GlobalMixinNative extends Vue {
   public shared = GlobalMixinShared;
 
   public created() {
-    (this as any).$CanGoBack();
+    // (this as any).$CanGoBack();
   }
 
   // intercept the back-button
-  public async $CanGoBack(moduleName?: string): Promise<void> {
+  public async $CanGoBack(moduleName: string): Promise<void> {
     if (platform.android) {
       const activity = application.android.startActivity || application.android.foregroundActivity;
       activity.onBackPressed = async () => {
@@ -22,9 +22,10 @@ export default class GlobalMixinNative extends Vue {
         if(topmost().canGoBack()) {
           moduleName = moduleName === undefined ? 'componentRouter' : moduleName
           const routeHistory = await this.$store.getters[moduleName + '/getRouteHistory'];
-          console.log(`routeHistory.length - `, routeHistory.length)
+          // console.log(`routeHistory - `, routeHistory)
           if(routeHistory.length > 1 ) {
-            router.back();
+            // going back to where we came from
+            router.push({ name: routeHistory[routeHistory.length - 2].name, params: { moduleName }})
           }
         }
       };

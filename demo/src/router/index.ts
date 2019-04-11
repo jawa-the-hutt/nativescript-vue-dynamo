@@ -34,6 +34,30 @@ export const routes: RouteConfig[] = [
     // @ts-ignore
     // eslint-disable-next-line
     component: () => import(/* webpackChunkName: "first" */ '~/views/First'),
+    children: [
+      {
+        name: 'dynamo-one',
+        path: 'dynamo-one',
+        // @ts-ignore
+        // eslint-disable-next-line
+        component: () => import(/* webpackChunkName: "dynamo-one" */ '~/views/Dynamo-One'),
+        meta: {
+          title: 'Dynamo One',
+          auth: true,
+        },
+      },
+      {
+        name: 'dynamo-two',
+        path: 'dynamo-two',
+        // @ts-ignore
+        // eslint-disable-next-line
+        component: () => import(/* webpackChunkName: "dynamo-two" */ '~/views/Dynamo-Two'),
+        meta: {
+          title: 'Dynamo Two',
+          auth: true,
+        },
+      },
+    ],
     meta: {
       title: 'First',
       auth: true,
@@ -47,28 +71,6 @@ export const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "second" */ '~/views/Second'),
     meta: {
       title: 'Second',
-      auth: true,
-    },
-  },
-  {
-    name: 'dynamo-one',
-    path: '/dynamo-one',
-    // @ts-ignore
-    // eslint-disable-next-line
-    component: () => import(/* webpackChunkName: "dynamo-one" */ '~/views/Dynamo-One'),
-    meta: {
-      title: 'Dynamo One',
-      auth: true,
-    },
-  },
-  {
-    name: 'dynamo-two',
-    path: '/dynamo-two',
-    // @ts-ignore
-    // eslint-disable-next-line
-    component: () => import(/* webpackChunkName: "dynamo-two" */ '~/views/Dynamo-Two'),
-    meta: {
-      title: 'Dynamo Two',
       auth: true,
     },
   },
