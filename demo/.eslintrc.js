@@ -54,7 +54,7 @@ module.exports = {
 		"max-len": [
 			2,
 			{
-				"code": 160
+				"code": 250
 			}
 		],
 		"prefer-destructuring": [

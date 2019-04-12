@@ -1,33 +1,30 @@
 <template web>
   <div class="w-page">
-    <component
-      :is="computedCurrentRoute"
-    />
-    <router-view />
+    <!-- <component
+      :is="isLoggedIn === true ? 'home' : 'login'"
+    /> -->
+    <DynamoComponentRouter />
+    <!-- <router-view /> -->
+    <!-- <home /> -->
   </div>
 </template>
 <template native>
   <DynamoComponentRouter />
 </template>
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
-  import '~/utils/class-component-hooks';
-  // import Dynamo from '../../';
-  // import { routes } from './router';
+  import { Component, Vue, Prop } from 'vue-property-decorator';
+  // import Home from './views/Home.vue';
+  // import Login from './views/Login.vue';
 
-  @Component
-  export default class App extends Vue {
 
-    // mounted() {
-    //   Vue.prototype['$ComponentRouter'] = Dynamo.componentRouter( this.$store, this.$router, routes, 'ComponentRouter' );
-    //   Vue.use( Dynamo, { 
-    //     appMode: this.$store.state.appMode, 
-    //     // store,
-    //     // router,
-    //     // routes,
-    //     moduleName: 'ComponentRouter' 
-    //   });
+  @Component({
+    // components: {
+    //   'home': Home,
+    //   'login': Login,
     // }
+  })
+  export default class App extends Vue {
+    @Prop({default: false}) public isLoggedIn!: boolean;
   }
 
 </script>

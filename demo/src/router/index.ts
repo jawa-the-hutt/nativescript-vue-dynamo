@@ -4,8 +4,8 @@ import Router, { RouteConfig } from 'vue-router';
 Vue.use(Router);
 
 export const routes: RouteConfig[] = [
-  // otherwise redirect to home
-  { path: '*', redirect: '/' },
+  // otherwise redirect to login
+  { path: '*', redirect: '/login' },
   {
     name: 'home',
     path: '/home',
@@ -31,13 +31,21 @@ export const routes: RouteConfig[] = [
   {
     name: 'first',
     path: '/first',
-    // @ts-ignore
-    // eslint-disable-next-line
-    component: () => import(/* webpackChunkName: "first" */ '~/views/First'),
     children: [
       {
+        name: 'first',
+        path: '/',
+        // @ts-ignore
+        // eslint-disable-next-line
+        component: () => import(/* webpackChunkName: "first" */ '~/views/First'),
+        meta: {
+          title: 'First',
+          auth: true,
+        },
+      },
+      {
         name: 'dynamo-one',
-        path: 'dynamo-one',
+        path: '/dynamo-one',
         // @ts-ignore
         // eslint-disable-next-line
         component: () => import(/* webpackChunkName: "dynamo-one" */ '~/views/Dynamo-One'),
@@ -48,7 +56,7 @@ export const routes: RouteConfig[] = [
       },
       {
         name: 'dynamo-two',
-        path: 'dynamo-two',
+        path: '/dynamo-two',
         // @ts-ignore
         // eslint-disable-next-line
         component: () => import(/* webpackChunkName: "dynamo-two" */ '~/views/Dynamo-Two'),
@@ -58,10 +66,6 @@ export const routes: RouteConfig[] = [
         },
       },
     ],
-    meta: {
-      title: 'First',
-      auth: true,
-    },
   },
   {
     name: 'second',
@@ -83,14 +87,14 @@ const router = new Router({routes})
 // router.beforeEach((to, from, next) => {
 //   console.log('global router.beforeEach')
 //   console.log('to - ', to)
-//   console.log('from - ', from)
+//   // console.log('from - ', from)
 //   next();
 // })
 
 // router.afterEach((to, from) => {
 //   console.log('global router.afterEach')
 //   console.log('to - ', to)
-//   console.log('from - ', from)
+//   // console.log('from - ', from)
 // })
 
 export default router;

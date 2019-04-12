@@ -20,9 +20,12 @@
     name: 'login',
   })
   export default class About extends Vue {
+
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
-      (this as any).$CanGoBack('ComponentRouter');
+      if (this.$store.state.appMode === 'native') {
+        (this as any).$GoBack();
+      }
     }
   }
 

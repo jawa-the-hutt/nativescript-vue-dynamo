@@ -6,8 +6,8 @@
       </ul>
     </nav>
     <div class="w-container">
-      <router-link id="firstButton" tag="button" class="w-button" to="{ name: first, params: { moduleName: 'ComponentRouter'}}">First</router-link>
-      <router-link id="secondButton" tag="button" class="w-button" to="{ name: second, params: { moduleName: 'ComponentRouter'}}">Second</router-link>
+      <!-- <router-link id="firstButton" tag="button" class="w-button" to="{ name: first, params: { moduleName: 'ComponentRouter'}}">First</router-link>
+      <router-link id="secondButton" tag="button" class="w-button" to="{ name: second, params: { moduleName: 'ComponentRouter'}}">Second</router-link> -->
       <!-- alternate way to route manually and use the same method as native -->
       <button id="logoutButton" class="w-button" @click="shared.$logout('ComponentRouter')">Logout</button>
       <router-view />
@@ -35,26 +35,33 @@
 
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
-      (this as any).$CanGoBack('ComponentRouter');
+      if (this.$store.state.appMode === 'native') {
+        (this as any).$GoBack();
+      }
     }
 
     // public mounted(){
-    //   // @ts-ignore
-    //   console.log("Home.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView);
-    //   // @ts-ignore
-    //   this.$store.dispatch('updateOriginalHomePageId',  this.$refs.page.nativeView.toString() );
-    //   console.log("Home.vue - mounted - original Home.vue Page Id - " + this.originalHomePageId);
+    //   if (this.$store.state.appMode === 'native') {
+    //     // // @ts-ignore
+    //     // console.log("Home.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView);
 
-    //   // @ts-ignore
-    //   if (this.$refs.page.nativeView.toString() === this.originalHomePageId ) {
-    //     console.log("Home.vue - mounted - original Home.vue Page Id is the same as the current Home.vue Page");
-    //   } else {
-    //     console.log("Home.vue - mounted - original Home.vue Page Id is NOT the same as the current Home.vue Page Id");
+    //     // // @ts-ignore
+    //     // this.$store.dispatch('updateOriginalHomePageId',  this.$refs.page.nativeView.toString() );
+    //     // console.log("Home.vue - mounted - original Home.vue Page Id - " + this.originalHomePageId);
+
+    //     // // @ts-ignore
+    //     // if (this.$refs.page.nativeView.toString() === this.originalHomePageId ) {
+    //     //   console.log("Home.vue - mounted - original Home.vue Page Id is the same as the current Home.vue Page");
+    //     // } else {
+    //     //   console.log("Home.vue - mounted - original Home.vue Page Id is NOT the same as the current Home.vue Page Id");
+    //     // }
     //   }
     // }
 
     // public get originalHomePageId () {
-    //   return this.$store.getters.getOriginalHomePageId;
+    //   if (this.$store.state.appMode === 'native') {
+    //     return this.$store.getters.getOriginalHomePageId;
+    //   }
     // }
   }
 

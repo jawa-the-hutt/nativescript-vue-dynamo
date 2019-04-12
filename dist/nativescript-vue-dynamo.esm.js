@@ -1,6 +1,6 @@
 const componentRouter = (store, router, routes, moduleName) => {
     try {
-        moduleName = moduleName !== undefined ? moduleName : 'componentRouter';
+        moduleName = moduleName !== undefined ? moduleName : 'ComponentRouter';
         if (!store.state[moduleName]) {
             store.registerModule(moduleName, {
                 namespaced: true,
@@ -16,9 +16,14 @@ const componentRouter = (store, router, routes, moduleName) => {
                     updateRouteHistory({ state, commit }, payload) {
                         let newRouteHistory;
                         const to = payload.to;
-                        console.log('to - ', to);
                         if (payload.to.meta && payload.to.params && payload.to.params.moduleName) {
                             to.meta.moduleName = payload.to.params.moduleName;
+                        }
+                        if (payload.to.meta && payload.to.params && payload.to.params.parentModuleName) {
+                            to.meta.parentModuleName = payload.to.params.parentModuleName;
+                        }
+                        if (payload.to.meta && payload.to.params && payload.to.params.childModuleName) {
+                            to.meta.childModuleName = payload.to.params.childModuleName;
                         }
                         if (!payload.to.params.clearHistory) {
                             if (state) {
@@ -26,23 +31,34 @@ const componentRouter = (store, router, routes, moduleName) => {
                             }
                             if (newRouteHistory.length > 1 && to.fullPath === newRouteHistory[newRouteHistory.length - 2].fullPath) {
                                 newRouteHistory.pop();
+                                commit('updateRouteHistory', newRouteHistory);
                             }
                             else if (newRouteHistory.length > 0 && to.fullPath === newRouteHistory[newRouteHistory.length - 1].fullPath) {
-                                console.log('why are we navigating to the same place: ', to.fullPath);
+                                if (to.meta.childModuleName) {
+                                    newRouteHistory[newRouteHistory.length - 1].meta.childModuleName = to.meta.childModuleName;
+                                    commit('updateRouteHistory', newRouteHistory);
+                                }
                             }
                             else {
                                 newRouteHistory.push(to);
+                                commit('updateRouteHistory', newRouteHistory);
                             }
                         }
                         else {
                             newRouteHistory = [];
                             newRouteHistory.push(to);
+                            commit('updateRouteHistory', newRouteHistory);
                         }
+                    },
+                    clearRouteHistory({ state, commit }) {
+                        let newRouteHistory;
+                        newRouteHistory = [];
                         commit('updateRouteHistory', newRouteHistory);
                     }
                 },
                 getters: {
                     getCurrentRoute: state => {
+                        console.log(moduleName + ' - starting getCurrentRoute');
                         try {
                             if (state.routeHistory.length > 0) {
                                 return getMatchingRouteRecord(state.routeHistory)[0].components;
@@ -77,7 +93,7 @@ const componentRouter = (store, router, routes, moduleName) => {
             const removeRouteHook = router.afterEach((to, from) => {
                 try {
                     const routeHistory = store.getters[to.params.moduleName + '/getRouteHistory'];
-                    if (isTimeTraveling || (routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath)) {
+                    if (isTimeTraveling || (routeHistory && routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath)) {
                         console.log('we are timeTraveling so do nothing');
                         isTimeTraveling = false;
                         return;
