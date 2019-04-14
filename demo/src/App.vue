@@ -3,28 +3,24 @@
     <!-- <component
       :is="isLoggedIn === true ? 'home' : 'login'"
     /> -->
-    <DynamoComponentRouter />
+    <Dynamo
+      route-history-name="main"
+    />
     <!-- <router-view /> -->
     <!-- <home /> -->
   </div>
 </template>
 <template native>
-  <DynamoComponentRouter />
+    <Dynamo
+      route-history-name="main"
+    />
 </template>
 <script lang="ts">
-  import { Component, Vue, Prop } from 'vue-property-decorator';
-  // import Home from './views/Home.vue';
-  // import Login from './views/Login.vue';
+  import { Component, Vue } from 'vue-property-decorator';
 
-
-  @Component({
-    // components: {
-    //   'home': Home,
-    //   'login': Login,
-    // }
-  })
+  @Component
   export default class App extends Vue {
-    @Prop({default: false}) public isLoggedIn!: boolean;
+
   }
 
 </script>

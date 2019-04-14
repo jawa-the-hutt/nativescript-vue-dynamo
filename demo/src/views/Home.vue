@@ -6,10 +6,10 @@
       </ul>
     </nav>
     <div class="w-container">
-      <!-- <router-link id="firstButton" tag="button" class="w-button" to="{ name: first, params: { moduleName: 'ComponentRouter'}}">First</router-link>
-      <router-link id="secondButton" tag="button" class="w-button" to="{ name: second, params: { moduleName: 'ComponentRouter'}}">Second</router-link> -->
+      <!-- <router-link id="firstButton" tag="button" class="w-button" to="{ name: first, params: { routeHistoryName: 'ComponentRouter'}}">First</router-link>
+      <router-link id="secondButton" tag="button" class="w-button" to="{ name: second, params: { routeHistoryName: 'ComponentRouter'}}">Second</router-link> -->
       <!-- alternate way to route manually and use the same method as native -->
-      <button id="logoutButton" class="w-button" @click="shared.$logout('ComponentRouter')">Logout</button>
+      <button id="logoutButton" class="w-button" @click="shared.$logout('main')">Logout</button>
       <router-view />
     </div>
   </div>
@@ -18,9 +18,9 @@
   <Page ref="page">
     <ActionBar :title="navbarTitle"/>
     <GridLayout rows="auto, auto, auto">
-      <Button text="First" @tap="$router.push({ name: 'first', params: { moduleName: 'ComponentRouter'}})" row="0" />
-      <Button text="Second" @tap="$router.push({ name: 'second', params: { moduleName: 'ComponentRouter'}})" row="1" />
-      <Button text="Logout" @tap="shared.$logout('ComponentRouter')" row="2" />
+      <Button text="First" @tap="$router.push({ name: 'first', params: { routeHistoryName: 'main'}})" row="0" /> 
+      <Button text="Second" @tap="$router.push({ name: 'second', params: { routeHistoryName: 'main'}})" row="1" />
+      <Button text="Logout" @tap="shared.$logout('main')" row="2" />
     </GridLayout>
   </Page>
 </template>
@@ -36,7 +36,7 @@
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
       if (this.$store.state.appMode === 'native') {
-        (this as any).$GoBack();
+        (this as any).$interceptGoBack('main');
       }
     }
 

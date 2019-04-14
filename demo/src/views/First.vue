@@ -8,11 +8,14 @@
 <template native>
   <Page ref="page">
     <ActionBar :title="navbarTitle">
-      <!-- <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="this.$router.push({ name: 'first', params: { moduleName: 'ComponentRouter', childModuleName: 'FirstRouter'}})"/> -->
-      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$AndroidGoBack('ComponentRouter', 'FirstRouter')"/>
+      <!-- <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="this.$router.push({ name: 'first', params: { routeHistoryName: 'ComponentRouter', childRouteHistoryName: 'FirstRouter'}})"/> -->
+      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$goBack('main', 'first')"/>
     </ActionBar>
     <Frame>
-      <DynamoFirstRouter />
+    <Dynamo
+      route-history-name="first"
+      parent-route-history-name="main"
+    />
     </Frame>
   </Page>
 </template>
@@ -26,23 +29,30 @@
   })
   export default class First extends Vue {
     private navbarTitle: string = `First.vue`;
-    private routeHistory: Route[] = this.$store.getters['ComponentRouter' + '/getRouteHistory'];
+    // private routeHistory: Route[] = this.$store.getters['main' + '/getRouteHistory'];
 
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
       if (this.$store.state.appMode === 'native') {
-        (this as any).$GoBack();
-        this.$router.push({ name: 'first', params: { moduleName: 'ComponentRouter', childModuleName: 'FirstRouter'}});
-        this.$router.push({ name: 'dynamo-one', params: { moduleName: 'FirstRouter', parentModuleName: 'ComponentRouter'}});
+        (this as any).$interceptGoBack('main');
+        // this.$router.push({ name: 'first', params: { routeHistoryName: 'main', childRouteHistoryName: 'FirstRouter'}});
+        this.$router.push({ name: 'dynamo-one', params: { routeHistoryName: 'first', parentRouteHistoryName: 'main'}});
       }
     }
 
-    // public mounted() {
-    //   if (this.$store.state.appMode === 'native') {
-    //     // @ts-ignore
-    //     console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
-    //   }
-    // }
+    public mounted() {
+      if (this.$store.state.appMode === 'native') {
+        // // @ts-ignore
+        // console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+
+        // // // if (this.$store.getters['componentRouterTracker/getComponentRouterModuleNames'].length > 0 ) {
+        // // //   const trackedRouters = this.$store.getters['componentRouterTracker/getComponentRouterModuleNames'];
+        // // //   for(const router of trackedRouters) {
+        // // //     console.log('tracked routers - ', router);
+        // // //   }
+        // // // }
+      }
+    }
 
     public beforeDestroy() {
       try {

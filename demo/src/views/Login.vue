@@ -1,7 +1,7 @@
 <template web>
   <div class="w-page">
     <div class="w-container">
-      <router-link id="loginButton" tag="button" class="w-button" to="{ name: login, params: { moduleName: 'ComponentRouter'}}">Login</router-link>
+      <router-link id="loginButton" tag="button" class="w-button" to="{ name: login, params: { routeHistoryName: 'main'}}">Login</router-link>
       <!-- <button id="loginButton" class="w-button" @click="shared.$login">Login</button> -->
     </div>
   </div>
@@ -9,7 +9,7 @@
 <template native>
   <Page actionBarHidden="true">
     <GridLayout rows="auto">
-      <Button text="Login" @tap="shared.$login('ComponentRouter')" row="0"/>
+      <Button text="Login" @tap="shared.$login('main')" row="0"/>
     </GridLayout>
   </Page>
 </template>
@@ -24,7 +24,7 @@
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
       if (this.$store.state.appMode === 'native') {
-        (this as any).$GoBack();
+        (this as any).$interceptGoBack('main');
       }
     }
   }

@@ -10,10 +10,17 @@ import {Store } from 'vuex'
 @Component
 export default class GlobalMixinNative extends Vue {
   public shared = GlobalMixinShared;
+  public routeHistoryName!: string;
+  public childRouteHistoryName?: string;
 
   // intercept the back-button
-  public async $GoBack(moduleName: string, childModuleName?: string): Promise<void> {
-    console.log(`$GoBack`);
+  public async $interceptGoBack(routeHistoryName: string, childRouteHistoryName?: string): Promise<void> {
+    console.log(`$interceptGoBack`);
+    console.log(`routeHistoryName - `, routeHistoryName);
+    console.log(`childRouteHistoryName - `, childRouteHistoryName);
+
+    this.routeHistoryName = routeHistoryName;
+    this.childRouteHistoryName = childRouteHistoryName;
 
     if (platform.android) {
       console.log(`platform.android`);
@@ -21,32 +28,33 @@ export default class GlobalMixinNative extends Vue {
       const activity = application.android.startActivity || application.android.foregroundActivity;
       activity.onBackPressed = async () => {
         console.log(`activity.onBackPressed`);
-        this.$AndroidGoBack(moduleName, childModuleName);
+        this.$goBack(this.routeHistoryName, this.childRouteHistoryName);
       };
     }
   }
 
-  public async $AndroidGoBack(moduleName: string, childModuleName?: string): Promise<void> {
-    console.log(`$GoBack`);
+  public async $goBack(routeHistoryName: string, childRouteHistoryName?: string): Promise<void> {
+    console.log(`$goBack`);
     let childRouteHistory!: Route[];
     let currentRoute!: Route;
-    console.log(`moduleName - `, moduleName);
-    console.log(`childModuleName - `, childModuleName);
+    console.log(`routeHistoryName - `, routeHistoryName);
+    console.log(`childRouteHistoryName - `, childRouteHistoryName);
 
-    moduleName = moduleName === undefined ? 'ComponentRouter' : moduleName;
-    console.log(`moduleName - `, moduleName);
+    routeHistoryName = routeHistoryName === undefined ? 'ComponentRouter' : routeHistoryName;
+    console.log(`routeHistoryName - `, routeHistoryName);
 
-    let routeHistory: Route[] = await this.$store.getters[moduleName + '/getRouteHistory'];
+    let routeHistory: Route[] = await this.$store.getters[routeHistoryName + '/getRouteHistory'];
     // console.log(`routeHistory - `, routeHistory);
 
 
-    if (childModuleName) {
-      childRouteHistory = await this.$store.getters[childModuleName + '/getRouteHistory'];
-      console.log(`childRouteHistory - `, childRouteHistory);
+    if (childRouteHistoryName) {
+      childRouteHistory = await this.$store.getters[childRouteHistoryName + '/getRouteHistory'];
+      // console.log(`childRouteHistory - `, childRouteHistory);
       console.log(`childRouteHistory length - `, childRouteHistory.length);
 
-      if(childRouteHistory && childRouteHistory.length > 1) {
+      if(childRouteHistory && childRouteHistory.length > 0) {
         // we are actually in a child route
+        console.log('we are actually in a child route')
         currentRoute = childRouteHistory[childRouteHistory.length - 1];
       }
     } else {
@@ -59,56 +67,85 @@ export default class GlobalMixinNative extends Vue {
     console.log(`routeHistory length - `, routeHistory.length);
 
     if(topmost().canGoBack()) {
+      console.log('we can go back')
       // we can go back a frame
-      if(childModuleName && childRouteHistory && childRouteHistory.length > 0) {
-        console.log('we have a childModuleName and childRouteHistory')
+      if(childRouteHistoryName && childRouteHistory && childRouteHistory.length > 0) {
+        console.log('we have a childRouteHistoryName and childRouteHistory')
         //  we have a child router and it has a route history 
-        if(childRouteHistory.length === 1 && currentRoute.meta.parentModuleName ) {
-          console.log('childRouteHistory === 1 and we have a parentModuleName')
+        if(childRouteHistory.length === 1 && currentRoute.meta.parentRouteHistoryName ) {
+          console.log('childRouteHistory === 1 and we have a parentRouteHistoryName')
 
           // we're going back to parent
-          this.$GoBackToParent(childModuleName, currentRoute);
+          this.$goBackToParent(childRouteHistoryName, currentRoute);
         }
 
         if(childRouteHistory.length > 1) {
           console.log('childRouteHistory > 1')
 
           // going back to sibling
-          router.push({ name: childRouteHistory[childRouteHistory.length - 2].name, params: { moduleName: childModuleName, parentModuleName: moduleName }})
+          router.push({ name: childRouteHistory[childRouteHistory.length - 2].name, params: { routeHistoryName: childRouteHistoryName, parentRouteHistoryName: routeHistoryName }})
         }
       } else {
-        console.log('we do not have a childModuleName and childRouteHistory')
+        console.log('we do not have a childRouteHistoryName and childRouteHistory')
         // there isn't a child router
         if(routeHistory.length > 1 ) {
           console.log('routeHistory > 1')
 
           // going back to where we came from
-          router.push({ name: routeHistory[routeHistory.length - 2].name, params: { moduleName }})
+          router.push({ name: routeHistory[routeHistory.length - 2].name, params: { routeHistoryName }})
         } 
       }
 
     } else {
+      console.log('we can NOT go back')
+
+      console.log(`currentRoute - `, currentRoute);
       // the current page may not be wrapped in a frame but if there is a routeHistory then somewhere up the tree there is
-      if(childModuleName && childRouteHistory && childRouteHistory.length === 1 && currentRoute.meta.parentModuleName ) {
+      if(childRouteHistoryName && childRouteHistory && childRouteHistory.length === 1 && currentRoute.meta.parentRouteHistoryName ) {
         console.log(' we have enough info to go back to parent')
-        this.$GoBackToParent(childModuleName, currentRoute);
+        this.$goBackToParent(childRouteHistoryName, currentRoute);
       };
     }
 
   }
   
-  public async $GoBackToParent(childModuleName: string, currentRoute: Route): Promise<void> {
-    console.log('$GoBackToParent');
+  public async $goBackToParent(childRouteHistoryName: string, currentRoute: Route): Promise<void> {
+    console.log('$goBackToParent');
 
     // clear out the child router's history
-    this.$store.dispatch(childModuleName + '/clearRouteHistory');
+    this.$store.dispatch(childRouteHistoryName + '/clearRouteHistory');
 
     // get the route history of the parent component
-    const routeHistory: Route[] = await this.$store.getters[currentRoute.meta.parentModuleName  + '/getRouteHistory'];
+    const routeHistory: Route[] = await this.$store.getters[currentRoute.meta.parentRouteHistoryName  + '/getRouteHistory'];
 
     // going back to where we came from
     const newCurrentRoute = routeHistory[routeHistory.length - 2];
-    router.push({ name: newCurrentRoute.name, params: { moduleName: newCurrentRoute.meta.moduleName, parentModuleName: newCurrentRoute.meta.parentModuleName }})
+    router.push({ name: newCurrentRoute.name, params: { routeHistoryName: newCurrentRoute.meta.routeHistoryName, parentRouteHistoryName: newCurrentRoute.meta.parentRouteHistoryName }})
   
+  }
+
+  public async $goTo(name: string, routeHistoryName: string, childRouteHistoryName?: string, parentRouteHistoryName?: string): Promise<void> {
+    console.log('$goTo');
+
+    // // const page: Page = topmost().currentPage !== undefined ? topmost().currentPage : router.currentRoute;
+
+    if (childRouteHistoryName) {
+      if(parentRouteHistoryName) {
+        console.log('$goTo - with child and parent');
+        router.push({ name, params: { routeHistoryName, childRouteHistoryName, parentRouteHistoryName}});
+      } else {
+        console.log('$goTo - with only child');
+        router.push({ name, params: { routeHistoryName, childRouteHistoryName}});
+      }
+    } else if (parentRouteHistoryName) {
+      console.log('$goTo - with only parent');
+      router.push({ name, params: { routeHistoryName, parentRouteHistoryName}});
+
+    } else {
+      console.log('$goTo - without child or parent');
+      router.push({ name, params: { routeHistoryName}});
+    }
+
+
   }
 }

@@ -1,14 +1,14 @@
 <template web>
   <div class="w-page">
     <div class="w-container">
-      <router-link id="dynamoOneButton" tag="button" class="w-button" to="{ name: dynamo-one, params: { moduleName: 'FirstRouter', parentModuleName: 'ComponentRouter'}}">Dynamo One</router-link>
+      <router-link id="dynamoOneButton" tag="button" class="w-button" to="{ name: dynamo-one, params: { routeHistoryName: 'first', parentRouteHistoryName: 'main'}}">Dynamo One</router-link>
     </div>
   </div>
 </template>
 <template native>
   <Page actionBarHidden="true" ref="page">
     <GridLayout rows="auto">
-      <Button text="Dynamo One" @tap="$router.push({ name: 'dynamo-one', params: { moduleName: 'FirstRouter', parentModuleName: 'ComponentRouter'}})" row="0" />
+      <Button text="Dynamo One" @tap="$router.push({ name: 'dynamo-one', params: { routeHistoryName: 'first', parentRouteHistoryName: 'main'}})" row="0" />
     </GridLayout>
   </Page>
 </template>
@@ -24,7 +24,7 @@
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
       if (this.$store.state.appMode === 'native') {
-        (this as any).$GoBack('FirstRouter');
+        (this as any).$interceptGoBack('first');
       }
     }
 

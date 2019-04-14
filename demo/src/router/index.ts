@@ -29,7 +29,7 @@ export const routes: RouteConfig[] = [
     },
   },
   {
-    name: 'first',
+    name: '',
     path: '/first',
     children: [
       {

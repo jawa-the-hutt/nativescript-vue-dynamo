@@ -10,7 +10,6 @@ Vue.use( Dynamo, {
   store,
   router,
   routes,
-  moduleName: [ 'ComponentRouter', 'FirstRouter' ] 
 });
 
 // Set the following to `true` to hide the logs created by nativescript-vue
@@ -31,7 +30,7 @@ const start = async () => {
 
   const isLoggedIn = true; // change to false to start at the login component
   const name = isLoggedIn === true ? 'home' : 'login'
-  router.push({name, params: { moduleName: 'ComponentRouter'}});
+  router.push({name, params: { routeHistoryName: 'main'}});
   
   return new Vue({
     store,

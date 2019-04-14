@@ -1,84 +1,108 @@
 import Router, { Route, RouteConfig, RouteRecord } from 'vue-router';
 import { Store } from 'vuex';
+import { topmost } from 'tns-core-modules/ui/frame';
 
-const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[], moduleName: string) => {
+const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[]) => {
   // console.log('starting componentRouter function');
 
   try {
-    moduleName = moduleName !== undefined ? moduleName : 'ComponentRouter';
-    // console.log('moduleName - ', moduleName);
-    // console.log(moduleName + ' - !store.state[moduleName] - ', store.state[moduleName])
+    const moduleName = 'ComponentRouter'; // routeHistoryName !== undefined ? routeHistoryName : 'ComponentRouter';
+    // console.log('routeHistoryName - ', routeHistoryName);
+    // console.log(routeHistoryName + ' - !store.state[routeHistoryName] - ', store.state[routeHistoryName])
     
     if(!store.state[moduleName]) {
       // module does not exist in the store
-      // console.log(moduleName + ' - module does not exist in the store');
+      // console.log(routeHistoryName + ' - module does not exist in the store');
       store.registerModule(moduleName, {
         namespaced: true,
         state: {
-          routeHistory: [] as Route[],
+          routeHistory: [] as IRouteHistory[],
         },
         mutations: {
-          updateRouteHistory (state, routeHistory: Route[]) {
-            // console.log(moduleName + ' - starting dynamo - mutations - updateRouteHistory')
+          updateRouteHistory (state, routeHistory: IRouteHistory[]) {
+            // console.log(routeHistoryName + ' - starting dynamo - mutations - updateRouteHistory')
             state.routeHistory = routeHistory;
           }
         },
         actions:{
-          updateRouteHistory ({state, commit}, payload: { to: Route, from: Route}) {
-            // console.log(moduleName + ' - starting dynamo - actions - updateRouteHistory')
+          updateRouteHistory ({state, commit}, payload: { routeHistoryName: string, to: Route, from: Route}) {
+            console.log(payload.routeHistoryName + ' - starting dynamo - actions - updateRouteHistory')
 
-            let newRouteHistory!: Route[];
+            let newRouteHistory!: IRouteHistory[];
+            const routeHistoryName = payload.routeHistoryName;
             const to = payload.to;
+            const from = payload.from;
 
-            // add current moduleName to meta tag in the route history
-            if(payload.to.meta && payload.to.params && payload.to.params.moduleName) {
-              to.meta.moduleName = payload.to.params.moduleName;
+            // add current routeHistoryName to meta tag in the route history
+            if(payload.to.meta && payload.to.params && payload.to.params.routeHistoryName) {
+              to.meta.routeHistoryName = payload.to.params.routeHistoryName;
             }
 
-            // add the parent moduleName (if it exists) to meta tag in the route history
-            if(payload.to.meta && payload.to.params && payload.to.params.parentModuleName) {
-              to.meta.parentModuleName = payload.to.params.parentModuleName;
+            // add the parent routeHistoryName (if it exists) to meta tag in the route history
+            if(payload.to.meta && payload.to.params && payload.to.params.parentRouteHistoryName) {
+              to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
             }
 
-            // add the child moduleName (if it exists) to meta tag in the route history
-            if(payload.to.meta && payload.to.params && payload.to.params.childModuleName) {
-              to.meta.childModuleName = payload.to.params.childModuleName;
+            // add the child routeHistoryName (if it exists) to meta tag in the route history
+            if(payload.to.meta && payload.to.params && payload.to.params.childRouteHistoryName) {
+              to.meta.childRouteHistoryName = payload.to.params.childRouteHistoryName;
             }
             
+            if(state) {
+              newRouteHistory = [...state.routeHistory];
+            }
+            
+            // get the specific route history matching the name passed in
+            const index = newRouteHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
+
             if (!payload.to.params.clearHistory) {
               // we ARE NOT clearing the route history
-              if(state) {
-                newRouteHistory = [...state.routeHistory];
-              }
+              if(index > -1) {
+                const routeHistory = newRouteHistory[index].routeHistory;
 
-              if(newRouteHistory.length > 1 && to.fullPath === newRouteHistory[newRouteHistory.length - 2].fullPath) {  
-                // we're going back from where we came from
-                newRouteHistory.pop();
-                              
-                // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
-                commit('updateRouteHistory', newRouteHistory);
+                if(routeHistory.length > 1 && to.fullPath === routeHistory[routeHistory.length - 2].fullPath) {  
+                  // we're going back from where we came from
+                  routeHistory.pop();
+                  if(routeHistory.length === 0) {
+                    // we have removed the last routeHistory for this node, so delete it out of the parent array
+                    newRouteHistory.splice(index, 1);
+                  }
 
-              } else if (newRouteHistory.length > 0 && to.fullPath === newRouteHistory[newRouteHistory.length - 1].fullPath) { 
-                // we didn't actually go anywhere
+                  // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
+                  commit('updateRouteHistory', newRouteHistory);
 
-                // add the child moduleName (if it exists) to the most current route history
-                if(to.meta.childModuleName) {
-                  newRouteHistory[newRouteHistory.length - 1].meta.childModuleName = to.meta.childModuleName;
-                  
+                } else if (routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath) { 
+                  // we didn't actually go anywhere
+
+                  // add the child routeHistoryName (if it exists) to the most current route history
+                  if(to.meta.childRouteHistoryName) {
+                    routeHistory[routeHistory.length - 1].meta.childRouteHistoryName = to.meta.childRouteHistoryName;
+                    
+                    // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
+                    commit('updateRouteHistory', newRouteHistory);
+                  }
+                } else {  
+                  // we're going forward somewhere
+                  routeHistory.push(to);
+                
                   // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
                   commit('updateRouteHistory', newRouteHistory);
                 }
-              } else {  
+
+
+              } else {
+                // this is a brand new route level. most likel a child route unless it's the first ever created in the app
+
                 // we're going forward somewhere
-                newRouteHistory.push(to);
-              
-                // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
+                newRouteHistory.push({routeHistoryName, routeHistory: [to]});
                 commit('updateRouteHistory', newRouteHistory);
               }
+
+            
             } else {
               // we ARE clearing the route history
-              newRouteHistory = [];
-              newRouteHistory.push(to);
+              newRouteHistory.splice(index, 1);
+              newRouteHistory.push({routeHistoryName, routeHistory: [to]});
 
               // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
               commit('updateRouteHistory', newRouteHistory);
@@ -86,24 +110,44 @@ const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[
 
             
           },
-          clearRouteHistory ({state, commit}) {
-            // console.log(moduleName + ' - starting dynamo - actions - clearRouteHistory')
+          clearRouteHistory ({state, commit}, payload?: {routeHistoryName: string}) {
+            // console.log(payload.name + ' - starting dynamo - actions - clearRouteHistory')
+            let newRouteHistory!: IRouteHistory[];
 
-            let newRouteHistory!: Route[];
+            if (payload) {
+              const routeHistoryName = payload.routeHistoryName;
 
-            // we ARE clearing the route history
-            newRouteHistory = [];
+              if(state) {
+                newRouteHistory = [...state.routeHistory];
+              }
+              
+              // get the specific route history matching the name passed in
+              const index = newRouteHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
+              newRouteHistory.splice(index, 1);
 
-            // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
-            commit('updateRouteHistory', newRouteHistory);
+              // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
+              commit('updateRouteHistory', newRouteHistory);
+
+            } else {
+              //let newRouteHistory!: Route[];
+
+              // we ARE clearing the entire route history for EVERYTHING
+              newRouteHistory = [];
+
+              // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
+              commit('updateRouteHistory', newRouteHistory);
+            }
           }
         },
         getters: {
-          getCurrentRoute: state => {
-            console.log(moduleName + ' - starting getCurrentRoute');
+          getCurrentRoute: (state) => (routeHistoryName: string) => {
+            console.log(routeHistoryName + ' - starting getCurrentRoute');
             try {
-              if (state.routeHistory.length > 0 ) {
-                return getMatchingRouteRecord(state.routeHistory)[0].components; 
+              // get the specific route history matching the name passed in
+              const index = state.routeHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
+
+              if (index > -1 && state.routeHistory[index].routeHistory.length > 0 ) {
+                return getMatchingRouteRecord(state.routeHistory[index].routeHistory)[0].components; 
               } else {
                 return undefined;
               }
@@ -111,8 +155,21 @@ const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[
               console.log(err)
             }
           },
-          getRouteHistory: state => {
-            return state.routeHistory;
+          getRouteHistory: (state) => (routeHistoryName?: string) => {
+            console.log(routeHistoryName + ' - starting getRouteHistory');
+
+            if(routeHistoryName) {
+              // get the specific route history matching the name passed in
+              const index = state.routeHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
+
+              if (index > -1 && state.routeHistory[index].routeHistory.length > 0 ) {
+                return state.routeHistory[index].routeHistory; 
+              } else {
+                return undefined;
+              }
+            } else {
+              return state.routeHistory;
+            }
           }
         }
       })
@@ -121,31 +178,42 @@ const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[
       let currentPath: string = ``;
 
       // sync router on store change
-      const unWatch = store.watch(
-        state => state.routeHistory,
-        routeHistory => {
-          // console.log('dyname - starting store.watch')
-          const route  = routeHistory[routeHistory.length - 1];
-          const { fullPath } = route
-          if (fullPath === currentPath) {
-            // console.log('fullPath === currentPath');
-            return
-          }
-          if (currentPath != null) {
-            // console.log('currentPath != null');
-            isTimeTraveling = true
-            router.push(route)
-          }
-          currentPath = fullPath
-        },
-      )
+      const unWatch = () => {
+        for(const attribute in store.state.routeHistory) {
+
+          store.watch(
+            state => state.routeHistory[attribute],
+            (newValue, oldValue) => {
+              console.log('dynamo - starting store.watch')
+              console.log('newValue - ', newValue)
+              console.log('oldValue - ', oldValue)
+              // const route  = routeHistory[routeHistory.length - 1];
+              // const { fullPath } = route
+              // if (fullPath === currentPath) {
+              //   // console.log('fullPath === currentPath');
+              //   return
+              // }
+              // if (currentPath != null) {
+              //   // console.log('currentPath != null');
+              //   isTimeTraveling = true
+              //   router.push(route)
+              // }
+              // currentPath = fullPath
+            },
+          )
+
+        }
+      }
 
       // sync store on router navigation
       const removeRouteHook = router.afterEach((to: Route, from: Route) => {
-        // console.log('starting afterEachUnHook');
+        console.log('starting afterEachUnHook');
         try {
-          const routeHistory = store.getters[to.params.moduleName + '/getRouteHistory'];
-          // console.log('routeHistory - ', routeHistory)
+          const routeHistoryName = to.params.routeHistoryName;
+          console.log('afterEachUnHook - routeHistoryName - ', routeHistoryName);
+
+          const routeHistory = store.getters['ComponentRouter/getRouteHistory'](routeHistoryName);
+          console.log('routeHistory - ', routeHistory)
           if (isTimeTraveling || (routeHistory && routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath)) {
             console.log('we are timeTraveling so do nothing');
             isTimeTraveling = false
@@ -154,15 +222,14 @@ const componentRouter = (store: Store<any>, router: Router, routes: RouteConfig[
 
           currentPath = to.fullPath
 
-          //console.log('dynamo - afterEach - store - ', store);
-          store.dispatch(to.params.moduleName + '/updateRouteHistory', { to, from });
+          store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName, to, from } );
         } catch (err) {
           console.log('err - ', err);
         }
       })
 
       return () => {
-        console.log(moduleName + ' - calling remove function for moduleName : ', moduleName);
+        console.log(moduleName + ' - calling remove function for routeHistoryName : ', moduleName);
         // On unsync, remove router hook
         if (removeRouteHook != null) {
           removeRouteHook();
@@ -194,6 +261,11 @@ const getMatchingRouteRecord = (routeHistory: Route[]) => {
 
 const getMatchingRouteConfig = (routes: RouteConfig[], path: string ) => {
   return routes.filter( (route: RouteConfig) => Object.keys(route).some((key: string) => route[key] && route[key] === path ));
+}
+
+export interface IRouteHistory {
+  routeHistoryName: string;
+  routeHistory: Route[];
 }
 
 export default componentRouter;

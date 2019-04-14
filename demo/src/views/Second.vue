@@ -32,7 +32,7 @@
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
       if (this.$store.state.appMode === 'native') {
-        (this as any).$GoBack();
+        (this as any).$interceptGoBack();
       }
     }
 

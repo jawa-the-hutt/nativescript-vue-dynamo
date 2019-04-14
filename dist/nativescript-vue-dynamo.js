@@ -1,6 +1,6 @@
-var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter = (store, router, routes, moduleName) => {
+var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter = (store, router, routes) => {
     try {
-        moduleName = moduleName !== undefined ? moduleName : 'ComponentRouter';
+        const moduleName = 'ComponentRouter';
         if (!store.state[moduleName]) {
             store.registerModule(moduleName, {
                 namespaced: true,
@@ -14,54 +14,80 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                 },
                 actions: {
                     updateRouteHistory({ state, commit }, payload) {
+                        console.log(payload.routeHistoryName + ' - starting dynamo - actions - updateRouteHistory');
                         let newRouteHistory;
+                        const routeHistoryName = payload.routeHistoryName;
                         const to = payload.to;
-                        if (payload.to.meta && payload.to.params && payload.to.params.moduleName) {
-                            to.meta.moduleName = payload.to.params.moduleName;
+                        const from = payload.from;
+                        if (payload.to.meta && payload.to.params && payload.to.params.routeHistoryName) {
+                            to.meta.routeHistoryName = payload.to.params.routeHistoryName;
                         }
-                        if (payload.to.meta && payload.to.params && payload.to.params.parentModuleName) {
-                            to.meta.parentModuleName = payload.to.params.parentModuleName;
+                        if (payload.to.meta && payload.to.params && payload.to.params.parentRouteHistoryName) {
+                            to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
                         }
-                        if (payload.to.meta && payload.to.params && payload.to.params.childModuleName) {
-                            to.meta.childModuleName = payload.to.params.childModuleName;
+                        if (payload.to.meta && payload.to.params && payload.to.params.childRouteHistoryName) {
+                            to.meta.childRouteHistoryName = payload.to.params.childRouteHistoryName;
                         }
+                        if (state) {
+                            newRouteHistory = [...state.routeHistory];
+                        }
+                        const index = newRouteHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
                         if (!payload.to.params.clearHistory) {
-                            if (state) {
-                                newRouteHistory = [...state.routeHistory];
-                            }
-                            if (newRouteHistory.length > 1 && to.fullPath === newRouteHistory[newRouteHistory.length - 2].fullPath) {
-                                newRouteHistory.pop();
-                                commit('updateRouteHistory', newRouteHistory);
-                            }
-                            else if (newRouteHistory.length > 0 && to.fullPath === newRouteHistory[newRouteHistory.length - 1].fullPath) {
-                                if (to.meta.childModuleName) {
-                                    newRouteHistory[newRouteHistory.length - 1].meta.childModuleName = to.meta.childModuleName;
+                            if (index > -1) {
+                                const routeHistory = newRouteHistory[index].routeHistory;
+                                if (routeHistory.length > 1 && to.fullPath === routeHistory[routeHistory.length - 2].fullPath) {
+                                    routeHistory.pop();
+                                    if (routeHistory.length === 0) {
+                                        newRouteHistory.splice(index, 1);
+                                    }
+                                    commit('updateRouteHistory', newRouteHistory);
+                                }
+                                else if (routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath) {
+                                    if (to.meta.childRouteHistoryName) {
+                                        routeHistory[routeHistory.length - 1].meta.childRouteHistoryName = to.meta.childRouteHistoryName;
+                                        commit('updateRouteHistory', newRouteHistory);
+                                    }
+                                }
+                                else {
+                                    routeHistory.push(to);
                                     commit('updateRouteHistory', newRouteHistory);
                                 }
                             }
                             else {
-                                newRouteHistory.push(to);
+                                newRouteHistory.push({ routeHistoryName, routeHistory: [to] });
                                 commit('updateRouteHistory', newRouteHistory);
                             }
                         }
                         else {
-                            newRouteHistory = [];
-                            newRouteHistory.push(to);
+                            newRouteHistory.splice(index, 1);
+                            newRouteHistory.push({ routeHistoryName, routeHistory: [to] });
                             commit('updateRouteHistory', newRouteHistory);
                         }
                     },
-                    clearRouteHistory({ state, commit }) {
+                    clearRouteHistory({ state, commit }, payload) {
                         let newRouteHistory;
-                        newRouteHistory = [];
-                        commit('updateRouteHistory', newRouteHistory);
+                        if (payload) {
+                            const routeHistoryName = payload.routeHistoryName;
+                            if (state) {
+                                newRouteHistory = [...state.routeHistory];
+                            }
+                            const index = newRouteHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
+                            newRouteHistory.splice(index, 1);
+                            commit('updateRouteHistory', newRouteHistory);
+                        }
+                        else {
+                            newRouteHistory = [];
+                            commit('updateRouteHistory', newRouteHistory);
+                        }
                     }
                 },
                 getters: {
-                    getCurrentRoute: state => {
-                        console.log(moduleName + ' - starting getCurrentRoute');
+                    getCurrentRoute: (state) => (routeHistoryName) => {
+                        console.log(routeHistoryName + ' - starting getCurrentRoute');
                         try {
-                            if (state.routeHistory.length > 0) {
-                                return getMatchingRouteRecord(state.routeHistory)[0].components;
+                            const index = state.routeHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
+                            if (index > -1 && state.routeHistory[index].routeHistory.length > 0) {
+                                return getMatchingRouteRecord(state.routeHistory[index].routeHistory)[0].components;
                             }
                             else {
                                 return undefined;
@@ -71,42 +97,55 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                             console.log(err);
                         }
                     },
-                    getRouteHistory: state => {
-                        return state.routeHistory;
+                    getRouteHistory: (state) => (routeHistoryName) => {
+                        console.log(routeHistoryName + ' - starting getRouteHistory');
+                        if (routeHistoryName) {
+                            const index = state.routeHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
+                            if (index > -1 && state.routeHistory[index].routeHistory.length > 0) {
+                                return state.routeHistory[index].routeHistory;
+                            }
+                            else {
+                                return undefined;
+                            }
+                        }
+                        else {
+                            return state.routeHistory;
+                        }
                     }
                 }
             });
             let isTimeTraveling = false;
             let currentPath = ``;
-            const unWatch = store.watch(state => state.routeHistory, routeHistory => {
-                const route = routeHistory[routeHistory.length - 1];
-                const { fullPath } = route;
-                if (fullPath === currentPath) {
-                    return;
+            const unWatch = () => {
+                for (const attribute in store.state.routeHistory) {
+                    store.watch(state => state.routeHistory[attribute], (newValue, oldValue) => {
+                        console.log('dynamo - starting store.watch');
+                        console.log('newValue - ', newValue);
+                        console.log('oldValue - ', oldValue);
+                    });
                 }
-                if (currentPath != null) {
-                    isTimeTraveling = true;
-                    router.push(route);
-                }
-                currentPath = fullPath;
-            });
+            };
             const removeRouteHook = router.afterEach((to, from) => {
+                console.log('starting afterEachUnHook');
                 try {
-                    const routeHistory = store.getters[to.params.moduleName + '/getRouteHistory'];
+                    const routeHistoryName = to.params.routeHistoryName;
+                    console.log('afterEachUnHook - routeHistoryName - ', routeHistoryName);
+                    const routeHistory = store.getters['ComponentRouter/getRouteHistory'](routeHistoryName);
+                    console.log('routeHistory - ', routeHistory);
                     if (isTimeTraveling || (routeHistory && routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath)) {
                         console.log('we are timeTraveling so do nothing');
                         isTimeTraveling = false;
                         return;
                     }
                     currentPath = to.fullPath;
-                    store.dispatch(to.params.moduleName + '/updateRouteHistory', { to, from });
+                    store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName, to, from });
                 }
                 catch (err) {
                     console.log('err - ', err);
                 }
             });
             return () => {
-                console.log(moduleName + ' - calling remove function for moduleName : ', moduleName);
+                console.log(moduleName + ' - calling remove function for routeHistoryName : ', moduleName);
                 if (removeRouteHook != null) {
                     removeRouteHook();
                 }
@@ -135,28 +174,38 @@ const getMatchingRouteRecord = (routeHistory) => {
         return;
     }
     else {
-        for (const moduleName of options.moduleName) {
-            console.log('not installed yet - moduleName - ', moduleName);
-            install.installed = true;
-            Vue.component("Dynamo" + moduleName, {
-                template: options.appMode === undefined
-                    ? `<component v-bind:is="computedCurrentRoute" />`
-                    : options.appMode === "web"
-                        ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
-                        : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
-                data() {
-                    return {};
+        componentRouter(options.store, options.router, options.routes);
+        install.installed = true;
+        Vue.component('Dynamo', {
+            template: options.appMode === undefined
+                ? `<component v-bind:is="computedCurrentRoute" />`
+                : options.appMode === "web"
+                    ? `<div><component v-bind:is="computedCurrentRoute" /></div>`
+                    : `<StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout>`,
+            data() {
+                return {};
+            },
+            created() {
+            },
+            props: {
+                routeHistoryName: {
+                    type: String,
+                    required: true
                 },
-                computed: {
-                    computedCurrentRoute() {
-                        if (this.$store.getters[moduleName + "/getRouteHistory"].length > 0) {
-                            return this.$store.getters[moduleName + "/getCurrentRoute"].default;
-                        }
+                parentRouteHistoryName: {
+                    type: String,
+                    required: false
+                }
+            },
+            computed: {
+                computedCurrentRoute() {
+                    console.log('computedCurrentRoute - this.$props.routeHistoryName - ', this.$props.routeHistoryName);
+                    if (this.$store.getters['ComponentRouter/getRouteHistory'](this.$props.routeHistoryName).length > 0) {
+                        return this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default;
                     }
-                },
-            });
-            Vue.prototype['$' + moduleName] = componentRouter(options.store, options.router, options.routes, moduleName);
-        }
+                }
+            },
+        });
     }
 }
 class Dynamo {

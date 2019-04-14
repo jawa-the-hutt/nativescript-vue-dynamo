@@ -1,5 +1,6 @@
 import { VueConstructor, PluginFunction } from 'vue';
 import componentRouter from "./component-router";
+// // // import componentRouterTracker from "./component-router-tracker";
 
 export function install(Vue: VueConstructor, options: any) {
 
@@ -7,10 +8,13 @@ export function install(Vue: VueConstructor, options: any) {
     console.log('not installed')
     return;
   } else {
-    for(const moduleName of options.moduleName) {
-      console.log('not installed yet - moduleName - ', moduleName)
+    // // // componentRouterTracker(options.store);
+    componentRouter(options.store, options.router, options.routes);
+
+    // for(const routeHistoryName of options.routeHistoryName) {
+      // console.log('not installed yet - routeHistoryName - ', routeHistoryName)
       install.installed = true;
-      Vue.component("Dynamo" + moduleName, {
+      Vue.component('Dynamo', {
         template:
           options.appMode === undefined
             ? `<component v-bind:is="computedCurrentRoute" />`
@@ -20,18 +24,33 @@ export function install(Vue: VueConstructor, options: any) {
         data() {
           return {};
         },
+        created() {
+          // this.$store.dispatch('componentRouterTracker/updateComponentRouterModules', { routeHistoryName: this.routeHistoryName, parentRouteHistoryName: this.parentRouteHistoryName, status: true })
+          
+        },
+        props: {
+          routeHistoryName: {
+            type: String,
+            required: true
+          },
+          parentRouteHistoryName: {
+            type: String,
+            required: false
+          }
+        },
         computed: {
           computedCurrentRoute() {
-            if (this.$store.getters[moduleName + "/getRouteHistory"].length > 0 ) {
+            console.log('computedCurrentRoute - this.$props.routeHistoryName - ', this.$props.routeHistoryName)
+            if (this.$store.getters['ComponentRouter/getRouteHistory'](this.$props.routeHistoryName).length > 0 ) {
               // @ts-ignore
-              return this.$store.getters[moduleName + "/getCurrentRoute"].default;
+              return this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default;
             }
           }
         },
       });
 
-      Vue.prototype['$' + moduleName] = componentRouter(options.store, options.router, options.routes, moduleName);
-    }
+      // Vue.prototype['$' + routeHistoryName] = componentRouter(options.store, options.router, options.routes, routeHistoryName);
+    // }
   }
 
 };
