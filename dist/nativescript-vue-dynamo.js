@@ -1,4 +1,4 @@
-var NativescriptVueDynamo=(function(exports,frame){'use strict';const componentRouter = async (store, router, routes, appMode) => {
+var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter = async (store, router, routes, appMode) => {
     console.log('starting componentRouter function');
     try {
         let currentPage = '';
@@ -197,13 +197,12 @@ const getMatchingRouteRecord = (routeHistory) => {
                 computed: {
                     computedCurrentRoute() {
                         console.log('computedCurrentRoute - this.$props.routeHistoryName - ', this.$props.routeHistoryName);
+                        const routeHistory = this.$store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
+                        if (routeHistory.length > 0) {
+                            return this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default;
+                        }
                     }
                 },
-            });
-            Vue.mixin({
-                mounted() {
-                    console.log('router.afterEach - currentPage - ', frame.topmost().canGoBack());
-                }
             });
         });
     }
@@ -222,4 +221,4 @@ else if (typeof global !== "undefined" && typeof global['Vue'] !== 'undefined') 
 }
 if (GlobalVue) {
     GlobalVue.use(Dynamo);
-}exports.default=Dynamo;exports.install=install;return exports;}({},frame));
+}exports.default=Dynamo;exports.install=install;return exports;}({}));

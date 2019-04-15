@@ -9,42 +9,6 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
     let currentPage: string = '';
     
     // if(appMode === 'native') {
-    //   console.log('componentRouter - appMode - ', appMode);
-
-    //   // (async () => {
-    //   // // //   // const getCurrentPage = './native-current-page';
-    //   // // const mod = await import('./native-current-page')
-    //   // // console.log('componentRouter - module - ', mod.d)
-    //   // // //   currentPage = module.getCurrentPage();
-    //   // // //   console.log('componentRouter - currentPage - ', currentPage)
-    //   // // //   // // → logs 'Hi from the default export!'
-    //   // // //   // module.doStuff();
-    //   // // //   // // → logs 'Doing stuff…'
-    //   // })();
-
-
-    //   // const myModule = './native-current-page.js';
-    //   // import(myModule).then(x => { 
-    //   //   console.log('x - ', x)
-    //   //   x.getCurrentPage();
-    //   // });
-
-
-    //   // return await import('./native-current-page').then((m) => {
-    //   // const page = getCurrentPage();
-    //   // console.log('componentRouter - page - ', getCurrentPage)
-    //   //   // const page = await nativeCurrentPage.getCurrentPage();
-    //   //   // console.log('componentRouter - page - ', page)
-    //   //   // return page;
-    //   // });
-
-    //   // const topmost = await import('tns-core-modules/ui/frame').then((module) => {
-    //   //   const {topmost} = module;
-    //   //   return topmost;
-    //   // });
-
-    //   // console.log('componentRouter - currentPage - ', topmost().currentPage.toString())
-
     // } else if (appMode === 'web') {
     //   currentPage = router.currentRoute.fullPath;
     // } else {

@@ -11,11 +11,11 @@
       <!-- <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="this.$router.push({ name: 'first', params: { routeHistoryName: 'ComponentRouter', childRouteHistoryName: 'FirstRouter'}})"/> -->
       <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$goBack('main', 'first')"/>
     </ActionBar>
-    <Frame>
-    <Dynamo
-      route-history-name="first"
-      parent-route-history-name="main"
-    />
+    <Frame id="first">
+      <Dynamo
+        route-history-name="first"
+        parent-route-history-name="main"
+      />
     </Frame>
   </Page>
 </template>

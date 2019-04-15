@@ -1,5 +1,3 @@
-import { topmost } from 'tns-core-modules/ui/frame';
-
 const componentRouter = async (store, router, routes, appMode) => {
     console.log('starting componentRouter function');
     try {
@@ -201,13 +199,12 @@ async function install(Vue, options) {
                 computed: {
                     computedCurrentRoute() {
                         console.log('computedCurrentRoute - this.$props.routeHistoryName - ', this.$props.routeHistoryName);
+                        const routeHistory = this.$store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
+                        if (routeHistory.length > 0) {
+                            return this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default;
+                        }
                     }
                 },
-            });
-            Vue.mixin({
-                mounted() {
-                    console.log('router.afterEach - currentPage - ', topmost().canGoBack());
-                }
             });
         });
     }

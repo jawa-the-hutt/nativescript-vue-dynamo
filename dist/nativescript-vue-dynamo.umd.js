@@ -1,4 +1,4 @@
-(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?f(exports,require('tns-core-modules/ui/frame')):typeof define==='function'&&define.amd?define(['exports','tns-core-modules/ui/frame'],f):(g=g||self,f(g.NativescriptVueDynamo={},g.frame));}(this,function(exports, frame){'use strict';const componentRouter = async (store, router, routes, appMode) => {
+(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?f(exports):typeof define==='function'&&define.amd?define(['exports'],f):(g=g||self,f(g.NativescriptVueDynamo={}));}(this,function(exports){'use strict';const componentRouter = async (store, router, routes, appMode) => {
     console.log('starting componentRouter function');
     try {
         let currentPage = '';
@@ -197,13 +197,12 @@ const getMatchingRouteRecord = (routeHistory) => {
                 computed: {
                     computedCurrentRoute() {
                         console.log('computedCurrentRoute - this.$props.routeHistoryName - ', this.$props.routeHistoryName);
+                        const routeHistory = this.$store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
+                        if (routeHistory.length > 0) {
+                            return this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default;
+                        }
                     }
                 },
-            });
-            Vue.mixin({
-                mounted() {
-                    console.log('router.afterEach - currentPage - ', frame.topmost().canGoBack());
-                }
             });
         });
     }

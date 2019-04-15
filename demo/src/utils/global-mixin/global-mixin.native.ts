@@ -1,8 +1,8 @@
 import { Component, Vue } from 'vue-property-decorator';
 import * as application from 'tns-core-modules/application';
 import * as platform from 'nativescript-platform';
-import { topmost } from 'tns-core-modules/ui/frame';
-import { Page } from 'tns-core-modules/ui/page';
+import { Frame } from 'tns-core-modules/ui/frame';
+import Page from 'tns-core-modules/ui/page';
 import * as GlobalMixinShared from './global-mixin-shared';
 import router from '~/router';
 import { Route } from 'vue-router';
@@ -17,8 +17,11 @@ export default class GlobalMixinNative extends Vue {
   // intercept the back-button
   public async $interceptGoBack(routeHistoryName: string, childRouteHistoryName?: string): Promise<void> {
     console.log(`$interceptGoBack`);
-    console.log(`routeHistoryName - `, routeHistoryName);
-    console.log(`childRouteHistoryName - `, childRouteHistoryName);
+    // console.log(`routeHistoryName - `, routeHistoryName);
+    // console.log(`childRouteHistoryName - `, childRouteHistoryName);
+
+    // @ts-ignore
+    console.log('$interceptGoBack - currentPage - ', Frame.)
 
     // this.routeHistoryName = routeHistoryName;
     // this.childRouteHistoryName = childRouteHistoryName;
