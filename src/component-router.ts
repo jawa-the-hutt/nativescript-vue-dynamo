@@ -1,12 +1,11 @@
 import Router, { Route, RouteConfig, RouteRecord } from 'vue-router';
 import { Store } from 'vuex';
-// // import { getCurrentPage } from  './native-current-page';
 
 const componentRouter = async (store: Store<any>, router: Router, routes: RouteConfig[], appMode: string) => {
   console.log('starting componentRouter function');
 
   try {
-    let currentPage: string = '';
+    let recentRouteChange!: IRouteHistory;
     
     // if(appMode === 'native') {
     // } else if (appMode === 'web') {
@@ -29,12 +28,12 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
         },
         mutations: {
           updateRouteHistory (state, routeHistory: IRouteHistory[]) {
-            console.log('starting dynamo - mutations - updateRouteHistory', routeHistory)
+            console.log('starting dynamo - mutations - updateRouteHistory')
             state.routeHistory = routeHistory;
           }
         },
         actions:{
-          async updateRouteHistory ({state, commit}, payload: { routeHistoryName: string, to: Route, from: Route}) {
+          async updateRouteHistory ({state, commit}, payload: { routeHistoryName: string, to: Route, from?: Route}) {
             console.log(payload.routeHistoryName + ' - starting dynamo - actions - updateRouteHistory')
 
             let newRouteHistory!: IRouteHistory[];
@@ -57,13 +56,13 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
               to.meta.childRouteHistoryName = payload.to.params.childRouteHistoryName;
             }
 
-            if(payload.to.meta) {
-              console.log('updateRouteHistory - currentPage -', currentPage)
-              to.meta.currentPage = currentPage;
-            }
+            // // // if(payload.to.meta) {
+            // //   console.log('updateRouteHistory - currentPage -', payload.to.meta.currentPage)
+            // //   to.meta.currentPage = currentPage;
+            // // // }
 
             if(state) {
-              newRouteHistory = [...state.routeHistory];
+              newRouteHistory = state.routeHistory; // [...state.routeHistory];
             }
             
             // get the specific route history matching the name passed in
@@ -71,15 +70,20 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
 
             if (!payload.to.params.clearHistory) {
               // we ARE NOT clearing the route history
+              console.log('updateRouteHistory - we ARE NOT clearing the route history')
               if(index > -1) {
                 const routeHistory = newRouteHistory[index].routeHistory;
 
                 if(routeHistory.length > 1 && to.fullPath === routeHistory[routeHistory.length - 2].fullPath) {  
                   // we're going back from where we came from
+                  console.log('updateRouteHistory - we are going back from where we came from')
+
                   routeHistory.pop();
                   if(routeHistory.length === 0) {
                     // we have removed the last routeHistory for this node, so delete it out of the parent array
                     newRouteHistory.splice(index, 1);
+                  } else {
+                    recentRouteChange = { routeHistoryName, routeHistory: [to] }
                   }
 
                   // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
@@ -87,18 +91,26 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
 
                 } else if (routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath) { 
                   // we didn't actually go anywhere
+                  console.log('updateRouteHistory - we did not actually go anywhere')
+
 
                   // add the child routeHistoryName (if it exists) to the most current route history
-                  if(to.meta.childRouteHistoryName) {
-                    routeHistory[routeHistory.length - 1].meta.childRouteHistoryName = to.meta.childRouteHistoryName;
-                    
+                  // if(to.meta.childRouteHistoryName) {
+                  //   routeHistory[routeHistory.length - 1].meta.childRouteHistoryName = to.meta.childRouteHistoryName;
+
+                    recentRouteChange = { routeHistoryName, routeHistory: [to] }
+
                     // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
                     commit('updateRouteHistory', newRouteHistory);
-                  }
+                  // }
                 } else {  
                   // we're going forward somewhere
+                  console.log('updateRouteHistory - we are going forward somewhere')
+
                   routeHistory.push(to);
-                
+                  // console.log('routeHistory - ', routeHistory)
+                  // console.log('newRouteHistory - ', newRouteHistory)
+                  recentRouteChange = { routeHistoryName, routeHistory: [to] }
                   // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
                   commit('updateRouteHistory', newRouteHistory);
                 }
@@ -106,17 +118,21 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
 
               } else {
                 // this is a brand new route level. most likel a child route unless it's the first ever created in the app
+                console.log('updateRouteHistory - this is a brand new route level')
 
                 // we're going forward somewhere
-                newRouteHistory.push({routeHistoryName, routeHistory: [to]});
+                recentRouteChange = { routeHistoryName, routeHistory: [to] }
+                newRouteHistory.push(recentRouteChange);
                 commit('updateRouteHistory', newRouteHistory);
               }
 
             
             } else {
               // we ARE clearing the route history
+              console.log('updateRouteHistory - we ARE clearing the route history')
               newRouteHistory.splice(index, 1);
-              newRouteHistory.push({routeHistoryName, routeHistory: [to]});
+              recentRouteChange = { routeHistoryName, routeHistory: [to] }
+              newRouteHistory.push(recentRouteChange);
 
               // console.log('updateRouteHistory - newRouteHistory - ', newRouteHistory)
               commit('updateRouteHistory', newRouteHistory);
@@ -159,6 +175,7 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
             try {
               // get the specific route history matching the name passed in
               const index = state.routeHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
+              console.log('getCurrentRoute - index ', index);
 
               if (index > -1 && state.routeHistory[index].routeHistory.length > 0 ) {
                 return getMatchingRouteRecord(state.routeHistory[index].routeHistory)[0].components; 
@@ -180,78 +197,72 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
               if (index > -1 && state.routeHistory[index].routeHistory && state.routeHistory[index].routeHistory.length > 0 ) {
                 return state.routeHistory[index].routeHistory; // getMatchingRouteHistory(state.routeHistory, index);
               } else {
-                return state.routeHistory;
+                return undefined;
               }
             } else {
-              return state.routeHistory; 
+              return undefined; 
             }
           },
-          // getRouteHistoryByPage: (state) => (page?: string) => {
-          //   console.log(page + ' - starting getRouteHistoryByPage');
+          getRouteHistoryByPage: (state) => (page?: string) => {
+            console.log('starting getRouteHistoryByPage - ', page);
 
-          //   if (page) {
-          //     const index = state.routeHistory.filter( (baseRouteHistory: IRouteHistory) => Object.keys(baseRouteHistory).some((key: string) => baseRouteHistory[key] && baseRouteHistory[key] === page ));
-          //     console.log('getRouteHistoryByPage - page - ', index)
-          //     return index;
-          //   } else {
-          //     return state.routeHistory;
-          //   }
-          // }
+            if (page) {
+              const routeHistory = state.routeHistory.filter( (baseRouteHistory: IRouteHistory) => baseRouteHistory.routeHistory.filter( (routeHistory: Route) =>
+                Object.keys(routeHistory.meta).some((key: string) => routeHistory.meta[key] && routeHistory.meta[key] === page )
+              ));
+
+              if (routeHistory.length > 0 ) {
+                return routeHistory[0]; // getMatchingRouteHistory(state.routeHistory, index);
+              } else {
+                return undefined;
+              }
+            } else {
+              return undefined;
+            }
+          }
         }
       })
 
       let isTimeTraveling: boolean = false
       let currentPath: string = ``;
 
+
       // sync router on store change
-      // const unWatch = () => {
-        for(const attribute in store.state.routeHistory) {
-
-          store.watch(
-            state => state.routeHistory[attribute],
-            (newValue, oldValue) => {
-              console.log('dynamo - starting store.watch')
-              console.log('newValue - ', newValue)
-              console.log('oldValue - ', oldValue)
-              // const route  = routeHistory[routeHistory.length - 1];
-              // const { fullPath } = route
-              // if (fullPath === currentPath) {
-              //   // console.log('fullPath === currentPath');
-              //   return
-              // }
-              // if (currentPath != null) {
-              //   // console.log('currentPath != null');
-              //   isTimeTraveling = true
-              //   router.push(route)
-              // }
-              // currentPath = fullPath
-            },
-          )
-
-        // }
-      }
+      store.watch(
+        state => state.ComponentRouter.routeHistory,
+        
+        (newValue, oldValue) => {
+          console.log('dynamo - starting store.watch - recentRouteChange - ', recentRouteChange)
+          const route  = recentRouteChange.routeHistory[0]; 
+          const { fullPath } = route
+          if (fullPath === currentPath) {
+            // console.log('fullPath === currentPath');
+            return
+          }
+          if (currentPath !== null) {
+            // console.log('currentPath != null');
+            isTimeTraveling = true
+            router.push({ name: route.name, params: { routeHistoryName: recentRouteChange.routeHistoryName}})
+            // router.push(route)
+          }
+          currentPath = fullPath
+        },
+        {
+          deep: true
+        }
+      )
 
       // sync store on router navigation
       // const removeRouteHook = 
-      router.afterEach(async (to: Route, from: Route) => {
+      router.afterEach((to: Route, from: Route) => {
         console.log('starting afterEachUnHook');
         try {
-
-        // async () => {
-          // const topmost = require('tns-core-modules/ui/frame').topmost // .then(({topmost}) => {
-            // const {topmost} = module;
-            
-          //   return topmost;
-          // });
-        // };
-
-
 
           const routeHistoryName = to.params.routeHistoryName;
           console.log('afterEachUnHook - routeHistoryName - ', routeHistoryName);
 
           const routeHistory = store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
-          console.log('routeHistory - ', routeHistory)
+          // console.log('routeHistory - ', routeHistory)
           if (isTimeTraveling || (routeHistory && routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath)) {
             console.log('we are timeTraveling so do nothing');
             isTimeTraveling = false

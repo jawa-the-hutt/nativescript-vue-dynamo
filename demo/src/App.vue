@@ -3,24 +3,34 @@
     <!-- <component
       :is="isLoggedIn === true ? 'home' : 'login'"
     /> -->
-    <Dynamo
-      route-history-name="main"
-    />
+    <!-- <Dynamo
+      :routeHistoryName="'main'"
+      :defaultRoute="'home'"
+      :topPage="pageUpdated"
+    /> -->
     <!-- <router-view /> -->
     <!-- <home /> -->
   </div>
 </template>
 <template native>
-    <Dynamo
-      route-history-name="main"
+  <!-- <Page> -->
+    <Dynamo ref='main'
+        :routeHistoryName="'main'"
+        :defaultRoute="'home'"
     />
+  <!-- </Page> -->
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
 
   @Component
   export default class App extends Vue {
+    private page: string = '';
 
+    public updatePage(value) {
+      console.log('app.vue - updatePage - emitted value - ', value);
+      this.page = value;
+    }
   }
 
 </script>

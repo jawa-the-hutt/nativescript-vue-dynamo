@@ -1,12 +1,12 @@
 import { Component, Vue } from 'vue-property-decorator';
 import * as application from 'tns-core-modules/application';
 import * as platform from 'nativescript-platform';
-import { Frame } from 'tns-core-modules/ui/frame';
-import Page from 'tns-core-modules/ui/page';
+import { topmost, getFrameById } from 'tns-core-modules/ui/frame';
+
 import * as GlobalMixinShared from './global-mixin-shared';
 import router from '~/router';
 import { Route } from 'vue-router';
-import {Store } from 'vuex'
+import { Store } from 'vuex'
 
 @Component
 export default class GlobalMixinNative extends Vue {
@@ -17,51 +17,53 @@ export default class GlobalMixinNative extends Vue {
   // intercept the back-button
   public async $interceptGoBack(routeHistoryName: string, childRouteHistoryName?: string): Promise<void> {
     console.log(`$interceptGoBack`);
-    // console.log(`routeHistoryName - `, routeHistoryName);
-    // console.log(`childRouteHistoryName - `, childRouteHistoryName);
-
-    // @ts-ignore
-    console.log('$interceptGoBack - currentPage - ', Frame.)
-
-    // this.routeHistoryName = routeHistoryName;
-    // this.childRouteHistoryName = childRouteHistoryName;
 
     if (platform.android) {
-      console.log(`platform.android`);
+      // console.log(`platform.android`);
   
       const activity = application.android.startActivity || application.android.foregroundActivity;
       activity.onBackPressed = async () => {
         console.log(`activity.onBackPressed`);
+        console.log(`===================================================================`);
 
-        // const page: Page = topmost().currentPage;
-        // const what =  this.$store.getters['ComponentRouter/getRouteHistoryByName'](undefined, page);
+        console.log('onBackPressed - frame ', getFrameById('first').currentPage.toString())
 
 
+        const page: string = topmost().currentPage.toString();
+        console.log('onBackPressed - page ', page)
+        const routeHistory =  this.$store.getters['ComponentRouter/getRouteHistoryByPage'](page);
+        console.log('onBackPressed - what ', routeHistory)
 
-        console.log(`routeHistoryName - `, routeHistoryName);
-        console.log(`childRouteHistoryName - `, childRouteHistoryName);
+
+        // console.log(`routeHistoryName - `, routeHistory.routeHistoryName);
+        console.log(`routeHistory.routeHistory - `, routeHistory.routeHistory);
+        // console.log(`routeHistory.routeHistory.meta - `, routeHistory.routeHistory.meta);
+
+        // console.log(`childRouteHistoryName - `, childRouteHistoryName);
     
-        this.$goBack(routeHistoryName, childRouteHistoryName);
+        this.$goBack(routeHistory.routeHistoryName, childRouteHistoryName);
       };
     }
   }
 
   public async $goBack(routeHistoryName: string, childRouteHistoryName?: string): Promise<void> {
     console.log(`$goBack`);
+    console.log(`===================================================================`);
+
     let childRouteHistory!: Route[];
     let currentRoute!: Route;
     console.log(`routeHistoryName - `, routeHistoryName);
     console.log(`childRouteHistoryName - `, childRouteHistoryName);
 
-    routeHistoryName = routeHistoryName === undefined ? 'ComponentRouter' : routeHistoryName;
-    console.log(`routeHistoryName - `, routeHistoryName);
+    // // // routeHistoryName = routeHistoryName === undefined ? 'ComponentRouter' : routeHistoryName;
+    // // // console.log(`routeHistoryName - `, routeHistoryName);
 
-    let routeHistory: Route[] = await this.$store.getters['ComponentRouter/getRouteHistoryByName'];
-    // console.log(`routeHistory - `, routeHistory);
+    let routeHistory: Route[] = await this.$store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
+    // console.log(`goBack - routeHistory - `, routeHistory);
 
 
     if (childRouteHistoryName) {
-      childRouteHistory = await this.$store.getters['ComponentRouter/getRouteHistoryByName'];
+      childRouteHistory = await this.$store.getters['ComponentRouter/getRouteHistoryByName'](childRouteHistoryName);
       // console.log(`childRouteHistory - `, childRouteHistory);
       console.log(`childRouteHistory length - `, childRouteHistory.length);
 
@@ -81,6 +83,8 @@ export default class GlobalMixinNative extends Vue {
 
     if(topmost().canGoBack()) {
       console.log('we can go back')
+      console.log(`===================================================================`);
+
       // we can go back a frame
       if(childRouteHistoryName && childRouteHistory && childRouteHistory.length > 0) {
         console.log('we have a childRouteHistoryName and childRouteHistory')
@@ -111,6 +115,7 @@ export default class GlobalMixinNative extends Vue {
 
     } else {
       console.log('we can NOT go back')
+      console.log(`===================================================================`);
 
       console.log(`currentRoute - `, currentRoute);
       // the current page may not be wrapped in a frame but if there is a routeHistory then somewhere up the tree there is
@@ -124,12 +129,14 @@ export default class GlobalMixinNative extends Vue {
   
   public async $goBackToParent(childRouteHistoryName: string, currentRoute: Route): Promise<void> {
     console.log('$goBackToParent');
+    console.log(`===================================================================`);
 
     // clear out the child router's history
-    this.$store.dispatch(childRouteHistoryName + '/clearRouteHistory');
+    this.$store.dispatch('ComponentRouter/clearRouteHistory', {childRouteHistoryName});
 
     // get the route history of the parent component
-    const routeHistory: Route[] = await this.$store.getters[currentRoute.meta.parentRouteHistoryName  + '/getRouteHistoryByName'];
+    const routeHistory: Route[] = await this.$store.getters['ComponentRouter/getRouteHistoryByName'](currentRoute.meta.parentRouteHistoryName);
+    // await this.$store.getters[currentRoute.meta.parentRouteHistoryName  + '/getRouteHistoryByName'];
 
     // going back to where we came from
     const newCurrentRoute = routeHistory[routeHistory.length - 2];

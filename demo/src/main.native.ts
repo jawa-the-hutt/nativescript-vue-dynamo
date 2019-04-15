@@ -13,7 +13,7 @@ Vue.use( Dynamo, {
 });
 
 // Set the following to `true` to hide the logs created by nativescript-vue
-Vue.config.silent = false;
+Vue.config.silent = true;
 // Set the following to `false` to not colorize the logs created by nativescript-vue
 // @ts-ignore
 Vue.config.debug = true;
@@ -26,17 +26,18 @@ Vue.use(VueDevtools, { host: '10.0.2.2' });
 import GlobalMixinNative from '~/utils/global-mixin/global-mixin';
 Vue.mixin(GlobalMixinNative);
 
-const start = async () => {
+// const start = async () => {
 
   const isLoggedIn = true; // change to false to start at the login component
   const name = isLoggedIn === true ? 'home' : 'login'
   router.push({name, params: { routeHistoryName: 'main'}});
   
-  return new Vue({
+  // return 
+  new Vue({
     store,
     router,
     render: (h) => h('frame', [h(App)]),
   }).$start();
-};
+// };
 
-start();
+// start();

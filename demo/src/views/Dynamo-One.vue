@@ -30,8 +30,9 @@
 
     public mounted() {
       if (this.$store.state.appMode === 'native') {
-        // // @ts-ignore
-        // console.log("DynamoOne.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        // @ts-ignore
+        console.log("DynamoOne.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
+        console.log("DynamoOne.vue - mounted - this.$router.currentRoute.fullPath - " + this.$router.currentRoute.fullPath );
       }
     }
 

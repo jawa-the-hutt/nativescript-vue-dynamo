@@ -26,17 +26,65 @@
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
+  import { topmost } from 'tns-core-modules/ui/frame';
 
   @Component({
     name: 'home'
   })
   export default class Home extends Vue {
     private navbarTitle: string = `Home.vue`;
+    // @ts-ignore
+    private page: string = '';
+
+
 
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
       if (this.$store.state.appMode === 'native') {
-        (this as any).$interceptGoBack('main');
+        // if (topmost()) {
+        //     console.log('home.vue - created - topmost() - ', topmost())
+        //   if (topmost() && topmost().currentPage ) {
+        //     console.log('home.vue - created - currentPage - ', topmost().currentPage)
+        //   }
+        // }
+        // // @ts-ignore
+        // if (this.$el) {
+        //   console.log('home.vue - created - this.$el is there')
+        //   // @ts-ignore
+        //   if (this.$el._nativeView) {
+        //     // @ts-ignore
+        //     console.log('home.vue - created - this.$el._nativeView.toString() - ', this.$el._nativeView.toString())
+        //   }
+        // }
+        // // @ts-ignore
+        // console.log('this.$refs.page.nativeView - ' + this.$refs.page.nativeView)
+      }
+    }
+
+    public mounted() {
+      // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
+      if (this.$store.state.appMode === 'native') {
+        (this as any).$interceptGoBack('main');  
+        
+        // @ts-ignore
+        this.page = this.$refs.page.nativeView.toString();
+        // console.log("Home.vue - mounted - this.$parent - ", this.$parent)
+        console.log("Home.vue - mounted - this.$refs.page.nativeView 1 - ", this.page );
+        // console.log("Home.vue - mounted - this.$router.currentRoute.fullPath - ", this.$router.currentRoute.fullPath );
+
+        this.$emit('event', this.page);
+
+        // @ts-ignore
+        //console.log('this.$refs.page.nativeView - ' + this.$refs.page.nativeView)
+        // @ts-ignore
+        // if (this.$el) {
+        //   console.log('home.vue - created - this.$el is there')
+        //   // @ts-ignore
+        //   if (this.$el._nativeView) {
+        //     // @ts-ignore
+        //     console.log('home.vue - created - this.$el._nativeView.toString() - ', this.$el._nativeView.toString())
+        //   }
+        // }
       }
     }
 
