@@ -29,7 +29,7 @@
   })
   export default class First extends Vue {
     private navbarTitle: string = `First.vue`;
-    // private routeHistory: Route[] = this.$store.getters['main' + '/getRouteHistory'];
+    // private routeHistory: Route[] = this.$store.getters['main' + '/getRouteHistoryByName'];
 
     public created() {
       // set this to make sure backwards navigation through native API's will navigate the correct routeHistory

@@ -2,6 +2,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import * as application from 'tns-core-modules/application';
 import * as platform from 'nativescript-platform';
 import { topmost } from 'tns-core-modules/ui/frame';
+import { Page } from 'tns-core-modules/ui/page';
 import * as GlobalMixinShared from './global-mixin-shared';
 import router from '~/router';
 import { Route } from 'vue-router';
@@ -19,8 +20,8 @@ export default class GlobalMixinNative extends Vue {
     console.log(`routeHistoryName - `, routeHistoryName);
     console.log(`childRouteHistoryName - `, childRouteHistoryName);
 
-    this.routeHistoryName = routeHistoryName;
-    this.childRouteHistoryName = childRouteHistoryName;
+    // this.routeHistoryName = routeHistoryName;
+    // this.childRouteHistoryName = childRouteHistoryName;
 
     if (platform.android) {
       console.log(`platform.android`);
@@ -28,7 +29,16 @@ export default class GlobalMixinNative extends Vue {
       const activity = application.android.startActivity || application.android.foregroundActivity;
       activity.onBackPressed = async () => {
         console.log(`activity.onBackPressed`);
-        this.$goBack(this.routeHistoryName, this.childRouteHistoryName);
+
+        // const page: Page = topmost().currentPage;
+        // const what =  this.$store.getters['ComponentRouter/getRouteHistoryByName'](undefined, page);
+
+
+
+        console.log(`routeHistoryName - `, routeHistoryName);
+        console.log(`childRouteHistoryName - `, childRouteHistoryName);
+    
+        this.$goBack(routeHistoryName, childRouteHistoryName);
       };
     }
   }
@@ -43,12 +53,12 @@ export default class GlobalMixinNative extends Vue {
     routeHistoryName = routeHistoryName === undefined ? 'ComponentRouter' : routeHistoryName;
     console.log(`routeHistoryName - `, routeHistoryName);
 
-    let routeHistory: Route[] = await this.$store.getters[routeHistoryName + '/getRouteHistory'];
+    let routeHistory: Route[] = await this.$store.getters['ComponentRouter/getRouteHistoryByName'];
     // console.log(`routeHistory - `, routeHistory);
 
 
     if (childRouteHistoryName) {
-      childRouteHistory = await this.$store.getters[childRouteHistoryName + '/getRouteHistory'];
+      childRouteHistory = await this.$store.getters['ComponentRouter/getRouteHistoryByName'];
       // console.log(`childRouteHistory - `, childRouteHistory);
       console.log(`childRouteHistory length - `, childRouteHistory.length);
 
@@ -116,7 +126,7 @@ export default class GlobalMixinNative extends Vue {
     this.$store.dispatch(childRouteHistoryName + '/clearRouteHistory');
 
     // get the route history of the parent component
-    const routeHistory: Route[] = await this.$store.getters[currentRoute.meta.parentRouteHistoryName  + '/getRouteHistory'];
+    const routeHistory: Route[] = await this.$store.getters[currentRoute.meta.parentRouteHistoryName  + '/getRouteHistoryByName'];
 
     // going back to where we came from
     const newCurrentRoute = routeHistory[routeHistory.length - 2];

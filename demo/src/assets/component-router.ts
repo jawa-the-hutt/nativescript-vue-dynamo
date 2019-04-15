@@ -140,7 +140,7 @@ export default class ComponentRouter extends VuexModule {
     // return this.currentRoute;
   }
 
-  public get getRouteHistory(): Route[] {
+  public get getRouteHistoryByName(): Route[] {
     return this.routeHistory;
   }
 

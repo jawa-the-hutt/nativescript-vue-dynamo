@@ -8,7 +8,7 @@ module.exports = {
       "@babel/preset-es2015"
     ]
   ],
-  plugins: [],
+  plugins: ["@babel/plugin-syntax-dynamic-import"],
   retainLines: true,
   comments: true
 };

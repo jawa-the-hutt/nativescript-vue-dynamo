@@ -1,5 +1,5 @@
 import { VueConstructor, PluginFunction } from 'vue';
-export declare function install(Vue: VueConstructor, options: any): void;
+export declare function install(Vue: VueConstructor, options: any): Promise<void>;
 declare class Dynamo {
     static install: PluginFunction<never>;
 }
