@@ -25,12 +25,12 @@
 
   @Component
   export default class App extends Vue {
-    private page: string = '';
+  //   private page: string = '';
 
-    public updatePage(value) {
-      console.log('app.vue - updatePage - emitted value - ', value);
-      this.page = value;
-    }
+  //   public updatePage(value) {
+  //     console.log('app.vue - updatePage - emitted value - ', value);
+  //     this.page = value;
+  //   }
   }
 
 </script>

@@ -1,9 +1,6 @@
 import { VueConstructor, PluginFunction } from 'vue';
 import { Route } from 'vue-router';
 import componentRouter, { IRouteHistory } from "./component-router";
-import { topmost, getFrameById } from 'tns-core-modules/ui/frame';
-
-// // // import componentRouterTracker from "./component-router-tracker";
 
 export async function install(Vue: VueConstructor, options: any) {
 
@@ -26,7 +23,7 @@ export async function install(Vue: VueConstructor, options: any) {
               : `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:event="updatePage" /></StackLayout></Frame>`,
           data() {
             return {
-              topPage: '' as String,
+              topPage: 'Page(-1)' as String,
             };
           },
           created() {
@@ -54,20 +51,16 @@ export async function install(Vue: VueConstructor, options: any) {
             },
           },
           methods: {
-            updatePage(value) {
-              console.log('dynamo - updatePage - emitted value - ', value);
+            updatePage(value): void {
               this.$data.topPage = value;
             }
           },
           watch: {
             topPage(newVal, oldVal) {
-              console.log('watch - topPage - oldVal', oldVal);
-              console.log('watch - topPage - newVal', newVal);
               // @ts-ignore
-              if (this.computedRouteHistory && this.computedRouteHistory.length > 0 ) {
+              if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0 ) {
                 // @ts-ignore
-                const route = this.computedRouteHistory[this.computedRouteHistory.length - 1];
-                    
+                const route: Route = this.computedRouteHistory.routeHistory[this.computedRouteHistory.routeHistory.length - 1];
                 if(route.meta) {
                   route.meta.currentPage = newVal;
                   this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: route });
@@ -77,58 +70,26 @@ export async function install(Vue: VueConstructor, options: any) {
             }
           },
           computed: {
-            computedCurrentRoute() {
-              console.log('computedCurrentRoute - this.$props.routeHistoryName - ', this.$props.routeHistoryName);
-
+            computedCurrentRoute(): Route {
+              let currentRoute!: Route;
               // @ts-ignore
-              if (this.computedRouteHistory && this.computedRouteHistory.length > 0 ) {
-                // // @ts-ignore
-                // console.log('computedCurrentRoute - this.computedRouteHistory - ', this.computedRouteHistory)
+              if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0 ) {
                 // @ts-ignore
-                return this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default;
+                currentRoute = this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default
+                // if(currentRoute.meta) {
+                //   currentRoute.meta.currentPage = options.router.currentRoute.name;
+                //   this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: currentRoute });
+
+                // }
+                return currentRoute;
+              } else {
+                return currentRoute;
               }
             },
-            computedRouteHistory() {
-              console.log('computedRouteHistory - this.$props.routeHistoryName - ', this.$props.routeHistoryName);
-              const routeHisotry = this.$store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
-              return routeHisotry;
+            computedRouteHistory(): IRouteHistory {
+              const routeHistory: IRouteHistory = this.$store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
+              return routeHistory;
             },
-            // // // computedTopPage() {
-            // // //   // @ts-ignore
-            // // //   console.log('computedTopPage - this.$data.topPage - ', this.$data.topPage);
-
-            // // //   // @ts-ignore
-            // // //   if (this.computedRouteHistory && this.computedRouteHistory.length > 0 ) {
-            // // //     // @ts-ignore
-            // // //     const topRoute = this.computedRouteHistory[0];
-                    
-            // // //     if(topRoute.meta) {
-            // // //       topRoute.meta.currentPage = this.$data.topPage;
-            // // //       this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: topRoute });
-            // // //       console.log('firstPage - ', this.$data.topPage)
-            // // //       return this.$data.topPage;
-            // // //     }
-            // // //   }
-
-
-              
-            // // // //   // // @ts-ignore
-            // // // //   // if (this.$el && this.computedRouteHistory && this.computedRouteHistory.length > 0 ) {
-            // // // //   //   // @ts-ignore
-            // // // //   //   if (this.$el._nativeView) {
-            // // // //   //     // @ts-ignore
-            // // // //   //     const firstPage = this.$el._nativeView.__vue_element_ref__.childNodes[0]._nativeView.toString();
-            // // // //   //     // @ts-ignore
-            // // // //   //     const topRoute = this.computedRouteHistory[0];
-                  
-            // // // //   //     if(topRoute.meta) {
-            // // // //   //       topRoute.meta.currentPage = firstPage;
-            // // // //   //       this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: topRoute });
-            // // // //   //       return firstPage;
-            // // // //   //     }
-            // // // //   //   }
-            // // // //   // }
-            // // // }
           },
         });
 
@@ -136,20 +97,6 @@ export async function install(Vue: VueConstructor, options: any) {
 
       // }
     })
-
-    // Vue.mixin({
-    //   mounted() {
-    //     // @ts-ignore
-    //     // if (this.$el) {
-    //     //   console.log('mixin - mounted - this.$el is there')
-    //     //   // @ts-ignore
-    //     //   if (this.$el._nativeView) {
-    //     //     // @ts-ignore
-    //     //     console.log('mixin - mounted - this.$el._nativeView.toString() - ', this.$el._nativeView.toString())
-    //     //   }
-    //     // }
-    //   }
-    // })
 
     // Vue.mixin({
     //   beforeCreate() {
@@ -167,6 +114,7 @@ class Dynamo {
 export namespace install {
   export let installed: boolean;
 }
+export { IRouteHistory};
 
 Dynamo.install = install;
 

@@ -43,6 +43,9 @@
         // console.log("Second.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView.toString());
         // // @ts-ignore
         // this.originalPageId =  this.$refs.page.nativeView.toString();
+        
+        // @ts-ignore
+        this.$emit('event', this.$refs.page.nativeView.toString());
       }
     }
 

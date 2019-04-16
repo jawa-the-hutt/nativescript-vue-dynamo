@@ -11,13 +11,11 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                 },
                 mutations: {
                     updateRouteHistory(state, routeHistory) {
-                        console.log('starting dynamo - mutations - updateRouteHistory');
                         state.routeHistory = routeHistory;
                     }
                 },
                 actions: {
                     async updateRouteHistory({ state, commit }, payload) {
-                        console.log(payload.routeHistoryName + ' - starting dynamo - actions - updateRouteHistory');
                         let newRouteHistory;
                         const routeHistoryName = payload.routeHistoryName;
                         const to = payload.to;
@@ -28,19 +26,14 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                         if (payload.to.meta && payload.to.params && payload.to.params.parentRouteHistoryName) {
                             to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
                         }
-                        if (payload.to.meta && payload.to.params && payload.to.params.childRouteHistoryName) {
-                            to.meta.childRouteHistoryName = payload.to.params.childRouteHistoryName;
-                        }
                         if (state) {
                             newRouteHistory = state.routeHistory;
                         }
                         const index = newRouteHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
                         if (!payload.to.params.clearHistory) {
-                            console.log('updateRouteHistory - we ARE NOT clearing the route history');
                             if (index > -1) {
                                 const routeHistory = newRouteHistory[index].routeHistory;
                                 if (routeHistory.length > 1 && to.fullPath === routeHistory[routeHistory.length - 2].fullPath) {
-                                    console.log('updateRouteHistory - we are going back from where we came from');
                                     routeHistory.pop();
                                     if (routeHistory.length === 0) {
                                         newRouteHistory.splice(index, 1);
@@ -51,26 +44,22 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                                     commit('updateRouteHistory', newRouteHistory);
                                 }
                                 else if (routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath) {
-                                    console.log('updateRouteHistory - we did not actually go anywhere');
                                     recentRouteChange = { routeHistoryName, routeHistory: [to] };
                                     commit('updateRouteHistory', newRouteHistory);
                                 }
                                 else {
-                                    console.log('updateRouteHistory - we are going forward somewhere');
                                     routeHistory.push(to);
                                     recentRouteChange = { routeHistoryName, routeHistory: [to] };
                                     commit('updateRouteHistory', newRouteHistory);
                                 }
                             }
                             else {
-                                console.log('updateRouteHistory - this is a brand new route level');
                                 recentRouteChange = { routeHistoryName, routeHistory: [to] };
                                 newRouteHistory.push(recentRouteChange);
                                 commit('updateRouteHistory', newRouteHistory);
                             }
                         }
                         else {
-                            console.log('updateRouteHistory - we ARE clearing the route history');
                             newRouteHistory.splice(index, 1);
                             recentRouteChange = { routeHistoryName, routeHistory: [to] };
                             newRouteHistory.push(recentRouteChange);
@@ -96,10 +85,8 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                 },
                 getters: {
                     getCurrentRoute: (state) => (routeHistoryName) => {
-                        console.log(routeHistoryName + ' - starting getCurrentRoute');
                         try {
                             const index = state.routeHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
-                            console.log('getCurrentRoute - index ', index);
                             if (index > -1 && state.routeHistory[index].routeHistory.length > 0) {
                                 return getMatchingRouteRecord(state.routeHistory[index].routeHistory)[0].components;
                             }
@@ -112,39 +99,63 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                         }
                     },
                     getRouteHistoryByName: (state) => (routeHistoryName) => {
-                        console.log('starting getRouteHistoryByName - ', routeHistoryName);
-                        if (routeHistoryName) {
-                            const index = state.routeHistory.findIndex((baseRouteHistory) => baseRouteHistory.routeHistoryName === routeHistoryName);
-                            console.log('getRouteHistoryByName - index -', index);
-                            if (index > -1 && state.routeHistory[index].routeHistory && state.routeHistory[index].routeHistory.length > 0) {
-                                return state.routeHistory[index].routeHistory;
+                        try {
+                            if (routeHistoryName) {
+                                const index = state.routeHistory
+                                    .findIndex((baseRouteHistory) => baseRouteHistory.routeHistoryName === routeHistoryName);
+                                if (index > -1 && state.routeHistory[index].routeHistory && state.routeHistory[index].routeHistory.length > 0) {
+                                    return state.routeHistory[index];
+                                }
+                                else {
+                                    return undefined;
+                                }
                             }
                             else {
                                 return undefined;
                             }
                         }
-                        else {
-                            return undefined;
+                        catch (err) {
+                            console.log(err);
+                        }
+                    },
+                    getRouteHistoryByRouteName: (state) => (name) => {
+                        try {
+                            if (name) {
+                                const routeHistory = state.routeHistory
+                                    .filter((baseRouteHistory) => baseRouteHistory.routeHistory.some((route) => route.name === name));
+                                if (routeHistory.length > 0) {
+                                    return routeHistory[0];
+                                }
+                                else {
+                                    return undefined;
+                                }
+                            }
+                            else {
+                                return undefined;
+                            }
+                        }
+                        catch (err) {
+                            console.log(err);
                         }
                     },
                     getRouteHistoryByPage: (state) => (page) => {
-                        console.log('starting getRouteHistoryByPage - ', page);
-                        if (page) {
-                            let routeHistory = state.routeHistory
-                                .filter((baseRouteHistory) => baseRouteHistory.routeHistory.some((route) => route.meta.currentPage === page))
-                                .map(baseRouteHistory => {
-                                return Object.assign({}, baseRouteHistory, { subElements: baseRouteHistory.routeHistory.filter(route => route.meta.currentPage === page) });
-                            });
-                            console.log('getRouteHistoryByPage - routeHistory - ', routeHistory);
-                            if (routeHistory.length > 0) {
-                                return routeHistory[0];
+                        try {
+                            if (page) {
+                                const routeHistory = state.routeHistory
+                                    .filter((baseRouteHistory) => baseRouteHistory.routeHistory.some((route) => route.meta.currentPage === page));
+                                if (routeHistory.length > 0) {
+                                    return routeHistory[0];
+                                }
+                                else {
+                                    return undefined;
+                                }
                             }
                             else {
                                 return undefined;
                             }
                         }
-                        else {
-                            return undefined;
+                        catch (err) {
+                            console.log(err);
                         }
                     }
                 }
@@ -152,7 +163,7 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
             let isTimeTraveling = false;
             let currentPath = ``;
             store.watch(state => state.ComponentRouter.routeHistory, (newValue, oldValue) => {
-                console.log('dynamo - starting store.watch - recentRouteChange - ', recentRouteChange);
+                console.log('dynamo - starting store.watch');
                 const route = recentRouteChange.routeHistory[0];
                 const { fullPath } = route;
                 if (fullPath === currentPath) {
@@ -167,13 +178,10 @@ var NativescriptVueDynamo=(function(exports){'use strict';const componentRouter 
                 deep: true
             });
             router.afterEach((to, from) => {
-                console.log('starting afterEachUnHook');
                 try {
                     const routeHistoryName = to.params.routeHistoryName;
-                    console.log('afterEachUnHook - routeHistoryName - ', routeHistoryName);
                     const routeHistory = store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
-                    if (isTimeTraveling || (routeHistory && routeHistory.length > 0 && to.fullPath === routeHistory[routeHistory.length - 1].fullPath)) {
-                        console.log('we are timeTraveling so do nothing');
+                    if (isTimeTraveling || (routeHistory && routeHistory.routeHistory.length > 0 && to.fullPath === routeHistory.routeHistory[routeHistory.routeHistory.length - 1].fullPath)) {
                         isTimeTraveling = false;
                         return;
                     }
@@ -215,7 +223,7 @@ const getMatchingRouteRecord = (routeHistory) => {
                         : `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:event="updatePage" /></StackLayout></Frame>`,
                 data() {
                     return {
-                        topPage: '',
+                        topPage: 'Page(-1)',
                     };
                 },
                 created() {
@@ -236,16 +244,13 @@ const getMatchingRouteRecord = (routeHistory) => {
                 },
                 methods: {
                     updatePage(value) {
-                        console.log('dynamo - updatePage - emitted value - ', value);
                         this.$data.topPage = value;
                     }
                 },
                 watch: {
                     topPage(newVal, oldVal) {
-                        console.log('watch - topPage - oldVal', oldVal);
-                        console.log('watch - topPage - newVal', newVal);
-                        if (this.computedRouteHistory && this.computedRouteHistory.length > 0) {
-                            const route = this.computedRouteHistory[this.computedRouteHistory.length - 1];
+                        if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0) {
+                            const route = this.computedRouteHistory.routeHistory[this.computedRouteHistory.routeHistory.length - 1];
                             if (route.meta) {
                                 route.meta.currentPage = newVal;
                                 this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: route });
@@ -255,15 +260,18 @@ const getMatchingRouteRecord = (routeHistory) => {
                 },
                 computed: {
                     computedCurrentRoute() {
-                        console.log('computedCurrentRoute - this.$props.routeHistoryName - ', this.$props.routeHistoryName);
-                        if (this.computedRouteHistory && this.computedRouteHistory.length > 0) {
-                            return this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default;
+                        let currentRoute;
+                        if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0) {
+                            currentRoute = this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default;
+                            return currentRoute;
+                        }
+                        else {
+                            return currentRoute;
                         }
                     },
                     computedRouteHistory() {
-                        console.log('computedRouteHistory - this.$props.routeHistoryName - ', this.$props.routeHistoryName);
-                        const routeHisotry = this.$store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
-                        return routeHisotry;
+                        const routeHistory = this.$store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
+                        return routeHistory;
                     },
                 },
             });

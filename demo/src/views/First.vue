@@ -8,16 +8,13 @@
 <template native>
   <Page ref="page">
     <ActionBar :title="navbarTitle">
-      <!-- <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="this.$router.push({ name: 'first', params: { routeHistoryName: 'ComponentRouter', childRouteHistoryName: 'FirstRouter'}})"/> -->
-      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$goBack('main', 'first')"/>
+      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$goBack('first')"/>
     </ActionBar>
-    <!-- <Frame id="first"> -->
       <Dynamo
         :routeHistoryName="'first'"
         :parentRouteHistoryName="'main'"
         :defaultRoute="'dynamo-one'"
       />
-    <!-- </Frame> -->
   </Page>
 </template>
 <script lang="ts">
@@ -68,6 +65,9 @@
         // // //     console.log('tracked routers - ', router);
         // // //   }
         // // // }
+
+        // @ts-ignore
+        this.$emit('event', this.$refs.page.nativeView.toString());
       }
     }
 
