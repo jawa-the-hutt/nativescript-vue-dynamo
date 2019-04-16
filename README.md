@@ -112,7 +112,7 @@ Inside of `App.vue`, you could even provide your own wrapper around the `Dynamo`
         :defaultRoute="defaultRoute"
         row="0"
       />
-      <Button text="First" @tap="$goTo({ name: 'first', params: { routeHistoryName: 'main'}})" row="1" />
+      <Button text="First" @tap="$goTo('first', 'main')" row="1" />
       <Button text="Second" @tap="$goTo({ name: 'second', params: { routeHistoryName: 'main'}})" row="2" />
       <Button text="Logout" @tap="shared.$logout" row="3" />
     </GridLayout>
@@ -124,7 +124,8 @@ Inside of `App.vue`, you could even provide your own wrapper around the `Dynamo`
 
 Because we are plugging into `Vue-Router`, many of the same programmatic navigation aides available there should be usable within `Nativescript-Vue`.  So things like `route.push()` and `route.back()` should work.  Others may not and if you find something that is not working, please submit an issue.
 
-In the example above, we are providing a route parameter named `routeHistoryName`.  This parameter is required and is used in the same way as the component parameter shown earlier.  We need to be able to track where we are within the app at any given time and if you don't supply it, this package will not work.
+In the example above, we are providing two different ways to route within the `$goTo` navigation aide.  Refer to the Navigation Aides section below for more information about this function.
+The first passes straight parameters and the second passes an object that should look similiar to something you pass for a `route.push` with `vue-router`. The second parameter is the `routeHistoryName` in the first example and in the second, we explicitly list it out as a `params` item.  The `routeHistoryName` parameter is required and is used in the same way as the parameter in the `Dynamo` component shown earlier.  We have to be able to track where we are within the app at any given time and if you don't supply it, this package will not work.
 
 ### Child routes
 
@@ -149,6 +150,12 @@ For example, given you are on a Login page, and successfully log in you would na
 
 ```js
 $router.push({ name: 'home', params: { routeHistoryName: 'main', clearHistory: 'true'}})
+```
+
+or 
+
+```js
+$goTo('home', 'main', 'true')
 ```
 
 Note that we used `clearHistory: true` to prevent the back button from going back to the login page.
