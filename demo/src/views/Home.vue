@@ -18,8 +18,8 @@
   <Page>
     <ActionBar :title="navbarTitle"/>
     <GridLayout rows="auto, auto, auto">
-      <Button text="First" @tap="$router.push({ name: 'first', params: { routeHistoryName: 'main'}})" row="0" /> 
-      <Button text="Second" @tap="$router.push({ name: 'second', params: { routeHistoryName: 'main'}})" row="1" />
+      <Button text="First" @tap="$goTo('first', 'main')" row="0" /> 
+      <Button text="Second" @tap="$goTo('second', 'main')" row="1" />
       <Button text="Logout" @tap="shared.$logout('main')" row="2" />
     </GridLayout>
   </Page>

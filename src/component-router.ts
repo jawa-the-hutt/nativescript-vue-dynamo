@@ -1,8 +1,9 @@
+import { VueConstructor } from 'vue';
 import Router, { Route, RouteConfig, RouteRecord } from 'vue-router';
 import { Store } from 'vuex';
 import clone from 'clone';
 
-const componentRouter = async (store: Store<any>, router: Router, routes: RouteConfig[], appMode: string) => {
+const componentRouter = async (store: Store<any>, router: Router, routes: RouteConfig[], appMode: string, Vue: VueConstructor) => {
   console.log('starting componentRouter function');
 
   try {
@@ -27,6 +28,7 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
             const routeHistoryName = payload.routeHistoryName;
             const to = payload.to;
             const from = payload.from;
+            let clearHistory: boolean = false;
 
             // add current routeHistoryName to meta tag in the route history
             if(payload.to.meta && payload.to.params && payload.to.params.routeHistoryName) {
@@ -38,6 +40,11 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
               to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
             }
 
+            // add current routeHistoryName to meta tag in the route history
+            if(payload.to.params && payload.to.params.clearHistory === 'true') {
+              clearHistory = true;
+            }
+
             if(state) {
               // using the clone library to get a deep clone since routeHistory includes
               // functions, getters, setters, circular references, etc
@@ -47,7 +54,7 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
             // get the specific route history matching the name passed in
             const index = newRouteHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
 
-            if (!payload.to.params.clearHistory) {
+            if (!clearHistory) {
               // we ARE NOT clearing the route history
 
               if(index > -1) {
@@ -212,7 +219,7 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
           }
           if (currentPath !== null) {
             isTimeTraveling = true
-            router.push({ name: route.name, params: { routeHistoryName: recentRouteChange.routeHistoryName }})
+            Vue.prototype.$goTo( route.name, recentRouteChange.routeHistoryName )
           }
           currentPath = fullPath
         },

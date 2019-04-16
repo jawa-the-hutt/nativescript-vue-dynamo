@@ -1,4 +1,4 @@
-(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?f(exports,require('clone')):typeof define==='function'&&define.amd?define(['exports','clone'],f):(g=g||self,f(g.NativescriptVueDynamo={},g.clone));}(this,function(exports, clone){'use strict';clone=clone&&clone.hasOwnProperty('default')?clone['default']:clone;const componentRouter = async (store, router, routes, appMode) => {
+(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?f(exports,require('clone')):typeof define==='function'&&define.amd?define(['exports','clone'],f):(g=g||self,f(g.NativescriptVueDynamo={},g.clone));}(this,function(exports, clone){'use strict';clone=clone&&clone.hasOwnProperty('default')?clone['default']:clone;const componentRouter = async (store, router, routes, appMode, Vue) => {
     console.log('starting componentRouter function');
     try {
         let recentRouteChange;
@@ -20,17 +20,21 @@
                         const routeHistoryName = payload.routeHistoryName;
                         const to = payload.to;
                         const from = payload.from;
+                        let clearHistory = false;
                         if (payload.to.meta && payload.to.params && payload.to.params.routeHistoryName) {
                             to.meta.routeHistoryName = payload.to.params.routeHistoryName;
                         }
                         if (payload.to.meta && payload.to.params && payload.to.params.parentRouteHistoryName) {
                             to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
                         }
+                        if (payload.to.params && payload.to.params.clearHistory === 'true') {
+                            clearHistory = true;
+                        }
                         if (state) {
                             newRouteHistory = clone(state.routeHistory);
                         }
                         const index = newRouteHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
-                        if (!payload.to.params.clearHistory) {
+                        if (!clearHistory) {
                             if (index > -1) {
                                 const routeHistory = newRouteHistory[index].routeHistory;
                                 if (routeHistory.length > 1 && to.fullPath === routeHistory[routeHistory.length - 2].fullPath) {
@@ -170,7 +174,7 @@
                 }
                 if (currentPath !== null) {
                     isTimeTraveling = true;
-                    router.push({ name: route.name, params: { routeHistoryName: recentRouteChange.routeHistoryName } });
+                    Vue.prototype.$goTo(route.name, recentRouteChange.routeHistoryName);
                 }
                 currentPath = fullPath;
             }, {
@@ -212,7 +216,7 @@ const getMatchingRouteRecord = (routeHistory) => {
     }
     else {
         const appMode = options.appMode === undefined || 'native' ? 'native' : 'web';
-        componentRouter(options.store, options.router, options.routes, appMode).then(() => {
+        componentRouter(options.store, options.router, options.routes, appMode, Vue).then(() => {
             install.installed = true;
             Vue.component('Dynamo', {
                 template: appMode === 'native'
@@ -222,7 +226,7 @@ const getMatchingRouteRecord = (routeHistory) => {
                     return {};
                 },
                 created() {
-                    options.router.push({ name: this.$props.defaultRoute, params: { routeHistoryName: this.$props.routeHistoryName, parentRouteHistoryName: this.$props.parentRouteHistoryName } });
+                    Vue.prototype.$goTo(this.$props.defaultRoute, this.$props.routeHistoryName, this.$props.parentRouteHistoryName);
                 },
                 props: {
                     routeHistoryName: {
@@ -269,10 +273,10 @@ const getMatchingRouteRecord = (routeHistory) => {
             let routeHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
             const currentRoute = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
             if (canGoBack && routeHistory.routeHistory.length > 1) {
-                options.router.push({ name: routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, params: { routeHistoryName } });
+                Vue.prototype.$goTo(routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, routeHistoryName);
             }
             else {
-                if (routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName) {
+                if (routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName && currentRoute.meta.parentRouteHistoryName !== routeHistoryName) {
                     Vue.prototype.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
                 }
             }
@@ -282,15 +286,31 @@ const getMatchingRouteRecord = (routeHistory) => {
             options.store.dispatch('ComponentRouter/clearRouteHistory', { routeHistoryName });
             const parentRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
             const newCurrentRoute = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
-            options.router.push({ name: newCurrentRoute.name, params: { routeHistoryName: parentRouteHistoryName, parentRouteHistoryName: newCurrentRoute.meta.parentRouteHistoryName } });
+            Vue.prototype.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName);
         };
-        Vue.prototype.$goTo = async (name, routeHistoryName, parentRouteHistoryName) => {
+        Vue.prototype.$goTo = async (location, routeHistoryName, parentRouteHistoryName, clearHistory, onComplete, onAbort) => {
             console.log('$goTo');
-            if (parentRouteHistoryName) {
-                options.router.push({ name, params: { routeHistoryName, parentRouteHistoryName } });
+            let tmpLocation = {};
+            parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
+            clearHistory = !clearHistory ? 'false' : 'true';
+            if (typeof location === 'string') {
+                tmpLocation.name = location;
+                tmpLocation.params = Object.assign({}, { routeHistoryName, parentRouteHistoryName, clearHistory });
             }
             else {
-                options.router.push({ name, params: { routeHistoryName } });
+                tmpLocation = location;
+            }
+            if (onComplete && onAbort) {
+                options.router.push(tmpLocation, onComplete, onAbort);
+            }
+            else if (onComplete && !onAbort) {
+                options.router.push(tmpLocation, onComplete);
+            }
+            else if (!onComplete && onAbort) {
+                options.router.push(tmpLocation, onAbort);
+            }
+            else {
+                options.router.push(tmpLocation);
             }
         };
     }
