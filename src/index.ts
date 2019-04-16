@@ -1,6 +1,7 @@
 import { VueConstructor, PluginFunction } from 'vue';
-import { Route } from 'vue-router';
+import { Route, RawLocation, Location } from 'vue-router';
 import componentRouter, { IRouteHistory } from "./component-router";
+type ErrorHandler = (err: Error) => void;
 
 export async function install(Vue: VueConstructor, options: any) {
 
@@ -9,7 +10,7 @@ export async function install(Vue: VueConstructor, options: any) {
     return;
   } else {
     const appMode =  options.appMode === undefined || 'native' ? 'native' : 'web';
-    componentRouter(options.store, options.router, options.routes, appMode).then(() => {
+    componentRouter(options.store, options.router, options.routes, appMode, Vue).then(() => {
         install.installed = true;
         Vue.component('Dynamo', {
           template:
@@ -22,7 +23,7 @@ export async function install(Vue: VueConstructor, options: any) {
           },
           created() {
             // if (options.store.state.appMode === 'native') {
-              options.router.push({ name: this.$props.defaultRoute, params: { routeHistoryName: this.$props.routeHistoryName , parentRouteHistoryName: this.$props.parentRouteHistoryName }});
+              Vue.prototype.$goTo( this.$props.defaultRoute, this.$props.routeHistoryName, this.$props.parentRouteHistoryName );
             // }
           },
           props: {
@@ -79,10 +80,10 @@ export async function install(Vue: VueConstructor, options: any) {
       if(canGoBack && routeHistory.routeHistory.length > 1 ) {
         // NS thinks we can go back in the same frame.
         // going back to previous page in the frame
-        options.router.push({ name: routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, params: { routeHistoryName }})
+        Vue.prototype.$goTo(routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, routeHistoryName )
       } else {
         // we can NOT go back further in this frame so check to see if this is a child route and if so, go back to parent
-        if(routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName ) {
+        if(routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName && currentRoute.meta.parentRouteHistoryName !== routeHistoryName ) {
           Vue.prototype.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
         };
       }
@@ -100,18 +101,34 @@ export async function install(Vue: VueConstructor, options: any) {
       // going back to where we came from
       // go back 2 since the newest entry in the parent router stack is the component holding the Dynamo component
       const newCurrentRoute: Route = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
-      options.router.push({ name: newCurrentRoute.name, params: { routeHistoryName: parentRouteHistoryName, parentRouteHistoryName: newCurrentRoute.meta.parentRouteHistoryName }})
+      Vue.prototype.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName)
     
     }
   
-    Vue.prototype.$goTo = async (name: string, routeHistoryName: string, parentRouteHistoryName?: string): Promise<void> => {
+    Vue.prototype.$goTo = async (location: string | Location, routeHistoryName: string, parentRouteHistoryName: string, clearHistory?: string, onComplete?: Function, onAbort?: ErrorHandler): Promise<void> => {
       console.log('$goTo');
-  
-      if(parentRouteHistoryName) {
-        options.router.push({ name, params: { routeHistoryName, parentRouteHistoryName}});
+
+      let tmpLocation: Location = {};
+      parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
+      clearHistory = !clearHistory ? 'false' : 'true';
+
+      if( typeof location === 'string') {
+        tmpLocation.name = location;
+        tmpLocation.params = Object.assign({}, { routeHistoryName, parentRouteHistoryName, clearHistory });
       } else {
-        options.router.push({ name, params: { routeHistoryName}});
+        tmpLocation = location;
       }
+
+      if (onComplete && onAbort) {
+        options.router.push(tmpLocation, onComplete , onAbort )
+      } else if (onComplete && !onAbort) {
+        options.router.push(tmpLocation, onComplete)
+      } else if (!onComplete && onAbort) {
+        options.router.push(tmpLocation, onAbort)
+      } else {
+        options.router.push(tmpLocation)
+      }
+
     }
 
     // Vue.mixin({
@@ -131,6 +148,9 @@ export namespace install {
   export let installed: boolean;
 }
 export { IRouteHistory};
+
+
+
 
 Dynamo.install = install;
 
