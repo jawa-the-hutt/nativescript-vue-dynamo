@@ -207,12 +207,17 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
             console.log('starting getRouteHistoryByPage - ', page);
 
             if (page) {
-              const routeHistory = state.routeHistory.filter( (baseRouteHistory: IRouteHistory) => baseRouteHistory.routeHistory.filter( (routeHistory: Route) =>
-                Object.keys(routeHistory.meta).some((key: string) => routeHistory.meta[key] && routeHistory.meta[key] === page )
-              ));
+              let routeHistory = state.routeHistory
+              .filter((baseRouteHistory) => 
+                baseRouteHistory.routeHistory.some((route) => route.meta.currentPage === page))
+              .map(baseRouteHistory => {
+                return Object.assign({}, baseRouteHistory, {subElements : baseRouteHistory.routeHistory.filter(route => route.meta.currentPage === page)});
+              }); 
 
+
+              console.log('getRouteHistoryByPage - routeHistory - ', routeHistory)
               if (routeHistory.length > 0 ) {
-                return routeHistory[0]; // getMatchingRouteHistory(state.routeHistory, index);
+                return routeHistory[0]; 
               } else {
                 return undefined;
               }

@@ -23,7 +23,7 @@ export async function install(Vue: VueConstructor, options: any) {
               ? `<component v-bind:is="computedCurrentRoute" v-on:event="updatePage" />`
               : options.appMode === "web"
               ? `<div><component v-bind:is="computedCurrentRoute" v-on:event="updatePage"/></div>`
-              : `<StackLayout><component v-bind:is="computedCurrentRoute" v-on:event="updatePage" /></StackLayout>`,
+              : `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:event="updatePage" /></StackLayout></Frame>`,
           data() {
             return {
               topPage: '' as String,
@@ -66,11 +66,11 @@ export async function install(Vue: VueConstructor, options: any) {
               // @ts-ignore
               if (this.computedRouteHistory && this.computedRouteHistory.length > 0 ) {
                 // @ts-ignore
-                const topRoute = this.computedRouteHistory[0];
+                const route = this.computedRouteHistory[this.computedRouteHistory.length - 1];
                     
-                if(topRoute.meta) {
-                  topRoute.meta.currentPage = newVal;
-                  this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: topRoute });
+                if(route.meta) {
+                  route.meta.currentPage = newVal;
+                  this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: route });
 
                 }
               }

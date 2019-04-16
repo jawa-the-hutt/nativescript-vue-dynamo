@@ -11,13 +11,13 @@
       <!-- <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="this.$router.push({ name: 'first', params: { routeHistoryName: 'ComponentRouter', childRouteHistoryName: 'FirstRouter'}})"/> -->
       <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$goBack('main', 'first')"/>
     </ActionBar>
-    <Frame id="first">
+    <!-- <Frame id="first"> -->
       <Dynamo
         :routeHistoryName="'first'"
         :parentRouteHistoryName="'main'"
         :defaultRoute="'dynamo-one'"
       />
-    </Frame>
+    <!-- </Frame> -->
   </Page>
 </template>
 <script lang="ts">
@@ -32,7 +32,7 @@
   })
   export default class First extends Vue {
     private navbarTitle: string = `First.vue`;
-    private page: string = '';
+    // private page: string = '';
     // private routeHistory: Route[] = this.$store.getters['main' + '/getRouteHistoryByName'];
 
     public beforeCreate() {
@@ -49,7 +49,7 @@
       if (this.$store.state.appMode === 'native') {
         (this as any).$interceptGoBack('main');
         // @ts-ignore
-        console.log("First.vue - created - topmost().currentPage.toString() - " + topmost().currentPage.toString())
+        // console.log("First.vue - created - topmost().currentPage.toString() - " + topmost().currentPage.toString())
         // this.$router.push({ name: 'first', params: { routeHistoryName: 'main', childRouteHistoryName: 'FirstRouter'}});
         // this.$router.push({ name: 'dynamo-one', params: { routeHistoryName: 'first', parentRouteHistoryName: 'main'}});
       }
@@ -57,10 +57,10 @@
 
     public mounted() {
       if (this.$store.state.appMode === 'native') {
-        // @ts-ignore
-        this.page = this.$refs.page.nativeView.toString();
-        console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.page );
-        console.log("First.vue - mounted - this.$router.currentRoute.fullPath - " + this.$router.currentRoute.fullPath );
+        // // @ts-ignore
+        // this.page = this.$refs.page.nativeView.toString();
+        // console.log("First.vue - mounted - this.$refs.page.nativeView 1 - " + this.page );
+        // console.log("First.vue - mounted - this.$router.currentRoute.fullPath - " + this.$router.currentRoute.fullPath );
 
         // // // if (this.$store.getters['componentRouterTracker/getComponentRouterModuleNames'].length > 0 ) {
         // // //   const trackedRouters = this.$store.getters['componentRouterTracker/getComponentRouterModuleNames'];

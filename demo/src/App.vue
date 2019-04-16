@@ -13,12 +13,12 @@
   </div>
 </template>
 <template native>
-  <!-- <Page> -->
+  <Page actionBarHidden="true" ref="page">
     <Dynamo ref='main'
         :routeHistoryName="'main'"
         :defaultRoute="'home'"
     />
-  <!-- </Page> -->
+  </Page>
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';

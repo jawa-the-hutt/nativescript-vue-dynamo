@@ -130,7 +130,12 @@ const componentRouter = async (store, router, routes, appMode) => {
                     getRouteHistoryByPage: (state) => (page) => {
                         console.log('starting getRouteHistoryByPage - ', page);
                         if (page) {
-                            const routeHistory = state.routeHistory.filter((baseRouteHistory) => baseRouteHistory.routeHistory.filter((routeHistory) => Object.keys(routeHistory.meta).some((key) => routeHistory.meta[key] && routeHistory.meta[key] === page)));
+                            let routeHistory = state.routeHistory
+                                .filter((baseRouteHistory) => baseRouteHistory.routeHistory.some((route) => route.meta.currentPage === page))
+                                .map(baseRouteHistory => {
+                                return Object.assign({}, baseRouteHistory, { subElements: baseRouteHistory.routeHistory.filter(route => route.meta.currentPage === page) });
+                            });
+                            console.log('getRouteHistoryByPage - routeHistory - ', routeHistory);
                             if (routeHistory.length > 0) {
                                 return routeHistory[0];
                             }
@@ -209,7 +214,7 @@ async function install(Vue, options) {
                     ? `<component v-bind:is="computedCurrentRoute" v-on:event="updatePage" />`
                     : options.appMode === "web"
                         ? `<div><component v-bind:is="computedCurrentRoute" v-on:event="updatePage"/></div>`
-                        : `<StackLayout><component v-bind:is="computedCurrentRoute" v-on:event="updatePage" /></StackLayout>`,
+                        : `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:event="updatePage" /></StackLayout></Frame>`,
                 data() {
                     return {
                         topPage: '',
@@ -242,10 +247,10 @@ async function install(Vue, options) {
                         console.log('watch - topPage - oldVal', oldVal);
                         console.log('watch - topPage - newVal', newVal);
                         if (this.computedRouteHistory && this.computedRouteHistory.length > 0) {
-                            const topRoute = this.computedRouteHistory[0];
-                            if (topRoute.meta) {
-                                topRoute.meta.currentPage = newVal;
-                                this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: topRoute });
+                            const route = this.computedRouteHistory[this.computedRouteHistory.length - 1];
+                            if (route.meta) {
+                                route.meta.currentPage = newVal;
+                                this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: route });
                             }
                         }
                     }

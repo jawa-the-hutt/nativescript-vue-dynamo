@@ -6,11 +6,13 @@
   </div>
 </template>
 <template native>
+<!-- <Frame id="dynamo-two"> -->
   <Page actionBarHidden="true" ref="page">
     <GridLayout rows="auto">
       <Button text="Dynamo One" @tap="$router.push({ name: 'dynamo-one', params: { routeHistoryName: 'first', parentRouteHistoryName: 'main'}})" row="0" />
     </GridLayout>
   </Page>
+<!-- </Frame> -->
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
@@ -33,6 +35,8 @@
         // @ts-ignore
         console.log("DynamoTwo.vue - mounted - this.$refs.page.nativeView 1 - " + this.$refs.page.nativeView.toString());
         console.log("DynamoTwo.vue - mounted - this.$router.currentRoute.fullPath - " + this.$router.currentRoute.fullPath );
+        // @ts-ignore
+        this.$emit('event', this.$refs.page.nativeView.toString());
       }
     }
 

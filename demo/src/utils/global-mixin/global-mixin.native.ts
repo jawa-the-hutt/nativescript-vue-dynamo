@@ -26,10 +26,13 @@ export default class GlobalMixinNative extends Vue {
         console.log(`activity.onBackPressed`);
         console.log(`===================================================================`);
 
-        console.log('onBackPressed - frame ', getFrameById('first').currentPage.toString())
-
-
-        const page: string = topmost().currentPage.toString();
+        // const frame = getFrameById('first')
+        // console.log('onBackPressed - frame ', frame)
+        // console.log('onBackPressed   - frame - backStack', frame.backStack)
+        // console.log('onBackPressed   - frame - currentPage', frame.currentPage.toString())
+        const top = topmost()
+    //     console.log('topmost() - ',top )
+        const page: string = top.currentPage.toString();
         console.log('onBackPressed - page ', page)
         const routeHistory =  this.$store.getters['ComponentRouter/getRouteHistoryByPage'](page);
         console.log('onBackPressed - what ', routeHistory)
