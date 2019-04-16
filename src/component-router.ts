@@ -1,20 +1,13 @@
 import Router, { Route, RouteConfig, RouteRecord } from 'vue-router';
 import { Store } from 'vuex';
+import clone from 'clone';
 
 const componentRouter = async (store: Store<any>, router: Router, routes: RouteConfig[], appMode: string) => {
   console.log('starting componentRouter function');
 
   try {
     let recentRouteChange!: IRouteHistory;
-    
-    // if(appMode === 'native') {
-    // } else if (appMode === 'web') {
-    //   currentPage = router.currentRoute.fullPath;
-    // } else {
-    // }
-
-
-    const moduleName = 'ComponentRouter'; // routeHistoryName !== undefined ? routeHistoryName : 'ComponentRouter';
+    const moduleName = 'ComponentRouter';
 
     if(!store.state[moduleName]) {
       // module does not exist in the store
@@ -29,7 +22,7 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
           }
         },
         actions:{
-          async updateRouteHistory ({state, commit}, payload: { routeHistoryName: string, to: Route, from?: Route}) {
+          updateRouteHistory ({state, commit}, payload: { routeHistoryName: string, to: Route, from?: Route}) {
             let newRouteHistory!: IRouteHistory[];
             const routeHistoryName = payload.routeHistoryName;
             const to = payload.to;
@@ -46,7 +39,9 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
             }
 
             if(state) {
-              newRouteHistory = state.routeHistory; // [...state.routeHistory];
+              // using the clone library to get a deep clone since routeHistory includes
+              // functions, getters, setters, circular references, etc
+              newRouteHistory = clone(state.routeHistory);
             }
             
             // get the specific route history matching the name passed in
@@ -104,7 +99,9 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
               const routeHistoryName = payload.routeHistoryName;
 
               if(state) {
-                newRouteHistory = [...state.routeHistory];
+                // using the clone library to get a deep clone since routeHistory includes
+                // functions, getters, setters, circular references, etc
+                newRouteHistory = clone(state.routeHistory);
               }
 
               // get the specific route history matching the name passed in
@@ -208,7 +205,6 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
       store.watch(
         state => state.ComponentRouter.routeHistory,
         (newValue, oldValue) => {
-          console.log('dynamo - starting store.watch')
           const route  = recentRouteChange.routeHistory[0]; 
           const { fullPath } = route
           if (fullPath === currentPath) {

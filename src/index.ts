@@ -8,33 +8,22 @@ export async function install(Vue: VueConstructor, options: any) {
     console.log('not installed')
     return;
   } else {
-    // // // componentRouterTracker(options.store);
-    componentRouter(options.store, options.router, options.routes, options.appMode).then(() => {
-      console.log('back from componentRouter')
-      // for(const routeHistoryName of options.routeHistoryName) {
-        // console.log('not installed yet - routeHistoryName - ', routeHistoryName)
+    const appMode =  options.appMode === undefined || 'native' ? 'native' : 'web';
+    componentRouter(options.store, options.router, options.routes, appMode).then(() => {
         install.installed = true;
         Vue.component('Dynamo', {
           template:
-            options.appMode === undefined
-              ? `<component v-bind:is="computedCurrentRoute" v-on:event="updatePage" />`
-              : options.appMode === "web"
-              ? `<div><component v-bind:is="computedCurrentRoute" v-on:event="updatePage"/></div>`
-              : `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:event="updatePage" /></StackLayout></Frame>`,
+            appMode === 'native' 
+              ? `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout></Frame>`
+              : `<div :id="routeHistoryName"><component v-bind:is="computedCurrentRoute" /></div>`,
           data() {
             return {
-              topPage: 'Page(-1)' as String,
             };
           },
           created() {
-            // this.$store.dispatch('componentRouterTracker/updateComponentRouterModules', { routeHistoryName: this.routeHistoryName, parentRouteHistoryName: this.parentRouteHistoryName, status: true })
-            // if(this.$props.defaultRoute && this.$props.routeHistoryName) {
-            //   console.log('pushing default route')
-            //   this.$router.push({ name: this.$props.defaultRoute, params: { routeHistoryName: this.$props.routeHistoryName, parentRouteHistoryName: this.$props.parentRouteHistoryName}});
+            // if (options.store.state.appMode === 'native') {
+              options.router.push({ name: this.$props.defaultRoute, params: { routeHistoryName: this.$props.routeHistoryName , parentRouteHistoryName: this.$props.parentRouteHistoryName }});
             // }
-            // @ts-ignore
-            // this.$props.topPage = this.computedTopPage;
-            // console.log('created - this.$data.topPage - ', this.$props.topPage)
           },
           props: {
             routeHistoryName: {
@@ -50,53 +39,80 @@ export async function install(Vue: VueConstructor, options: any) {
               required: false
             },
           },
-          methods: {
-            updatePage(value): void {
-              this.$data.topPage = value;
-            }
-          },
-          watch: {
-            topPage(newVal, oldVal) {
-              // @ts-ignore
-              if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0 ) {
-                // @ts-ignore
-                const route: Route = this.computedRouteHistory.routeHistory[this.computedRouteHistory.routeHistory.length - 1];
-                if(route.meta) {
-                  route.meta.currentPage = newVal;
-                  this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: route });
-
-                }
-              }
-            }
-          },
           computed: {
             computedCurrentRoute(): Route {
               let currentRoute!: Route;
               // @ts-ignore
               if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0 ) {
                 // @ts-ignore
-                currentRoute = this.$store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default
-                // if(currentRoute.meta) {
-                //   currentRoute.meta.currentPage = options.router.currentRoute.name;
-                //   this.$store.dispatch('ComponentRouter/updateRouteHistory', { routeHistoryName: this.$props.routeHistoryName, to: currentRoute });
-
-                // }
+                currentRoute = options.store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default
                 return currentRoute;
               } else {
                 return currentRoute;
               }
             },
             computedRouteHistory(): IRouteHistory {
-              const routeHistory: IRouteHistory = this.$store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
+              const routeHistory: IRouteHistory = options.store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
               return routeHistory;
             },
           },
         });
-
-
-
-      // }
     })
+
+    Vue.prototype.$goBack = async (routeHistoryName: string): Promise<void> => {
+      console.log(`$goBack`);
+      let canGoBack: boolean = false;
+
+      if(options.appMode === 'native') {
+        await import('tns-core-modules/ui/frame').then(({topmost}) => {
+          canGoBack = topmost().canGoBack();
+          return; 
+        })
+
+      } else if (options.appMode === 'web') {
+      } else {
+      }
+  
+      let routeHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
+      const currentRoute: Route = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
+  
+      if(canGoBack && routeHistory.routeHistory.length > 1 ) {
+        // NS thinks we can go back in the same frame.
+        // going back to previous page in the frame
+        options.router.push({ name: routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, params: { routeHistoryName }})
+      } else {
+        // we can NOT go back further in this frame so check to see if this is a child route and if so, go back to parent
+        if(routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName ) {
+          Vue.prototype.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
+        };
+      }
+    }
+    
+    Vue.prototype.$goBackToParent = async (routeHistoryName: string, parentRouteHistoryName: string): Promise<void> => {
+      console.log('$goBackToParent');
+  
+      // clear out the child router's history
+      options.store.dispatch('ComponentRouter/clearRouteHistory', {routeHistoryName});
+  
+      // get the route history of the parent component
+      const parentRouteHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
+  
+      // going back to where we came from
+      // go back 2 since the newest entry in the parent router stack is the component holding the Dynamo component
+      const newCurrentRoute: Route = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
+      options.router.push({ name: newCurrentRoute.name, params: { routeHistoryName: parentRouteHistoryName, parentRouteHistoryName: newCurrentRoute.meta.parentRouteHistoryName }})
+    
+    }
+  
+    Vue.prototype.$goTo = async (name: string, routeHistoryName: string, parentRouteHistoryName?: string): Promise<void> => {
+      console.log('$goTo');
+  
+      if(parentRouteHistoryName) {
+        options.router.push({ name, params: { routeHistoryName, parentRouteHistoryName}});
+      } else {
+        options.router.push({ name, params: { routeHistoryName}});
+      }
+    }
 
     // Vue.mixin({
     //   beforeCreate() {

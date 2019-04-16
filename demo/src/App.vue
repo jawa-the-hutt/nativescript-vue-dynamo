@@ -13,24 +13,19 @@
   </div>
 </template>
 <template native>
-  <Page actionBarHidden="true" ref="page">
-    <Dynamo ref='main'
-        :routeHistoryName="'main'"
-        :defaultRoute="'home'"
+  <Page actionBarHidden="true">
+    <Dynamo
+      :routeHistoryName="'main'"
+      :defaultRoute="defaultRoute"
     />
   </Page>
 </template>
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
+  import { Component, Vue, Prop } from 'vue-property-decorator';
 
   @Component
   export default class App extends Vue {
-  //   private page: string = '';
-
-  //   public updatePage(value) {
-  //     console.log('app.vue - updatePage - emitted value - ', value);
-  //     this.page = value;
-  //   }
+    @Prop({default: 'login'}) public defaultRoute!: string;
   }
 
 </script>

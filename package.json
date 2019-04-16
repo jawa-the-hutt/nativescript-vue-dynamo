@@ -51,6 +51,7 @@
   },
   "homepage": "https://github.com/jawa-the-hutt/nativescript-vue-dynamo#readme",
   "dependencies": {
+    "clone": "^2.1.2",
     "tns-core-modules": "^5.3.1",
     "vue-router": "^3.0.4",
     "vuex": "^3.1.0"

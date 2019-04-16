@@ -26,18 +26,11 @@ Vue.use(VueDevtools, { host: '10.0.2.2' });
 import GlobalMixinNative from '~/utils/global-mixin/global-mixin';
 Vue.mixin(GlobalMixinNative);
 
-// const start = async () => {
+const isLoggedIn = true; // change to false to start at the login component
 
-  const isLoggedIn = true; // change to false to start at the login component
-  const name = isLoggedIn === true ? 'home' : 'login'
-  router.push({name, params: { routeHistoryName: 'main'}});
-  
-  // return 
-  new Vue({
-    store,
-    router,
-    render: (h) => h('frame', [h(App)]),
-  }).$start();
-// };
+new Vue({
+  store,
+  router,
+  render: (h) => h('frame', [h(App, {props: {defaultRoute: isLoggedIn === true ? 'home' : 'login'}})]),
+}).$start();
 
-// start();

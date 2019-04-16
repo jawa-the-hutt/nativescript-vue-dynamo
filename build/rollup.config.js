@@ -43,7 +43,8 @@ const external = [
   "vue-property-decorator",
   "vue-class-component",
   "vue-router",
-  "vuex"
+  "vuex",
+  "clone",
 ];
 const globals = {
   // Provide global variable names to replace your external imports
