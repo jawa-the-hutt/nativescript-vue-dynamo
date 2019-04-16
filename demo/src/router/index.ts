@@ -34,7 +34,7 @@ export const routes: RouteConfig[] = [
     children: [
       {
         name: 'first',
-        path: '/',
+        path: '',
         // @ts-ignore
         // eslint-disable-next-line
         component: () => import(/* webpackChunkName: "first" */ '~/views/First'),

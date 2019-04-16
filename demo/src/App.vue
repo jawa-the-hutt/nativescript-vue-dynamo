@@ -3,24 +3,29 @@
     <!-- <component
       :is="isLoggedIn === true ? 'home' : 'login'"
     /> -->
-    <Dynamo
-      route-history-name="main"
-    />
+    <!-- <Dynamo
+      :routeHistoryName="'main'"
+      :defaultRoute="'home'"
+      :topPage="pageUpdated"
+    /> -->
     <!-- <router-view /> -->
     <!-- <home /> -->
   </div>
 </template>
 <template native>
+  <Page actionBarHidden="true">
     <Dynamo
-      route-history-name="main"
+      :routeHistoryName="'main'"
+      :defaultRoute="defaultRoute"
     />
+  </Page>
 </template>
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
+  import { Component, Vue, Prop } from 'vue-property-decorator';
 
   @Component
   export default class App extends Vue {
-
+    @Prop({default: 'login'}) public defaultRoute!: string;
   }
 
 </script>

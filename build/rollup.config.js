@@ -5,15 +5,18 @@ import replace from "rollup-plugin-replace";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
 import minimist from "minimist";
+import resolve from "rollup-plugin-node-resolve";
 
 const argv = minimist(process.argv.slice(2));
 
 const baseConfig = {
   input: "src/index.ts",
+  inlineDynamicImports: true,
   plugins: [
     replace({
       "process.env.NODE_ENV": JSON.stringify("production")
     }),
+    resolve(),
     commonjs(),
     typescript({
       tsconfig: "tsconfig.json",
@@ -40,11 +43,13 @@ const external = [
   "vue-property-decorator",
   "vue-class-component",
   "vue-router",
-  "vuex"
+  "vuex",
+  "clone",
 ];
 const globals = {
   // Provide global variable names to replace your external imports
   // eg. jquery: '$'
+  // "tns-core-modules/ui/frame": "frame"
 };
 
 // Customize configs for individual targets
@@ -52,6 +57,7 @@ const buildFormats = [];
 if (!argv.format || argv.format === "es") {
   const esConfig = {
     ...baseConfig,
+    external,
     output: {
       file: "dist/nativescript-vue-dynamo.esm.js",
       format: "esm",

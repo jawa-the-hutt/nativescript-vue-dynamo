@@ -15,7 +15,7 @@
   </div>
 </template>
 <template native>
-  <Page ref="page">
+  <Page>
     <ActionBar :title="navbarTitle"/>
     <GridLayout rows="auto, auto, auto">
       <Button text="First" @tap="$router.push({ name: 'first', params: { routeHistoryName: 'main'}})" row="0" /> 
@@ -34,35 +34,12 @@
     private navbarTitle: string = `Home.vue`;
 
     public created() {
-      // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
       if (this.$store.state.appMode === 'native') {
-        (this as any).$interceptGoBack('main');
+        // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
+        (this as any).$interceptGoBack();  
       }
     }
 
-    // public mounted(){
-    //   if (this.$store.state.appMode === 'native') {
-    //     // // @ts-ignore
-    //     // console.log("Home.vue - mounted - this.$refs.page.nativeView - " + this.$refs.page.nativeView);
-
-    //     // // @ts-ignore
-    //     // this.$store.dispatch('updateOriginalHomePageId',  this.$refs.page.nativeView.toString() );
-    //     // console.log("Home.vue - mounted - original Home.vue Page Id - " + this.originalHomePageId);
-
-    //     // // @ts-ignore
-    //     // if (this.$refs.page.nativeView.toString() === this.originalHomePageId ) {
-    //     //   console.log("Home.vue - mounted - original Home.vue Page Id is the same as the current Home.vue Page");
-    //     // } else {
-    //     //   console.log("Home.vue - mounted - original Home.vue Page Id is NOT the same as the current Home.vue Page Id");
-    //     // }
-    //   }
-    // }
-
-    // public get originalHomePageId () {
-    //   if (this.$store.state.appMode === 'native') {
-    //     return this.$store.getters.getOriginalHomePageId;
-    //   }
-    // }
   }
 
 </script>

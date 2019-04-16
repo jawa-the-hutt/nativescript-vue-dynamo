@@ -12,24 +12,17 @@ Vue.use( Dynamo, {
   store,
   router,
   routes,
-  routeHistoryName: [ 'ComponentRouter', 'FirstRouter' ] 
 });
 
 // @ts-ignore
 import GlobalMixinWeb from '~/utils/global-mixin/global-mixin';
 Vue.mixin(GlobalMixinWeb);
 
-// const start = async () => {
-  const isLoggedIn = true; // change to false to start at the login component
-  const name = isLoggedIn === true ? 'home' : 'login'
-  router.push({name, params: { routeHistoryName: 'ComponentRouter'}});
-  
-  // return 
-  new Vue({
-    router,
-    store,
-    render: (h) => h(App, { props: { isLoggedIn }})
-  }).$mount('#app');
-// };
 
-// start();
+const isLoggedIn = true; // change to false to start at the login component
+
+new Vue({
+  router,
+  store,
+  render: (h) => h(App, { props: { isLoggedIn }})
+}).$mount('#app');
