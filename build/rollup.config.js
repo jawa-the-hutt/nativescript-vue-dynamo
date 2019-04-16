@@ -45,11 +45,12 @@ const external = [
   "vue-router",
   "vuex",
   "clone",
+  "tns-core-modules/ui/frame"
 ];
 const globals = {
   // Provide global variable names to replace your external imports
   // eg. jquery: '$'
-  // "tns-core-modules/ui/frame": "frame"
+  clone: "clone"
 };
 
 // Customize configs for individual targets
