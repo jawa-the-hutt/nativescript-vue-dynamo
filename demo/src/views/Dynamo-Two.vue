@@ -8,7 +8,7 @@
 <template native>
   <Page actionBarHidden="true">
     <GridLayout rows="auto">
-      <Button text="Dynamo One" @tap="$router.push({ name: 'dynamo-one', params: { routeHistoryName: 'first', parentRouteHistoryName: 'main'}})" row="0" />
+      <Button text="Dynamo One" @tap="$goTo('dynamo-one', 'first', 'main')" row="0" />
     </GridLayout>
   </Page>
 </template>

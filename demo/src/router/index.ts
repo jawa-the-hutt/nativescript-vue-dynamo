@@ -80,8 +80,6 @@ export const routes: RouteConfig[] = [
   },
 ];
 
-
-
 const router = new Router({routes})
 
 // router.beforeEach((to, from, next) => {

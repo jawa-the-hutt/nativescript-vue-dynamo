@@ -112,8 +112,8 @@ Inside of `App.vue`, you could even provide your own wrapper around the `Dynamo`
         :defaultRoute="defaultRoute"
         row="0"
       />
-      <Button text="First" @tap="$router.push({ name: 'first', params: { routeHistoryName: 'main'}})" row="1" />
-      <Button text="Second" @tap="$router.push({ name: 'second', params: { routeHistoryName: 'main'}})" row="2" />
+      <Button text="First" @tap="$goTo({ name: 'first', params: { routeHistoryName: 'main'}})" row="1" />
+      <Button text="Second" @tap="$goTo({ name: 'second', params: { routeHistoryName: 'main'}})" row="2" />
       <Button text="Logout" @tap="shared.$logout" row="3" />
     </GridLayout>
   </Page>
@@ -148,7 +148,7 @@ You can also provide an option of simulating Nativescript's built in `clearHisto
 For example, given you are on a Login page, and successfully log in you would navigate to the Home page with
 
 ```js
-router.push({ name: 'home', params: { routeHistoryName: 'main', clearHistory: 'true'}})
+$router.push({ name: 'home', params: { routeHistoryName: 'main', clearHistory: 'true'}})
 ```
 
 Note that we used `clearHistory: true` to prevent the back button from going back to the login page.
@@ -157,8 +157,20 @@ Note that we used `clearHistory: true` to prevent the back button from going bac
 
 This package is also providing some additional Navigation Aides via `Vue.prototype` that will help assist you navigating within your app.
 
-1. `$goBack(routeHistoryName)` - Just provide the name of the route level you want to navigate back within and it will take care of ensuring you can.  It will check to see if you are navigating back to a sibling route, or going backwards to a parent route.  It will also check to see if this is the last page left in the frame and if there is a parent route, it will transition to it.
-2. `$goBackToParent(routeHistoryName, parentRouteHistoryName)` -  Provide the child `routeHistoryName` and the `parentRouteHistoryName` and it will navigate back up the route tree.
+1. `$goTo(location, routeHistoryName, parentRouteHistoryName?, clearHistory?, onComplete?, onAbort?)`
+
+    Parameter | Type | Required | Purpose
+    ------------ |:-------------:|:-------------:| -------------
+    location | string or Location | X | Where you want to go.  If this is a string, then it will navigate to that route.  If it is a `vue-router` Location Object, then it will take the included options into account when navigating.
+    routeHistoryName | string | X | the `frame/div` you want to route to.
+    parentRouteHistoryName | string |  | the parent `frame/div` of the `routeHistoryName`.  Will default to the value in `routeHistoryName`
+    clearHistory | string |  | clear the navigation history being kept in the state manager.  Will default to `false`
+    onComplete | Function | | Callback to be called when the navigation successfully completes (after all async hooks are resolved).
+    onAbort | Error Handler | | Callback for when the navigation is aborted (navigated to the same route, or to a different route before current navigation has finished)
+
+    For convience we are constructing a [router.push](https://router.vuejs.org/guide/essentials/navigation.html) behind the scenes. We did this as a matter of convience since we are adding a required route parameter as well as some optional route parameters to help us track navigation.  You could just as easily still use `router.push` if you want as seen in the Login example above.  
+2. `$goBack(routeHistoryName)` - Just provide the name of the route level you want to navigate back within and it will take care of ensuring you can.  It will check to see if you are navigating back to a sibling route, or going backwards to a parent route.  It will also check to see if this is the last page left in the frame and if there is a parent route, it will transition to it.
+3. `$goBackToParent(routeHistoryName, parentRouteHistoryName)` -  Provide the child `routeHistoryName` and the `parentRouteHistoryName` and it will navigate back up the route tree.
 
 ### Demo project
 
