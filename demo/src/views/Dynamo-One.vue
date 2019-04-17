@@ -13,19 +13,36 @@
   </Page>
 </template>
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
+  import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
   @Component({
     name: 'dynamo-one',
   })
   export default class DynamoOne extends Vue {
 
+    @Prop() functionHandler: object = {};
+    @Watch('functionHandler')
+    onfunctionHandlerChanged(val: Function) { 
+      // @ts-ignore
+      this[val.method](val.data);
+    }
     public created() {
       if (this.$store.state.appMode === 'native') {
         // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
         (this as any).$interceptGoBack();  
       }
     }
+
+    public mounted() {
+      this.$emit('dynamo-event', "emit event one");
+
+    }
+
+    public parentToChild(data: string) {
+      console.log('parentToChild - ', data);
+      this.$emit('dynamo-event', "emit event two from parentToChild function");
+    }
+
 
   }
 

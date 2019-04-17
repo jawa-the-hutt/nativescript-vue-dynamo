@@ -179,6 +179,86 @@ This package is also providing some additional Navigation Aides via `Vue.prototy
 2. `$goBack(routeHistoryName)` - Just provide the name of the route level you want to navigate back within and it will take care of ensuring you can.  It will check to see if you are navigating back to a sibling route, or going backwards to a parent route.  It will also check to see if this is the last page left in the frame and if there is a parent route, it will transition to it.
 3. `$goBackToParent(routeHistoryName, parentRouteHistoryName)` -  Provide the child `routeHistoryName` and the `parentRouteHistoryName` and it will navigate back up the route tree.
 
-### Demo project
+## Event Handling and Refs
 
-Take a look at the demo project for a simplistic project that implements this plugin.  Notice within the `utils/global-mixin-native` class file there is an example of intercepting the Android back button behavior and then plugging into the `$goBack` navigation aide.
+The `Dynamo` component is acting as a "middle-man" between the components you are concerned with. Thus, the relationship looks something like this Parent -> Child(Dynamo) -> Grandchild.  This means you won't be able to handle events or use [refs](https://vuejs.org/v2/guide/components-edge-cases.html#Accessing-Child-Component-Instances-amp-Child-Elements) to call functions on the grandchild as you normally would. Because of this, we have provided a way to handle both of these common patterns.
+
+#### Event Handling
+
+When you call the Dynamo component, you can add an additional parameter that has a very specific way of referencing it whereby it must include the `routeHistoryName` within it.  Notice that with the `v-on` we are including `first` as the first string in the kebab case name.  The pattern you will need to use is "`routeHistoryName` + `-event-handler`".  This lets `Dynamo` know which parent component to bubble the event up to.
+
+```html
+<Dynamo
+  :routeHistoryName="'first'"
+  :parentRouteHistoryName="'main'"
+  :defaultRoute="'dynamo-one'"
+  v-on:first-event-handler="eventHandler"
+  :functionHandler="functionHandler"
+/>
+```
+
+Then inside your parent component you can include a function similar to this:
+
+```js
+public eventHandler(e){
+  console.log('first.vue - eventHandler - ', e);
+}
+```
+
+Inside your grandchild component you can then emit an event as you normally would: `this.$emit('dynamo-event', "emit event one");`.  Notice the event name is `dynamo-event`.  This is the required event name as it is hard coded into the `Dynamo` component.
+
+In theory, you can use this single event handler to do multiple things in the parent component via something like a `switch` statement, or even get more advanced and pass an object back up through the event and convert it into calling a method somewhere else.  Here's an example object:  `{ function: 'anotherMethod', data: 'data' }` and then within your eventHandler function you could do something like below and it would automatically call your `anotherMethod` method and pass it the `data`:
+
+```js
+public eventHandler(e){
+  this[e.function](e.data)
+}
+```
+
+#### Refs & calling grandchild functions
+
+ In your `Dynamo` component you can include an option named `functionHandler` and then have it reference a property in your parent component. In reality what we are doing is passing a Prop to the `Dynamo` component which in turn is passing that Prop down to the grandchild component.
+
+ For the sake of convienence, we've named the function `functionHandler` in the example below.
+
+```html
+<Dynamo
+  :routeHistoryName="'first'"
+  :parentRouteHistoryName="'main'"
+  :defaultRoute="'dynamo-one'"
+  v-on:first-event-handler="eventHandler"
+  :functionHandler="functionHandler"
+/>
+```
+
+Then you could do something like below inside your `script` tag's export.  The `parentButton` method is just a convience provided in the example that is called after a button click.  In turn, the `parentButton` method replaces the value of `this.functionHandler`.  The object provided works much like the eventHandler example above, but in reverse.  It references a method to call on the grandchild: `parentToChild` and some data to pass to the grandchild's method.
+
+```js
+public functionHandler: object = {};
+
+public parentButton() {
+  console.log('parentButton clicked');
+  this.functionHandler = { method: 'parentToChild', data: 'hello there' };
+}
+```
+
+Then inside your grandchild component you could do something like below.  Notice we've setup the `Prop` but also setup a `watcher`.  This allows us to use this single `Prop` to act as a gateway to calling multiple methods in the grandchild component.  Think of it as a `one-to-many` relationship.  Inside the `watcher` we've included an example where we dynamically call other methods.  
+
+In the example above, we are passing in `parentToChild` as the method to call with the data of `hello there`.  This means in the example below, we will write the following to the console: `parentToChild - hello there`.  Also notice we've included an example of emitting an event back up as well.  This is optional and is not necessary.
+
+```js
+@Prop() functionHandler: object = {};
+@Watch('functionHandler')
+onfunctionHandlerChanged(val: Function) {
+  this[val.method](val.data);
+}
+
+public parentToChild(data: string) {
+  console.log('parentToChild - ', data);
+  this.$emit('dynamo-event', "emit event two from parentToChild function");
+}
+```
+
+## Demo project
+
+Take a look at the demo project for a simplistic project that implements this plugin with many of the examples discussed above.  Notice within the `utils/global-mixin-native` class file there is an example of intercepting the Android back button behavior and then plugging into the `$goBack` navigation aide.
