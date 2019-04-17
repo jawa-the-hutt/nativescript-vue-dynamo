@@ -224,8 +224,8 @@ async function install(Vue, options) {
             install.installed = true;
             Vue.component('Dynamo', {
                 template: appMode === 'native'
-                    ? `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" /></StackLayout></Frame>`
-                    : `<div :id="routeHistoryName"><component v-bind:is="computedCurrentRoute" /></div>`,
+                    ? `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></StackLayout></Frame>`
+                    : `<div :id="routeHistoryName"><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></div>`,
                 data() {
                     return {};
                 },
@@ -243,7 +243,15 @@ async function install(Vue, options) {
                     },
                     defaultRoute: {
                         type: String,
+                        required: true
+                    },
+                    functionHandler: {
                         required: false
+                    }
+                },
+                methods: {
+                    eventHandler(e) {
+                        this.$emit(this.$props.routeHistoryName + '-event-handler', e);
                     },
                 },
                 computed: {
