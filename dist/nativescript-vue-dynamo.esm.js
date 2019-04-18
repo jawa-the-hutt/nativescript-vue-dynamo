@@ -223,6 +223,7 @@ async function install(Vue, options) {
         componentRouter(options.store, options.router, options.routes, appMode, Vue).then(() => {
             install.installed = true;
             Vue.component('Dynamo', {
+                name: 'Dynamo',
                 template: appMode === 'native'
                     ? `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></StackLayout></Frame>`
                     : `<div :id="routeHistoryName"><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></div>`,
@@ -230,6 +231,9 @@ async function install(Vue, options) {
                     return {};
                 },
                 created() {
+                    console.log('dynamo - created - routeHistoryName - ', this.$props.routeHistoryName);
+                    console.log('dynamo - created - routeHistoryName - ', this.$props.defaultRoute);
+                    console.log('dynamo - created - routeHistoryName - ', this.$props.parentRouteHistoryName);
                     Vue.prototype.$goTo(this.$props.defaultRoute, this.$props.routeHistoryName, this.$props.parentRouteHistoryName);
                 },
                 props: {
@@ -272,16 +276,9 @@ async function install(Vue, options) {
                 },
             });
         });
-        Vue.prototype.$goBack = async (routeHistoryName) => {
+        Vue.prototype.$goBack = async (routeHistoryName, canGoBack) => {
             console.log(`$goBack`);
-            let canGoBack = false;
-            if (options.appMode === 'native') {
-                await import('tns-core-modules/ui/frame').then(({ topmost }) => {
-                    canGoBack = topmost().canGoBack();
-                    return;
-                });
-            }
-            else if (options.appMode === 'web') ;
+            canGoBack = canGoBack === true || undefined ? true : false;
             let routeHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
             const currentRoute = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
             if (canGoBack && routeHistory.routeHistory.length > 1) {

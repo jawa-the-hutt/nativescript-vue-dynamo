@@ -1,6 +1,10 @@
 import { VueConstructor, PluginFunction } from 'vue';
 import { Route, Location } from 'vue-router';
 import componentRouter, { IRouteHistory } from "./component-router";
+// Import vue component
+import component from './nativescript-vue-dynamo.vue';
+
+
 type ErrorHandler = (err: Error) => void;
 
 export async function install(Vue: VueConstructor, options: any) {
@@ -12,75 +16,84 @@ export async function install(Vue: VueConstructor, options: any) {
     const appMode =  options.appMode === undefined || 'native' ? 'native' : 'web';
     componentRouter(options.store, options.router, options.routes, appMode, Vue).then(() => {
         install.installed = true;
-        Vue.component('Dynamo', {
-          template:
-            appMode === 'native' 
-              ? `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></StackLayout></Frame>`
-              : `<div :id="routeHistoryName"><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></div>`,
-          data() {
-            return {
-            };
-          },
-          created() {
-            // if (options.store.state.appMode === 'native') {
-              Vue.prototype.$goTo( this.$props.defaultRoute, this.$props.routeHistoryName, this.$props.parentRouteHistoryName );
-            // }
-          },
-          props: {
-            routeHistoryName: {
-              type: String,
-              required: true
-            },
-            parentRouteHistoryName: {
-              type: String,
-              required: false
-            },
-            defaultRoute: {
-              type: String,
-              required: true
-            },
-            functionHandler: {
-              required: false
-            }
-          },
-          methods: {
-            eventHandler(e) {
-              this.$emit(this.$props.routeHistoryName + '-event-handler', e);
-            },
-          },
-          computed: {
-            computedCurrentRoute(): Route {
-              let currentRoute!: Route;
-              // @ts-ignore
-              if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0 ) {
-                // @ts-ignore
-                currentRoute = options.store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default
-                return currentRoute;
-              } else {
-                return currentRoute;
-              }
-            },
-            computedRouteHistory(): IRouteHistory {
-              const routeHistory: IRouteHistory = options.store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
-              return routeHistory;
-            },
-          },
-        });
+        Vue.component('Dynamo', component
+        //   'Dynamo', {
+        //   name: 'Dynamo',
+        //   template:
+        //     appMode === 'native' 
+        //       ? `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></StackLayout></Frame>`
+        //       : `<div :id="routeHistoryName"><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></div>`,
+        //   data() {
+        //     return {
+        //     };
+        //   },
+        //   created() {
+        //     console.log('dynamo - created - routeHistoryName - ', this.$props.routeHistoryName )
+        //     console.log('dynamo - created - routeHistoryName - ', this.$props.defaultRoute )
+
+        //     console.log('dynamo - created - routeHistoryName - ', this.$props.parentRouteHistoryName )
+
+        //     // if (options.store.state.appMode === 'native') {
+        //       Vue.prototype.$goTo( this.$props.defaultRoute, this.$props.routeHistoryName, this.$props.parentRouteHistoryName );
+        //     // }
+        //   },
+        //   props: {
+        //     routeHistoryName: {
+        //       type: String,
+        //       required: true
+        //     },
+        //     parentRouteHistoryName: {
+        //       type: String,
+        //       required: false
+        //     },
+        //     defaultRoute: {
+        //       type: String,
+        //       required: true
+        //     },
+        //     functionHandler: {
+        //       required: false
+        //     }
+        //   },
+        //   methods: {
+        //     eventHandler(e) {
+        //       this.$emit(this.$props.routeHistoryName + '-event-handler', e);
+        //     },
+        //   },
+        //   computed: {
+        //     computedCurrentRoute(): Route {
+        //       let currentRoute!: Route;
+        //       // @ts-ignore
+        //       if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0 ) {
+        //         // @ts-ignore
+        //         currentRoute = options.store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default
+        //         return currentRoute;
+        //       } else {
+        //         return currentRoute;
+        //       }
+        //     },
+        //     computedRouteHistory(): IRouteHistory {
+        //       const routeHistory: IRouteHistory = options.store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
+        //       return routeHistory;
+        //     },
+        //   },
+        // }
+        );
     })
 
-    Vue.prototype.$goBack = async (routeHistoryName: string): Promise<void> => {
-      console.log(`$goBack`);
-      let canGoBack: boolean = false;
+    Vue.prototype.$goBack = async (routeHistoryName: string, canGoBack?: boolean): Promise<void> => {
+    // Vue.prototype.$goBack = async (routeHistoryName: string): Promise<void> => {
+        console.log(`$goBack`);
+      canGoBack = canGoBack ===  true || undefined ? true : false;
 
-      if(options.appMode === 'native') {
-        await import('tns-core-modules/ui/frame').then(({topmost}) => {
-          canGoBack = topmost().canGoBack();
-          return; 
-        })
+      // if(options.appMode === 'native') {
+      //   await import('tns-core-modules/ui/frame').then(({topmost}) => {
+      //     canGoBack = topmost().canGoBack();
+      //     return; 
+      //   })
 
-      } else if (options.appMode === 'web') {
-      } else {
-      }
+      // } else if (options.appMode === 'web') {
+      // } else {
+      // }
   
       let routeHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
       const currentRoute: Route = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
@@ -157,11 +170,7 @@ export namespace install {
 }
 export { IRouteHistory};
 
-
-
-
 Dynamo.install = install;
-
 
 // To auto-install when vue is found
 /* global window global */

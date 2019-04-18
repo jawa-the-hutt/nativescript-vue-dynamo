@@ -1,7 +1,7 @@
-import { Component, Vue } from 'vue-property-decorator';
-import * as GlobalMixinShared from './global-mixin-shared';
+import { Component, Mixins } from 'vue-property-decorator';
+import GlobalMixinShared from './global-mixin-shared';
 
 @Component
-export default class GlobalMixinWeb extends Vue {
-  public shared = GlobalMixinShared;
+export default class GlobalMixinWeb extends Mixins(GlobalMixinShared) {
+
 }

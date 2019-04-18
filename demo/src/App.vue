@@ -1,15 +1,9 @@
 <template web>
   <div class="w-page">
-    <!-- <component
-      :is="isLoggedIn === true ? 'home' : 'login'"
-    /> -->
-    <!-- <Dynamo
-      :routeHistoryName="'main'"
-      :defaultRoute="'home'"
-      :topPage="pageUpdated"
-    /> -->
-    <!-- <router-view /> -->
-    <!-- <home /> -->
+    <Dynamo
+      :route-history-name="'main'"
+      :default-route="defaultRoute"
+    />
   </div>
 </template>
 <template native>

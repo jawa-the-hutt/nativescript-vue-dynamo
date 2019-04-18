@@ -44,8 +44,7 @@ const external = [
   "vue-class-component",
   "vue-router",
   "vuex",
-  "clone",
-  "tns-core-modules/ui/frame"
+  "clone"
 ];
 const globals = {
   // Provide global variable names to replace your external imports
