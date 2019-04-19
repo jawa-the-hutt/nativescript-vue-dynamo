@@ -11,6 +11,7 @@
     <Dynamo
       :routeHistoryName="'main'"
       :defaultRoute="defaultRoute"
+      :appMode="'native'"
     />
   </Page>
 </template>

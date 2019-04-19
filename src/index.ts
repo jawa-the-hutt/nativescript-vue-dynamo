@@ -16,7 +16,7 @@ export async function install(Vue: VueConstructor, options: any) {
     const appMode =  options.appMode === undefined || 'native' ? 'native' : 'web';
     componentRouter(options.store, options.router, options.routes, appMode, Vue).then(() => {
         install.installed = true;
-        Vue.component('Dynamo', component
+        Vue.component('Dynamo', component)
         //   'Dynamo', {
         //   name: 'Dynamo',
         //   template:
@@ -77,7 +77,7 @@ export async function install(Vue: VueConstructor, options: any) {
         //     },
         //   },
         // }
-        );
+        // );
     })
 
     Vue.prototype.$goBack = async (routeHistoryName: string, canGoBack?: boolean): Promise<void> => {

@@ -46,6 +46,7 @@ module.exports = {
 		"no-console": "off",
 		"no-implicity-any": "off",
 		"no-explicity-any": "off",
+		"vue/valid-template-root": "off",
 		"max-len": [
 			2,
 			{
