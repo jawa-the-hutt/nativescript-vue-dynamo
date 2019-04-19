@@ -2,6 +2,11 @@
   <div class="w-page">
     <div class="w-container">
       <span>This is the first page</span>
+      <button id="parentButton" class="w-button" @click="parentButton">Parent</button>
+      <router-view 
+        :function-handler="functionHandler"
+        @dynamo-event="eventHandler"
+      />
     </div>
   </div>
 </template>
@@ -16,8 +21,9 @@
         :routeHistoryName="'first'"
         :parentRouteHistoryName="'main'"
         :defaultRoute="'dynamo-one'"
-        v-on:first-event-handler="eventHandler"
         :functionHandler="functionHandler"
+        :appMode="$store.state.appMode"
+        @first-event-handler="eventHandler"
         row="1"
       />
     </GridLayout>    
@@ -32,12 +38,16 @@
   })
   export default class First extends Vue {
     private navbarTitle: string = `First.vue`;
-    public functionHandler: object = {}; 
+    public functionHandler: object = {};
+    public eventName: string = '';
 
     public created() {
       if (this.$store.state.appMode === 'native') {
+        this.eventName = 'firstEventHandler';
         // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
         (this as any).$interceptGoBack();  
+      } else {
+        this.eventName = 'firstEventHandler';
       }
     }
 
@@ -47,7 +57,7 @@
     }
 
     public eventHandler(e){
-      console.log('first.vue - eventHandler - ', e);
+      console.log('first.vue - eventHandler  - ', e);
     }
   }
 

@@ -2,7 +2,7 @@ import { VueConstructor, PluginFunction } from 'vue';
 import { Route, Location } from 'vue-router';
 import componentRouter, { IRouteHistory } from "./component-router";
 // Import vue component
-import component from './nativescript-vue-dynamo.vue';
+import component from './dynamo.vue';
 
 
 type ErrorHandler = (err: Error) => void;
@@ -14,149 +14,106 @@ export async function install(Vue: VueConstructor, options: any) {
     return;
   } else {
     const appMode =  options.appMode === undefined || 'native' ? 'native' : 'web';
-    componentRouter(options.store, options.router, options.routes, appMode, Vue).then(() => {
-        install.installed = true;
-        Vue.component('Dynamo', component)
-        //   'Dynamo', {
-        //   name: 'Dynamo',
-        //   template:
-        //     appMode === 'native' 
-        //       ? `<Frame :id="routeHistoryName"><StackLayout><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></StackLayout></Frame>`
-        //       : `<div :id="routeHistoryName"><component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /></div>`,
-        //   data() {
-        //     return {
-        //     };
-        //   },
-        //   created() {
-        //     console.log('dynamo - created - routeHistoryName - ', this.$props.routeHistoryName )
-        //     console.log('dynamo - created - routeHistoryName - ', this.$props.defaultRoute )
 
-        //     console.log('dynamo - created - routeHistoryName - ', this.$props.parentRouteHistoryName )
+    install.installed = true;
 
-        //     // if (options.store.state.appMode === 'native') {
-        //       Vue.prototype.$goTo( this.$props.defaultRoute, this.$props.routeHistoryName, this.$props.parentRouteHistoryName );
-        //     // }
-        //   },
-        //   props: {
-        //     routeHistoryName: {
-        //       type: String,
-        //       required: true
-        //     },
-        //     parentRouteHistoryName: {
-        //       type: String,
-        //       required: false
-        //     },
-        //     defaultRoute: {
-        //       type: String,
-        //       required: true
-        //     },
-        //     functionHandler: {
-        //       required: false
-        //     }
-        //   },
-        //   methods: {
-        //     eventHandler(e) {
-        //       this.$emit(this.$props.routeHistoryName + '-event-handler', e);
-        //     },
-        //   },
-        //   computed: {
-        //     computedCurrentRoute(): Route {
-        //       let currentRoute!: Route;
-        //       // @ts-ignore
-        //       if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0 ) {
-        //         // @ts-ignore
-        //         currentRoute = options.store.getters['ComponentRouter/getCurrentRoute'](this.$props.routeHistoryName).default
-        //         return currentRoute;
-        //       } else {
-        //         return currentRoute;
-        //       }
-        //     },
-        //     computedRouteHistory(): IRouteHistory {
-        //       const routeHistory: IRouteHistory = options.store.getters['ComponentRouter/getRouteHistoryByName'](this.$props.routeHistoryName);
-        //       return routeHistory;
-        //     },
-        //   },
-        // }
-        // );
-    })
-
-    Vue.prototype.$goBack = async (routeHistoryName: string, canGoBack?: boolean): Promise<void> => {
-    // Vue.prototype.$goBack = async (routeHistoryName: string): Promise<void> => {
-        console.log(`$goBack`);
-      canGoBack = canGoBack ===  true || undefined ? true : false;
-
-      // if(options.appMode === 'native') {
-      //   await import('tns-core-modules/ui/frame').then(({topmost}) => {
-      //     canGoBack = topmost().canGoBack();
-      //     return; 
-      //   })
-
-      // } else if (options.appMode === 'web') {
-      // } else {
-      // }
-  
-      let routeHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
-      const currentRoute: Route = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
-  
-      if(canGoBack && routeHistory.routeHistory.length > 1 ) {
-        // NS thinks we can go back in the same frame.
-        // going back to previous page in the frame
-        Vue.prototype.$goTo(routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, routeHistoryName )
-      } else {
-        // we can NOT go back further in this frame so check to see if this is a child route and if so, go back to parent
-        if(routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName && currentRoute.meta.parentRouteHistoryName !== routeHistoryName ) {
-          Vue.prototype.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
-        };
-      }
+    if(options.appMode === 'native') {
+      componentRouter(options.store, options.router, options.routes, appMode, Vue);
+      Vue.component('Dynamo', component);
     }
+
+    Vue.mixin({
+      methods: {
+        // @ts-ignore
+        async $goBack (routeHistoryName: string, canGoBack?: boolean): Promise<void> {
+        // Vue.prototype.$goBack = async (routeHistoryName: string): Promise<void> => {
+          console.log(`$goBack`);
+          canGoBack = canGoBack ===  undefined ? true : true ? true : false;
     
-    Vue.prototype.$goBackToParent = async (routeHistoryName: string, parentRouteHistoryName: string): Promise<void> => {
-      console.log('$goBackToParent');
-  
-      // clear out the child router's history
-      options.store.dispatch('ComponentRouter/clearRouteHistory', {routeHistoryName});
-  
-      // get the route history of the parent component
-      const parentRouteHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
-  
-      // going back to where we came from
-      // go back 2 since the newest entry in the parent router stack is the component holding the Dynamo component
-      const newCurrentRoute: Route = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
-      Vue.prototype.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName)
-    
-    }
-  
-    Vue.prototype.$goTo = async (location: string | Location, routeHistoryName: string, parentRouteHistoryName: string, clearHistory?: string, onComplete?: Function, onAbort?: ErrorHandler): Promise<void> => {
-      console.log('$goTo');
-
-      let tmpLocation: Location = {};
-      parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
-      clearHistory = !clearHistory ? 'false' : 'true';
-
-      if( typeof location === 'string') {
-        tmpLocation.name = location;
-        tmpLocation.params = Object.assign({}, { routeHistoryName, parentRouteHistoryName, clearHistory });
-      } else {
-        tmpLocation = location;
-      }
-
-      if (onComplete && onAbort) {
-        options.router.push(tmpLocation, onComplete , onAbort )
-      } else if (onComplete && !onAbort) {
-        options.router.push(tmpLocation, onComplete)
-      } else if (!onComplete && onAbort) {
-        options.router.push(tmpLocation, onAbort)
-      } else {
-        options.router.push(tmpLocation)
-      }
-
-    }
-
-    // Vue.mixin({
-    //   beforeCreate() {
+          if(options.appMode === 'native') {
+            let routeHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
+            const currentRoute: Route = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
         
-    //   },
-    // });
+            if(canGoBack && routeHistory.routeHistory.length > 1 ) {
+              // NS thinks we can go back in the same frame.
+              // going back to previous page in the frame
+              // @ts-ignore
+              this.$goTo(routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, routeHistoryName )
+            } else {
+              // we can NOT go back further in this frame so check to see if this is a child route and if so, go back to parent
+              if(routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName && currentRoute.meta.parentRouteHistoryName !== routeHistoryName ) {
+                // @ts-ignore
+                this.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
+              };
+            }    
+          } else if (options.appMode === 'web') {
+            options.router.back();
+          } else {
+          }
+        },
+          
+          // @ts-ignore
+          async $goBackToParent(routeHistoryName: string, parentRouteHistoryName: string): Promise<void> {
+            console.log('$goBackToParent');
+
+            if(options.appMode === 'native') {
+              // clear out the child router's history
+              options.store.dispatch('ComponentRouter/clearRouteHistory', {routeHistoryName});
+          
+              // get the route history of the parent component
+              const parentRouteHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
+          
+              // going back to where we came from
+              // go back 2 since the newest entry in the parent router stack is the component holding the Dynamo component
+              const newCurrentRoute: Route = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
+              // @ts-ignore
+              this.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName)
+            } else if (options.appMode === 'web') {
+            } else {
+            }
+
+        
+          
+          },
+        
+          // @ts-ignore
+          async $goTo(location: string | Location, routeHistoryName?: string, parentRouteHistoryName?: string, clearHistory?: string, onComplete?: Function, onAbort?: ErrorHandler): Promise<void> {
+            console.log('$goTo');
+
+            // if(options.appMode === 'native') {
+ 
+            // } else if (options.appMode === 'web') {
+              
+            // } else {
+            // }
+
+            let tmpLocation: Location = {};
+            clearHistory = !clearHistory ? 'false' : 'true';
+
+            if( typeof location === 'string') {
+              routeHistoryName = !routeHistoryName ? location : routeHistoryName;
+              parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
+
+              tmpLocation.name = location;
+              tmpLocation.params = Object.assign({}, { routeHistoryName, parentRouteHistoryName, clearHistory });
+
+            } else {
+              tmpLocation = location;
+            }
+      
+            if (onComplete && onAbort) {
+              options.router.push(tmpLocation, onComplete , onAbort )
+            } else if (onComplete && !onAbort) {
+              options.router.push(tmpLocation, onComplete)
+            } else if (!onComplete && onAbort) {
+              options.router.push(tmpLocation, onAbort)
+            } else {
+              options.router.push(tmpLocation)
+            }
+      
+          },   
+        },
+    });
   }
 
 };

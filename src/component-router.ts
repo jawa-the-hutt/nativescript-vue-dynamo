@@ -30,15 +30,15 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
             const from = payload.from;
             let clearHistory: boolean = false;
 
-            // add current routeHistoryName to meta tag in the route history
-            if(payload.to.meta && payload.to.params && payload.to.params.routeHistoryName) {
-              to.meta.routeHistoryName = payload.to.params.routeHistoryName;
-            }
+            // // add current routeHistoryName to meta tag in the route history
+            // if(payload.to.meta && payload.to.params && payload.to.params.routeHistoryName) {
+            //   to.meta.routeHistoryName = payload.to.params.routeHistoryName;
+            // }
 
-            // add the parent routeHistoryName (if it exists) to meta tag in the route history
-            if(payload.to.meta && payload.to.params && payload.to.params.parentRouteHistoryName) {
-              to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
-            }
+            // // add the parent routeHistoryName (if it exists) to meta tag in the route history
+            // if(payload.to.meta && payload.to.params && payload.to.params.parentRouteHistoryName) {
+            //   to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
+            // }
 
             // add current routeHistoryName to meta tag in the route history
             if(payload.to.params && payload.to.params.clearHistory === 'true') {
@@ -231,7 +231,10 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
       // sync store on router navigation
       router.afterEach((to: Route, from: Route) => {
         try {
-          const routeHistoryName = to.params.routeHistoryName;
+
+          // const goTo = to.length > 1 ? to[0] : to     
+
+          const routeHistoryName = to.meta.routeHistoryName;
           const routeHistory = store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
 
           if (isTimeTraveling || (routeHistory && routeHistory.routeHistory.length > 0 && to.fullPath === routeHistory.routeHistory[routeHistory.routeHistory.length - 1].fullPath)) {

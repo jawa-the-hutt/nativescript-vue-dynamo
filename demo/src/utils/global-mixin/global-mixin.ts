@@ -3,5 +3,5 @@ import GlobalMixinShared from './global-mixin-shared';
 
 @Component
 export default class GlobalMixinWeb extends Mixins(GlobalMixinShared) {
-
+    // public shared = GlobalMixinShared;
 }

@@ -1,15 +1,9 @@
-<template v-if="appMode === 'web'">
-  <div :id="routeHistoryName">
-    <!-- <component v-bind:is="computedCurrentRoutes" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" /> -->
-    <span>This is the hellllllp page</span>
-  </div>
-</template>
-<template v-else-if="appMode === 'native'">
-  <Frame :id="routeHistoryName">
+<template>
+  <Frame v-else-if="getIsNativeMode" :id="routeHistoryName">
     <StackLayout>
       <component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" />
     </StackLayout>
-  </Frame> 
+  </Frame>  
 </template>
 <script lang="ts">
   import { Component, Vue, Prop } from 'vue-property-decorator';
@@ -17,7 +11,7 @@
   import { IRouteHistory } from "./component-router";
 
   @Component({
-    name: 'dynamo',
+    name: 'Dynamo',
   })
   export default class Dynamo extends Vue {
     private template: string = '';
@@ -30,12 +24,14 @@
 
     public created() {
       console.log('dynamo - created - routeHistoryName - ', this.routeHistoryName);
-      console.log('dynamo - created - routeHistoryName - ', this.parentRouteHistoryName);
+      console.log('dynamo - created - defaultRoute - ', this.defaultRoute);
+      console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
       console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
 
-      // if (options.store.state.appMode === 'native') {
-      Vue.prototype.$goTo(this.defaultRoute, this.routeHistoryName, this.parentRouteHistoryName);
-      // }
+      if (this.appMode === 'native') {
+        // @ts-ignore
+        this.$root.$goTo(this.defaultRoute, this.routeHistoryName, this.parentRouteHistoryName);
+      }
     }
 
     public eventHandler(e) {

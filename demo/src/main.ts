@@ -1,9 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
-import router, { routes } from './router';
+import router, { routes } from '~/router';
 import store from './store';
-
-Vue.config.productionTip = false;
 
 import Dynamo from '../../';
 
@@ -13,6 +11,9 @@ Vue.use(Dynamo, {
   router,
   routes,
 });
+
+
+Vue.config.productionTip = false;
 
 // @ts-ignore
 import GlobalMixin from '~/utils/global-mixin/global-mixin';

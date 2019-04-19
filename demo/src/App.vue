@@ -1,9 +1,6 @@
 <template web>
   <div class="w-page">
-    <Dynamo
-      :route-history-name="'main'"
-      :default-route="defaultRoute"
-    />
+    <router-view />
   </div>
 </template>
 <template native>
@@ -11,7 +8,7 @@
     <Dynamo
       :routeHistoryName="'main'"
       :defaultRoute="defaultRoute"
-      :appMode="'native'"
+      :appMode="$store.state.appMode"
     />
   </Page>
 </template>
@@ -20,7 +17,7 @@
 
   @Component
   export default class App extends Vue {
-    @Prop({default: 'login'}) public defaultRoute!: string;
+    @Prop({default: 'home'}) public defaultRoute!: string;
   }
 
 </script>

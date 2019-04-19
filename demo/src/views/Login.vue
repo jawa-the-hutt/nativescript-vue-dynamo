@@ -9,7 +9,7 @@
 <template native>
   <Page actionBarHidden="true">
     <GridLayout rows="auto">
-      <Button text="Login" @tap="shared.$login('main')" row="0"/>
+      <Button text="Login" @tap="$login('main')" row="0"/>
     </GridLayout>
   </Page>
 </template>

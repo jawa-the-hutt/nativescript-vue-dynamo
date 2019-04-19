@@ -21,12 +21,6 @@
                         const to = payload.to;
                         const from = payload.from;
                         let clearHistory = false;
-                        if (payload.to.meta && payload.to.params && payload.to.params.routeHistoryName) {
-                            to.meta.routeHistoryName = payload.to.params.routeHistoryName;
-                        }
-                        if (payload.to.meta && payload.to.params && payload.to.params.parentRouteHistoryName) {
-                            to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
-                        }
                         if (payload.to.params && payload.to.params.clearHistory === 'true') {
                             clearHistory = true;
                         }
@@ -182,7 +176,7 @@
             });
             router.afterEach((to, from) => {
                 try {
-                    const routeHistoryName = to.params.routeHistoryName;
+                    const routeHistoryName = to.meta.routeHistoryName;
                     const routeHistory = store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
                     if (isTimeTraveling || (routeHistory && routeHistory.routeHistory.length > 0 && to.fullPath === routeHistory.routeHistory[routeHistory.routeHistory.length - 1].fullPath)) {
                         isTimeTraveling = false;
@@ -236,9 +230,12 @@ function __decorate(decorators, target, key, desc) {
     }
     created() {
         console.log('dynamo - created - routeHistoryName - ', this.routeHistoryName);
-        console.log('dynamo - created - routeHistoryName - ', this.parentRouteHistoryName);
+        console.log('dynamo - created - defaultRoute - ', this.defaultRoute);
+        console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
         console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
-        vuePropertyDecorator.Vue.prototype.$goTo(this.defaultRoute, this.routeHistoryName, this.parentRouteHistoryName);
+        if (this.appMode === 'native') {
+            this.$root.$goTo(this.defaultRoute, this.routeHistoryName, this.parentRouteHistoryName);
+        }
     }
     eventHandler(e) {
         this.$emit(this.routeHistoryName + '-event-handler', e);
@@ -278,7 +275,7 @@ __decorate([
 ], Dynamo.prototype, "appMode", void 0);
 Dynamo = __decorate([
     vuePropertyDecorator.Component({
-        name: 'dynamo',
+        name: 'Dynamo',
     })
 ], Dynamo);
 var script = Dynamo;function normalizeComponent(template, style, script, scopeId, isFunctionalTemplate, moduleIdentifier
@@ -401,56 +398,70 @@ var __vue_staticRenderFns__ = [];
     }
     else {
         const appMode = options.appMode === undefined || 'native' ? 'native' : 'web';
-        componentRouter(options.store, options.router, options.routes, appMode, Vue).then(() => {
-            install.installed = true;
+        install.installed = true;
+        if (options.appMode === 'native') {
+            componentRouter(options.store, options.router, options.routes, appMode, Vue);
             Vue.component('Dynamo', component);
+        }
+        Vue.mixin({
+            methods: {
+                async $goBack(routeHistoryName, canGoBack) {
+                    console.log(`$goBack`);
+                    canGoBack = canGoBack === undefined ? true : true;
+                    if (options.appMode === 'native') {
+                        let routeHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
+                        const currentRoute = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
+                        if (canGoBack && routeHistory.routeHistory.length > 1) {
+                            this.$goTo(routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, routeHistoryName);
+                        }
+                        else {
+                            if (routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName && currentRoute.meta.parentRouteHistoryName !== routeHistoryName) {
+                                this.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
+                            }
+                        }
+                    }
+                    else if (options.appMode === 'web') {
+                        options.router.back();
+                    }
+                },
+                async $goBackToParent(routeHistoryName, parentRouteHistoryName) {
+                    console.log('$goBackToParent');
+                    if (options.appMode === 'native') {
+                        options.store.dispatch('ComponentRouter/clearRouteHistory', { routeHistoryName });
+                        const parentRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
+                        const newCurrentRoute = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
+                        this.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName);
+                    }
+                    else if (options.appMode === 'web') ;
+                },
+                async $goTo(location, routeHistoryName, parentRouteHistoryName, clearHistory, onComplete, onAbort) {
+                    console.log('$goTo');
+                    let tmpLocation = {};
+                    clearHistory = !clearHistory ? 'false' : 'true';
+                    if (typeof location === 'string') {
+                        routeHistoryName = !routeHistoryName ? location : routeHistoryName;
+                        parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
+                        tmpLocation.name = location;
+                        tmpLocation.params = Object.assign({}, { routeHistoryName, parentRouteHistoryName, clearHistory });
+                    }
+                    else {
+                        tmpLocation = location;
+                    }
+                    if (onComplete && onAbort) {
+                        options.router.push(tmpLocation, onComplete, onAbort);
+                    }
+                    else if (onComplete && !onAbort) {
+                        options.router.push(tmpLocation, onComplete);
+                    }
+                    else if (!onComplete && onAbort) {
+                        options.router.push(tmpLocation, onAbort);
+                    }
+                    else {
+                        options.router.push(tmpLocation);
+                    }
+                },
+            },
         });
-        Vue.prototype.$goBack = async (routeHistoryName, canGoBack) => {
-            console.log(`$goBack`);
-            canGoBack = canGoBack === true || undefined ? true : false;
-            let routeHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
-            const currentRoute = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
-            if (canGoBack && routeHistory.routeHistory.length > 1) {
-                Vue.prototype.$goTo(routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, routeHistoryName);
-            }
-            else {
-                if (routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName && currentRoute.meta.parentRouteHistoryName !== routeHistoryName) {
-                    Vue.prototype.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
-                }
-            }
-        };
-        Vue.prototype.$goBackToParent = async (routeHistoryName, parentRouteHistoryName) => {
-            console.log('$goBackToParent');
-            options.store.dispatch('ComponentRouter/clearRouteHistory', { routeHistoryName });
-            const parentRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
-            const newCurrentRoute = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
-            Vue.prototype.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName);
-        };
-        Vue.prototype.$goTo = async (location, routeHistoryName, parentRouteHistoryName, clearHistory, onComplete, onAbort) => {
-            console.log('$goTo');
-            let tmpLocation = {};
-            parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
-            clearHistory = !clearHistory ? 'false' : 'true';
-            if (typeof location === 'string') {
-                tmpLocation.name = location;
-                tmpLocation.params = Object.assign({}, { routeHistoryName, parentRouteHistoryName, clearHistory });
-            }
-            else {
-                tmpLocation = location;
-            }
-            if (onComplete && onAbort) {
-                options.router.push(tmpLocation, onComplete, onAbort);
-            }
-            else if (onComplete && !onAbort) {
-                options.router.push(tmpLocation, onComplete);
-            }
-            else if (!onComplete && onAbort) {
-                options.router.push(tmpLocation, onAbort);
-            }
-            else {
-                options.router.push(tmpLocation);
-            }
-        };
     }
 }
 class Dynamo$1 {

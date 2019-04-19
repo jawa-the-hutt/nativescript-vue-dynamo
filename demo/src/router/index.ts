@@ -5,7 +5,7 @@ Vue.use(Router);
 
 export const routes: RouteConfig[] = [
   // otherwise redirect to login
-  { path: '*', redirect: '/login' },
+  { path: '*', redirect: '/home' },
   {
     name: 'home',
     path: '/home',
@@ -15,6 +15,7 @@ export const routes: RouteConfig[] = [
     meta: {
       title: 'Home',
       auth: true,
+      routeHistoryName: 'main',
     },
   },
   {
@@ -25,26 +26,26 @@ export const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "login" */ '~/views/Login'),
     meta: {
       title: 'Login',
-      auth: false
+      auth: false,
+      routeHistoryName: 'main',
     },
   },
   {
     name: '',
     path: '/first',
+    // @ts-ignore
+    // eslint-disable-next-line
+    component: () => import(/* webpackChunkName: "first" */ '~/views/First'),
+    props: true,
+    meta: {
+      title: 'First',
+      auth: true,
+      routeHistoryName: 'main',
+    },
     children: [
       {
-        name: 'first',
-        path: '',
-        // @ts-ignore
-        // eslint-disable-next-line
-        component: () => import(/* webpackChunkName: "first" */ '~/views/First'),
-        meta: {
-          title: 'First',
-          auth: true,
-        },
-      },
-      {
         name: 'dynamo-one',
+        // alias: '/',
         path: '/dynamo-one',
         // @ts-ignore
         // eslint-disable-next-line
@@ -52,6 +53,8 @@ export const routes: RouteConfig[] = [
         meta: {
           title: 'Dynamo One',
           auth: true,
+          routeHistoryName: 'first',
+          parentRouteHistoryName: 'main',
         },
       },
       {
@@ -63,6 +66,8 @@ export const routes: RouteConfig[] = [
         meta: {
           title: 'Dynamo Two',
           auth: true,
+          routeHistoryName: 'first',
+          parentRouteHistoryName: 'main',
         },
       },
     ],
@@ -76,18 +81,19 @@ export const routes: RouteConfig[] = [
     meta: {
       title: 'Second',
       auth: true,
+      routeHistoryName: 'main',
     },
   },
 ];
 
 const router = new Router({routes})
 
-// router.beforeEach((to, from, next) => {
-//   console.log('global router.beforeEach')
-//   console.log('to - ', to)
-//   // console.log('from - ', from)
-//   next();
-// })
+router.beforeEach((to, from, next) => {
+  console.log('global router.beforeEach')
+  console.log('to - ', to)
+  // console.log('from - ', from)
+  next();
+})
 
 // router.afterEach((to, from) => {
 //   console.log('global router.afterEach')
