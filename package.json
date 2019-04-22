@@ -9,8 +9,7 @@
     "dist/*",
     "src/*",
     "types/*",
-    "LICENSE",
-    "demo/*"
+    "LICENSE"
   ],
   "typings": "types/index.d.ts",
   "scripts": {
