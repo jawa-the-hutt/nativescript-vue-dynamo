@@ -25,11 +25,11 @@ export async function install(Vue: VueConstructor, options: any) {
     Vue.mixin({
       methods: {
         // @ts-ignore
-        async $goBack (routeHistoryName: string, canGoBack?: boolean): Promise<void> {
-        // Vue.prototype.$goBack = async (routeHistoryName: string): Promise<void> => {
+        async $goBack (canGoBack?: boolean): Promise<void> {
           console.log(`$goBack`);
           canGoBack = canGoBack ===  undefined ? true : true ? true : false;
-    
+          const routeHistoryName =  options.router.currentRoute.meta.routeHistoryName;
+
           if(options.appMode === 'native') {
             let routeHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
             const currentRoute: Route = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
@@ -54,7 +54,7 @@ export async function install(Vue: VueConstructor, options: any) {
           
           // @ts-ignore
           async $goBackToParent(routeHistoryName: string, parentRouteHistoryName: string): Promise<void> {
-            console.log('$goBackToParent');
+            console.log('$goBackToParent ');
 
             if(options.appMode === 'native') {
               // clear out the child router's history
@@ -77,25 +77,18 @@ export async function install(Vue: VueConstructor, options: any) {
           },
         
           // @ts-ignore
-          async $goTo(location: string | Location, routeHistoryName?: string, parentRouteHistoryName?: string, clearHistory?: string, onComplete?: Function, onAbort?: ErrorHandler): Promise<void> {
+          async $goTo(location: string | Location, clearHistory?: string, onComplete?: Function, onAbort?: ErrorHandler): Promise<void> {
             console.log('$goTo');
-
-            // if(options.appMode === 'native') {
- 
-            // } else if (options.appMode === 'web') {
-              
-            // } else {
-            // }
 
             let tmpLocation: Location = {};
             clearHistory = !clearHistory ? 'false' : 'true';
 
             if( typeof location === 'string') {
-              routeHistoryName = !routeHistoryName ? location : routeHistoryName;
-              parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
+              // routeHistoryName = !routeHistoryName ? location : routeHistoryName;
+              // parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
 
               tmpLocation.name = location;
-              tmpLocation.params = Object.assign({}, { routeHistoryName, parentRouteHistoryName, clearHistory });
+              tmpLocation.params = Object.assign({}, { clearHistory });
 
             } else {
               tmpLocation = location;

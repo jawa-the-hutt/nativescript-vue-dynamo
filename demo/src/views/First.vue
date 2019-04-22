@@ -13,16 +13,15 @@
 <template native>
   <Page>
     <ActionBar :title="navbarTitle">
-      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$goBack('first')"/>
+      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$goBack()"/>
     </ActionBar>
     <GridLayout rows="auto, *">
       <Button text="Parent" @tap="parentButton" row="0" />
       <Dynamo
         :routeHistoryName="'first'"
-        :parentRouteHistoryName="'main'"
         :defaultRoute="'dynamo-one'"
-        :functionHandler="functionHandler"
         :appMode="$store.state.appMode"
+        :functionHandler="functionHandler"
         @first-event-handler="eventHandler"
         row="1"
       />
@@ -52,7 +51,7 @@
     }
 
     public parentButton() {
-      console.log('parentButton clicked');
+      console.log('parentButton clicked ');
       this.functionHandler = { method: 'parentToChild', data: 'hello there' };
     }
 

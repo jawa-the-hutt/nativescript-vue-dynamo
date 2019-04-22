@@ -9,8 +9,6 @@ import router from '~/router';
 @Component
 export default class GlobalMixinNative extends Mixins(GlobalMixinShared) {
 
-  // public shared = GlobalMixinShared;
-
   public created() {
     this.$interceptGoBack()
   }
@@ -22,10 +20,10 @@ export default class GlobalMixinNative extends Mixins(GlobalMixinShared) {
     if (platform.android) {
       const activity = application.android.startActivity || application.android.foregroundActivity;
       activity.onBackPressed = async () => {
-        console.log(`activity.onBackPressed`);
-        const routeHistory: IRouteHistory =  this.$store.getters['ComponentRouter/getRouteHistoryByRouteName'](router.currentRoute.name);
+        console.log(`activity.onBackPressed `);
+        // // // const routeHistory: IRouteHistory =  this.$store.getters['ComponentRouter/getRouteHistoryByName'](router.currentRoute.name);
         // @ts-ignore
-        this.$goBack(routeHistory.routeHistoryName, topmost().canGoBack());
+        this.$goBack(topmost().canGoBack());
       };
     }
   }

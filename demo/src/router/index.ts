@@ -5,10 +5,11 @@ Vue.use(Router);
 
 export const routes: RouteConfig[] = [
   // otherwise redirect to login
-  { path: '*', redirect: '/home' },
+  { path: '*', redirect: '/login' },
   {
     name: 'home',
     path: '/home',
+    alias: '/',
     // @ts-ignore
     // eslint-disable-next-line
     component: () => import(/* webpackChunkName: "home" */ '~/views/Home'),
@@ -45,7 +46,7 @@ export const routes: RouteConfig[] = [
     children: [
       {
         name: 'dynamo-one',
-        // alias: '/',
+        alias: '/',
         path: '/dynamo-one',
         // @ts-ignore
         // eslint-disable-next-line
@@ -88,12 +89,12 @@ export const routes: RouteConfig[] = [
 
 const router = new Router({routes})
 
-router.beforeEach((to, from, next) => {
-  console.log('global router.beforeEach')
-  console.log('to - ', to)
-  // console.log('from - ', from)
-  next();
-})
+// router.beforeEach((to, from, next) => {
+//   console.log('global router.beforeEach')
+//   console.log('to - ', to)
+//   // console.log('from - ', from)
+//   next();
+// })
 
 // router.afterEach((to, from) => {
 //   console.log('global router.afterEach')

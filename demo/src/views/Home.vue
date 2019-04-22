@@ -18,8 +18,8 @@
   <Page>
     <ActionBar :title="navbarTitle"/>
     <GridLayout rows="auto, auto, auto">
-      <Button text="First" @tap="$goTo({ path: '/first' })" row="0" /> 
-      <Button text="Second" @tap="$goTo('second', 'main')" row="1" />
+      <Button text="First" @tap="$goTo({ path: '/first'})" row="0" /> 
+      <Button text="Second" @tap="$goTo('second')" row="1" />
       <Button text="Logout" @tap="$logout('main')" row="2" />
     </GridLayout>
     

@@ -23,14 +23,14 @@
     @Prop({ required: true }) public appMode!: string;
 
     public created() {
-      console.log('dynamo - created - routeHistoryName - ', this.routeHistoryName);
-      console.log('dynamo - created - defaultRoute - ', this.defaultRoute);
-      console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
-      console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
+      // console.log('dynamo - created - routeHistoryName - ', this.routeHistoryName);
+      // console.log('dynamo - created - defaultRoute - ', this.defaultRoute);
+      // console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
+      // console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
 
       if (this.appMode === 'native') {
         // @ts-ignore
-        this.$root.$goTo(this.defaultRoute, this.routeHistoryName, this.parentRouteHistoryName);
+        this.$root.$goTo(this.defaultRoute);
       }
     }
 

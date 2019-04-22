@@ -179,7 +179,13 @@ const componentRouter = async (store, router, routes, appMode, Vue) => {
             });
             router.afterEach((to, from) => {
                 try {
-                    const routeHistoryName = to.meta.routeHistoryName;
+                    let routeHistoryName = '';
+                    if (to.matched.length > 1 && to.path === to.matched[0].path) {
+                        routeHistoryName = to.matched[0].meta.routeHistoryName;
+                    }
+                    else {
+                        routeHistoryName = to.meta.routeHistoryName;
+                    }
                     const routeHistory = store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
                     if (isTimeTraveling || (routeHistory && routeHistory.routeHistory.length > 0 && to.fullPath === routeHistory.routeHistory[routeHistory.routeHistory.length - 1].fullPath)) {
                         isTimeTraveling = false;
@@ -236,12 +242,8 @@ let Dynamo = class Dynamo extends Vue {
         this.template = '';
     }
     created() {
-        console.log('dynamo - created - routeHistoryName - ', this.routeHistoryName);
-        console.log('dynamo - created - defaultRoute - ', this.defaultRoute);
-        console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
-        console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
         if (this.appMode === 'native') {
-            this.$root.$goTo(this.defaultRoute, this.routeHistoryName, this.parentRouteHistoryName);
+            this.$root.$goTo(this.defaultRoute);
         }
     }
     eventHandler(e) {
@@ -418,9 +420,10 @@ async function install(Vue, options) {
         }
         Vue.mixin({
             methods: {
-                async $goBack(routeHistoryName, canGoBack) {
+                async $goBack(canGoBack) {
                     console.log(`$goBack`);
                     canGoBack = canGoBack === undefined ? true : true;
+                    const routeHistoryName = options.router.currentRoute.meta.routeHistoryName;
                     if (options.appMode === 'native') {
                         let routeHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
                         const currentRoute = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
@@ -438,7 +441,7 @@ async function install(Vue, options) {
                     }
                 },
                 async $goBackToParent(routeHistoryName, parentRouteHistoryName) {
-                    console.log('$goBackToParent');
+                    console.log('$goBackToParent ');
                     if (options.appMode === 'native') {
                         options.store.dispatch('ComponentRouter/clearRouteHistory', { routeHistoryName });
                         const parentRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
@@ -447,15 +450,13 @@ async function install(Vue, options) {
                     }
                     else if (options.appMode === 'web') ;
                 },
-                async $goTo(location, routeHistoryName, parentRouteHistoryName, clearHistory, onComplete, onAbort) {
+                async $goTo(location, clearHistory, onComplete, onAbort) {
                     console.log('$goTo');
                     let tmpLocation = {};
                     clearHistory = !clearHistory ? 'false' : 'true';
                     if (typeof location === 'string') {
-                        routeHistoryName = !routeHistoryName ? location : routeHistoryName;
-                        parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
                         tmpLocation.name = location;
-                        tmpLocation.params = Object.assign({}, { routeHistoryName, parentRouteHistoryName, clearHistory });
+                        tmpLocation.params = Object.assign({}, { clearHistory });
                     }
                     else {
                         tmpLocation = location;

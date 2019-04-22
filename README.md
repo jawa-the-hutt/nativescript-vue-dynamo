@@ -1,6 +1,6 @@
 # Nativescript-Vue-Dynamo
 
-Nativescript-Vue-Dynamo is a dynamic component router implementation that is suitable for NativeScript-Vue.  Capabilities are included for using this with regular `Vue`, but has a lot of drawbacks over just using `Vue-router` as you normally would so please be aware of this.
+Nativescript-Vue-Dynamo is a dynamic component router implementation that is suitable for NativeScript-Vue.
 
 It uses [Vue Dynamic Components](https://vuejs.org/v2/guide/components-dynamic-async.html) to simulate the normal navigation patterns of a `Nativescript-Vue` app.  It does this by plugging into `Vue-Router` and `Vuex`.  This implementation also supports "Child Routes" by using the same Dynamic Component behavior, in a nested manner, to allow you to navigate within the parent/child routes.
 
@@ -16,9 +16,9 @@ This project takes many of the same ideas in [Vuex-Router-Sync](https://github.c
 npm install --save nativescript-vue-dynamo
 ```
 
-Inside your `main.js` (`main.native.js` if you are using the [Nativescript-Vue Plugin for vue-cli@3.0](https://github.com/nativescript-vue/vue-cli-plugin-nativescript-vue)), please note the `appMode` option being sent to the component.  If you want to use this on the native side, then `appMode` should = `native` or you can just leave it `undefined` and it will default to `native`.  If you want to use it on the web side it should = `web`. 
+Inside your `main.js` (`main.native.js` if you are using the [Nativescript-Vue Plugin for vue-cli@3.0](https://github.com/nativescript-vue/vue-cli-plugin-nativescript-vue)), please note the `appMode` option being sent to the component.  If you want to use this on the native side, then `appMode` should = `native` or you can just leave it `undefined` and it will default to `native`.
 
-`native` and `web` are the standards established in the `Nativescript-Vue` CLI Plugin for vue-cli@3.0 mentioned above.  In the example below we are showing the `appMode` value coming from the state manager, but that's just an easy convention used in the demo app included in this repository.  
+`native`is the standard established in the `Nativescript-Vue` CLI Plugin for vue-cli@3.0 mentioned above.  In the example below we are showing the `appMode` value coming from the state manager, but that's just an easy convention used in the demo app included in this repository.  
 
 ## Main entry point (main.js or main.native.js)
 
@@ -41,27 +41,17 @@ If `appMode` = `native`, then the underlying component is injecting the followin
 
 ```html
 <template>
-  <Frame :id="routeHistoryName">
+  <Frame v-else-if="getIsNativeMode" :id="routeHistoryName">
     <StackLayout>
-      <component v-bind:is="computedCurrentRoute" />
+      <component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" />
     </StackLayout>
-  </Frame>
-</template>
-```
-
-If `appMode` = `web`, then the underlying component is injecting the following:
-
-```html
-<template>
-  <div :id="routeHistoryName">
-    <component v-bind:is="computedCurrentRoute" />
-  </div>
+  </Frame>  
 </template>
 ```
 
 ## Vue-Router Config
 
-Inside or your `Vue-Router` config, you will want to split out your route config into it's own array as modeled below. You can then use many of the extra options provided by `Vue-Router` out of the box such as adding the `meta` object.  Most built in router hooks should be available to help assist you as well.
+Inside or your `Vue-Router` config, you will want to split out your route config into it's own array as modeled below. You can then use many of the extra options provided by `Vue-Router` out of the box such as adding the `meta` object.  Most built in router hooks should be available to help assist you as well.  Notice the `routeHistoryName` in the meta tags for all routes.  Also, for child routes, notice the `parentRouteHistoryName`.  These two items should be used in this manner to help assist Dynamo with tracking where it is at and where it needs to go.  Finally, also notice the `alias` property in the first child route.  This helps tell Dynamo which child route is the default child route.
 
 ```js
 export const routes = [
@@ -72,6 +62,7 @@ export const routes = [
     meta: {
       title: 'Home',
       auth: true,
+      routeHistoryName: 'main',
     },
   },
   {
@@ -80,15 +71,58 @@ export const routes = [
     component: () => import(/* webpackChunkName: "login" */ '~/views/Login'),
     meta: {
       title: 'Login',
-      auth: false
+      auth: false,
+      routeHistoryName: 'main',
     },
+  },
+    {
+    name: '',
+    path: '/first',
+    component: () => import(/* webpackChunkName: "first" */ '~/views/First'),
+    props: true,
+    meta: {
+      title: 'First',
+      auth: true,
+      routeHistoryName: 'main',
+    },
+    children: [
+      {
+        name: 'dynamo-one',
+        alias: '/',
+        path: '/dynamo-one',
+        component: () => import(/* webpackChunkName: "dynamo-one" */ '~/views/Dynamo-One'),
+        meta: {
+          title: 'Dynamo One',
+          auth: true,
+          routeHistoryName: 'first',
+          parentRouteHistoryName: 'main',
+        },
+      },
+      {
+        name: 'dynamo-two',
+        path: '/dynamo-two',
+        component: () => import(/* webpackChunkName: "dynamo-two" */ '~/views/Dynamo-Two'),
+        meta: {
+          title: 'Dynamo Two',
+          auth: true,
+          routeHistoryName: 'first',
+          parentRouteHistoryName: 'main',
+        },
+      },
+    ],
   }
 ]
 ```
 
 ## App.vue
 
-Inside of your App.vue, you can do something simple as below.  Notice we are sending a `defaultRoute` into the component.  This will make sure that the first page loaded is the one specified by this value.  It must also match an actual route in your router config.  We are also sending a `routeHistoryName` into the component.  This name will end up being the `id` of the `frame/div` loaded and will also be used to track via state manager which `frame/div` we are navigating within.  These two options are **mandatory** for this package to work correctly.
+Inside of your App.vue, you can do something simple as below.  Notice we are sending three required props into the component:
+
+1. `defaultRoute` - This will make sure that the first page loaded is the one specified by this value.  It must also match an actual route in your router config.
+2. `routeHistoryName` - This name will end up being the `id` of the `frame/div` loaded and will also be used to track via state manager which `frame/div` we are navigating within.
+3. `appMode` - Similar to the option passed in when we intialize `Dynamo` in `main.js`.
+
+These three options are **mandatory** for this package to work correctly.
 
 ```html
 <template>
@@ -96,6 +130,7 @@ Inside of your App.vue, you can do something simple as below.  Notice we are sen
     <Dynamo
       :routeHistoryName="'main'"
       :defaultRoute="'home'"
+      :appMode="'native'"
     />
   </Page>
 </template>
@@ -110,11 +145,12 @@ Inside of `App.vue`, you could even provide your own wrapper around the `Dynamo`
       <Dynamo
         :routeHistoryName="'main'"
         :defaultRoute="defaultRoute"
+        :appMode="'native'"
         row="0"
       />
-      <Button text="First" @tap="$goTo('first', 'main')" row="1" />
-      <Button text="Second" @tap="$goTo({ name: 'second', params: { routeHistoryName: 'main'}})" row="2" />
-      <Button text="Logout" @tap="shared.$logout" row="3" />
+      <Button text="First" @tap="$goTo({ path: '/first'})" row="0" /> 
+      <Button text="Second" @tap="$goTo('second')" row="1" />
+      <Button text="Logout" @tap="$logout('main')" row="2" />
     </GridLayout>
   </Page>
 </template>
@@ -125,7 +161,7 @@ Inside of `App.vue`, you could even provide your own wrapper around the `Dynamo`
 Because we are plugging into `Vue-Router`, many of the same programmatic navigation aides available there should be usable within `Nativescript-Vue`.  So things like `route.push()` and `route.back()` should work.  Others may not and if you find something that is not working, please submit an issue.
 
 In the example above, we are providing two different ways to route within the `$goTo` navigation aide.  Refer to the Navigation Aides section below for more information about this function.
-The first passes straight parameters and the second passes an object that should look similiar to something you pass for a `route.push` with `vue-router`. The second parameter is the `routeHistoryName` in the first example and in the second, we explicitly list it out as a `params` item.  The `routeHistoryName` parameter is required and is used in the same way as the parameter in the `Dynamo` component shown earlier.  We have to be able to track where we are within the app at any given time and if you don't supply it, this package will not work.
+The first passes an object should look similiar to something you pass for a `route.push` with `vue-router`, while the second just passes a name of the route.
 
 ### Child routes
 
@@ -138,7 +174,7 @@ You can use "child route" like features as well.  You will build out your child 
     <Dynamo
       :routeHistoryName="'first'"
       :defaultRoute="'dynamo-one'"
-      :parentRouteHistoryName="'main'"
+      :appMode="$store.state.appMode"
     />
   </Page>
 </template>
@@ -169,15 +205,13 @@ This package is also providing some additional Navigation Aides via `Vue.prototy
     Parameter | Type | Required | Purpose
     ------------ |:-------------:|:-------------:| -------------
     location | string or Location | X | Where you want to go.  If this is a string, then it will navigate to that route.  If it is a `vue-router` Location Object, then it will take the included options into account when navigating.
-    routeHistoryName | string | X | the `frame/div` you want to route to.
-    parentRouteHistoryName | string |  | the parent `frame/div` of the `routeHistoryName`.  Will default to the value in `routeHistoryName`
     clearHistory | string |  | clear the navigation history being kept in the state manager.  Will default to `false`
     onComplete | Function | | Callback to be called when the navigation successfully completes (after all async hooks are resolved).
     onAbort | Error Handler | | Callback for when the navigation is aborted (navigated to the same route, or to a different route before current navigation has finished)
 
     For convience we are constructing a [router.push](https://router.vuejs.org/guide/essentials/navigation.html) behind the scenes. We did this as a matter of convience since we are adding a required route parameter as well as some optional route parameters to help us track navigation.  You could just as easily still use `router.push` if you want as seen in the Login example above.  
-2. `$goBack(routeHistoryName)` - Just provide the name of the route level you want to navigate back within and it will take care of ensuring you can.  It will check to see if you are navigating back to a sibling route, or going backwards to a parent route.  It will also check to see if this is the last page left in the frame and if there is a parent route, it will transition to it.
-3. `$goBackToParent(routeHistoryName, parentRouteHistoryName)` -  Provide the child `routeHistoryName` and the `parentRouteHistoryName` and it will navigate back up the route tree.
+2. `$goBack()` - It will check to see if you are navigating back to a sibling route, or going backwards to a parent route.  It will also check to see if this is the last page left in the frame and if there is a parent route, it will transition to it.
+3. `$goBackToParent(routeHistoryName, parentRouteHistoryName)` -  Provide the child `routeHistoryName` and the `parentRouteHistoryName` and it will navigate back up the route tree.  This method is actually called for you if when you use `$goBack()` and there is a need to transition backwards to a parent Route.
 
 ## Event Handling and Refs
 
@@ -192,8 +226,8 @@ When you call the Dynamo component, you can add an additional parameter that has
   :routeHistoryName="'first'"
   :parentRouteHistoryName="'main'"
   :defaultRoute="'dynamo-one'"
-  v-on:first-event-handler="eventHandler"
   :functionHandler="functionHandler"
+  @first-event-handler="eventHandler"
 />
 ```
 
@@ -226,8 +260,8 @@ public eventHandler(e){
   :routeHistoryName="'first'"
   :parentRouteHistoryName="'main'"
   :defaultRoute="'dynamo-one'"
-  v-on:first-event-handler="eventHandler"
   :functionHandler="functionHandler"
+  @first-event-handler="eventHandler" 
 />
 ```
 
@@ -261,4 +295,4 @@ public parentToChild(data: string) {
 
 ## Demo project
 
-Take a look at the demo project for a simplistic project that implements this plugin with many of the examples discussed above.  Notice within the `utils/global-mixin-native` class file there is an example of intercepting the Android back button behavior and then plugging into the `$goBack` navigation aide.
+Take a look at the demo project for a simplistic project that implements this plugin with many of the examples discussed above.  Notice within the `utils/global-mixin-native` class file there is an example of intercepting the Android back button behavior and then plugging it into the `$goBack()` navigation aide.
