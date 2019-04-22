@@ -1,14 +1,14 @@
 <template web>
   <div class="w-page">
     <div class="w-container">
-      <router-link id="dynamoOneButton" tag="button" class="w-button" to="{ name: dynamo-one, params: { routeHistoryName: 'first', parentRouteHistoryName: 'main'}}">Dynamo One</router-link>
+      <router-link id="dynamoOneButton" tag="button" class="w-button" :to="{ path: '/first' }">Dynamo One</router-link>
     </div>
   </div>
 </template>
 <template native>
   <Page actionBarHidden="true">
     <GridLayout rows="auto">
-      <Button text="Dynamo One" @tap="$goTo('dynamo-one', 'first', 'main')" row="0" />
+      <Button text="Dynamo One" @tap="$goTo({ path: '/dynamo-one' })" row="0" />
     </GridLayout>
   </Page>
 </template>

@@ -1,15 +1,6 @@
 <template web>
   <div class="w-page">
-    <!-- <component
-      :is="isLoggedIn === true ? 'home' : 'login'"
-    /> -->
-    <!-- <Dynamo
-      :routeHistoryName="'main'"
-      :defaultRoute="'home'"
-      :topPage="pageUpdated"
-    /> -->
-    <!-- <router-view /> -->
-    <!-- <home /> -->
+    <router-view />
   </div>
 </template>
 <template native>
@@ -17,6 +8,7 @@
     <Dynamo
       :routeHistoryName="'main'"
       :defaultRoute="defaultRoute"
+      :appMode="$store.state.appMode"
     />
   </Page>
 </template>
@@ -25,7 +17,7 @@
 
   @Component
   export default class App extends Vue {
-    @Prop({default: 'login'}) public defaultRoute!: string;
+    @Prop({default: 'home'}) public defaultRoute!: string;
   }
 
 </script>

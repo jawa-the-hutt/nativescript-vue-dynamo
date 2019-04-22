@@ -1,14 +1,14 @@
 <template web>
   <div class="w-page">
     <div class="w-container">
-      <router-link id="dynamoTwoButton" tag="button" class="w-button" to="{ name: dynamo-two, params: { routeHistoryName: 'first', parentRouteHistoryName: 'main'}}">Dynamo Two</router-link>
+      <router-link id="dynamoTwoButton" tag="button" class="w-button" :to="{ path: '/dynamo-two' }">Dynamo Two</router-link>
     </div>
   </div>
 </template>
 <template native>
   <Page actionBarHidden="true">
     <GridLayout rows="auto">
-      <Button text="Dynamo Two" @tap="$goTo('dynamo-two', 'first', 'main')" row="0" />
+      <Button text="Dynamo Two" @tap="$goTo('dynamo-two')" row="0" />
     </GridLayout>
   </Page>
 </template>
@@ -20,7 +20,7 @@
   })
   export default class DynamoOne extends Vue {
 
-    @Prop() functionHandler: object = {};
+    @Prop() functionHandler!: object | Function;
     @Watch('functionHandler')
     onfunctionHandlerChanged(val: Function) { 
       // @ts-ignore
@@ -34,13 +34,13 @@
     }
 
     public mounted() {
-      this.$emit('dynamo-event', "emit event one");
+      this.$emit('dynamo-event', "emit event one ");
 
     }
 
     public parentToChild(data: string) {
       console.log('parentToChild - ', data);
-      this.$emit('dynamo-event', "emit event two from parentToChild function");
+      this.$emit('dynamo-event', "emit  event two from parentToChild function");
     }
 
 

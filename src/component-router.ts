@@ -31,16 +31,6 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
             let clearHistory: boolean = false;
 
             // add current routeHistoryName to meta tag in the route history
-            if(payload.to.meta && payload.to.params && payload.to.params.routeHistoryName) {
-              to.meta.routeHistoryName = payload.to.params.routeHistoryName;
-            }
-
-            // add the parent routeHistoryName (if it exists) to meta tag in the route history
-            if(payload.to.meta && payload.to.params && payload.to.params.parentRouteHistoryName) {
-              to.meta.parentRouteHistoryName = payload.to.params.parentRouteHistoryName;
-            }
-
-            // add current routeHistoryName to meta tag in the route history
             if(payload.to.params && payload.to.params.clearHistory === 'true') {
               clearHistory = true;
             }
@@ -231,7 +221,15 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
       // sync store on router navigation
       router.afterEach((to: Route, from: Route) => {
         try {
-          const routeHistoryName = to.params.routeHistoryName;
+
+          let routeHistoryName = '';
+          if (to.matched.length > 1 && to.path === to.matched[0].path) {
+            // we are dealing with a default child route so we want the routeHistoryName to be the parents
+            routeHistoryName = to.matched[0].meta.routeHistoryName
+          } else {
+            routeHistoryName = to.meta.routeHistoryName;
+          }
+
           const routeHistory = store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
 
           if (isTimeTraveling || (routeHistory && routeHistory.routeHistory.length > 0 && to.fullPath === routeHistory.routeHistory[routeHistory.routeHistory.length - 1].fullPath)) {
@@ -247,21 +245,7 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
       })
 
       return;
-      // return () => {
-      //   console.log(moduleName + ' - calling remove function for routeHistoryName : ', moduleName);
-      //   // On unsync, remove router hook
-      //   if (removeRouteHook != null) {
-      //     removeRouteHook();
-      //   }
 
-      //   // On unsync, remove store watch
-      //   if (unWatch != null) {
-      //     unWatch();
-      //   }
-
-      //   // On unsync, unregister Module with store
-      //   store.unregisterModule(moduleName);
-      // }
     } else {
       return Error(`The module named: ${moduleName} already exists in the store!`);
       

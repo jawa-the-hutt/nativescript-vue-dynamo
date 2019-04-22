@@ -9,12 +9,14 @@ export const routes: RouteConfig[] = [
   {
     name: 'home',
     path: '/home',
+    alias: '/',
     // @ts-ignore
     // eslint-disable-next-line
     component: () => import(/* webpackChunkName: "home" */ '~/views/Home'),
     meta: {
       title: 'Home',
       auth: true,
+      routeHistoryName: 'main',
     },
   },
   {
@@ -25,26 +27,26 @@ export const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "login" */ '~/views/Login'),
     meta: {
       title: 'Login',
-      auth: false
+      auth: false,
+      routeHistoryName: 'main',
     },
   },
   {
     name: '',
     path: '/first',
+    // @ts-ignore
+    // eslint-disable-next-line
+    component: () => import(/* webpackChunkName: "first" */ '~/views/First'),
+    props: true,
+    meta: {
+      title: 'First',
+      auth: true,
+      routeHistoryName: 'main',
+    },
     children: [
       {
-        name: 'first',
-        path: '',
-        // @ts-ignore
-        // eslint-disable-next-line
-        component: () => import(/* webpackChunkName: "first" */ '~/views/First'),
-        meta: {
-          title: 'First',
-          auth: true,
-        },
-      },
-      {
         name: 'dynamo-one',
+        alias: '/',
         path: '/dynamo-one',
         // @ts-ignore
         // eslint-disable-next-line
@@ -52,6 +54,8 @@ export const routes: RouteConfig[] = [
         meta: {
           title: 'Dynamo One',
           auth: true,
+          routeHistoryName: 'first',
+          parentRouteHistoryName: 'main',
         },
       },
       {
@@ -63,6 +67,8 @@ export const routes: RouteConfig[] = [
         meta: {
           title: 'Dynamo Two',
           auth: true,
+          routeHistoryName: 'first',
+          parentRouteHistoryName: 'main',
         },
       },
     ],
@@ -76,6 +82,7 @@ export const routes: RouteConfig[] = [
     meta: {
       title: 'Second',
       auth: true,
+      routeHistoryName: 'main',
     },
   },
 ];

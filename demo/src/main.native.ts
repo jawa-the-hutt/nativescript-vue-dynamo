@@ -5,7 +5,7 @@ import router, { routes } from '~/router';
 
 import Dynamo from '../../';
 
-Vue.use( Dynamo, { 
+Vue.use(Dynamo, { 
   appMode: store.state.appMode, 
   store,
   router,
@@ -23,10 +23,10 @@ import VueDevtools from 'nativescript-vue-devtools';
 Vue.use(VueDevtools, { host: '10.0.2.2' });
 
 // @ts-ignore
-import GlobalMixinNative from '~/utils/global-mixin/global-mixin';
-Vue.mixin(GlobalMixinNative);
+import GlobalMixin from '~/utils/global-mixin/global-mixin';
+Vue.mixin(GlobalMixin);
 
-const isLoggedIn = true; // change to false to start at the login component
+const isLoggedIn: boolean = true; // change to false to start at the login component
 
 new Vue({
   store,
