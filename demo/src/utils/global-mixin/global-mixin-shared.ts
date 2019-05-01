@@ -7,7 +7,7 @@ export default class GlobalMixinShared extends Vue {
     console.log('starting global-mixin login');
     try{
       // @ts-ignore
-      this.$goTo('home', routeHistoryName, undefined, 'true');
+      this.$goTo('home', 'true');
     } catch (err) {
       throw err;
     }
@@ -17,7 +17,7 @@ export default class GlobalMixinShared extends Vue {
     console.log('starting global-mixin logout');
     try{
       // @ts-ignore
-      this.$goTo('login', routeHistoryName, undefined, 'true');
+      this.$goTo('login', 'true');
     } catch (err) {
       throw err;
     }

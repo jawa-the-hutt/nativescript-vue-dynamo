@@ -9,7 +9,6 @@ export const routes: RouteConfig[] = [
   {
     name: 'home',
     path: '/home',
-    alias: '/',
     // @ts-ignore
     // eslint-disable-next-line
     component: () => import(/* webpackChunkName: "home" */ '~/views/Home'),
@@ -32,8 +31,9 @@ export const routes: RouteConfig[] = [
     },
   },
   {
-    name: '',
+    name: '/',
     path: '/first',
+    alias: 'first',
     // @ts-ignore
     // eslint-disable-next-line
     component: () => import(/* webpackChunkName: "first" */ '~/views/First'),

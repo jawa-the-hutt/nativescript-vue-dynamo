@@ -3,7 +3,6 @@
     <div class="w-container">
       <!-- <router-link id="loginButton" tag="button" class="w-button" :to="{ path: '/login' }">Login</router-link> -->
       <button id="loginButton" class="w-button" @click="$login('main')">Login</button>
-
     </div>
   </div>
 </template>
