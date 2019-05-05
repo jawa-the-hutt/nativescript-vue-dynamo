@@ -29,6 +29,7 @@
       // // console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
       // // console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
 
+      this.appMode =  this.appMode === undefined || 'native' ? 'native' : 'web';
       if (this.appMode === 'native') {
         // @ts-ignore
         this.$root.$goTo(this.defaultRoute);

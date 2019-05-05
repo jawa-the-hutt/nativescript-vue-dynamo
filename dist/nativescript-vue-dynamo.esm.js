@@ -241,6 +241,7 @@ let Dynamo = class Dynamo extends Vue {
         };
     }
     created() {
+        this.appMode = this.appMode === undefined || 'native' ? 'native' : 'web';
         if (this.appMode === 'native') {
             this.$root.$goTo(this.defaultRoute);
         }
@@ -452,10 +453,10 @@ async function install(Vue, options) {
                 async $goTo(location, clearHistory, onComplete, onAbort) {
                     console.log('$goTo');
                     let tmpLocation = {};
-                    clearHistory = !clearHistory ? 'false' : 'true';
+                    clearHistory = clearHistory === undefined || false ? false : true;
                     if (typeof location === 'string') {
                         tmpLocation.name = location;
-                        tmpLocation.params = Object.assign({}, { clearHistory });
+                        tmpLocation.params = Object.assign({}, { clearHistory: clearHistory.toString() });
                     }
                     else {
                         tmpLocation = location;

@@ -234,6 +234,7 @@ function __decorate(decorators, target, key, desc) {
         };
     }
     created() {
+        this.appMode = this.appMode === undefined || 'native' ? 'native' : 'web';
         if (this.appMode === 'native') {
             this.$root.$goTo(this.defaultRoute);
         }
@@ -439,10 +440,10 @@ var __vue_staticRenderFns__ = [];
                 async $goTo(location, clearHistory, onComplete, onAbort) {
                     console.log('$goTo');
                     let tmpLocation = {};
-                    clearHistory = !clearHistory ? 'false' : 'true';
+                    clearHistory = clearHistory === undefined || false ? false : true;
                     if (typeof location === 'string') {
                         tmpLocation.name = location;
-                        tmpLocation.params = Object.assign({}, { clearHistory });
+                        tmpLocation.params = Object.assign({}, { clearHistory: clearHistory.toString() });
                     }
                     else {
                         tmpLocation = location;
