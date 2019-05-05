@@ -17,7 +17,7 @@ export async function install(Vue: VueConstructor, options: any) {
 
     install.installed = true;
 
-    if(options.appMode === 'native') {
+    if(appMode === 'native') {
       componentRouter(options.store, options.router, options.routes, appMode, Vue);
       Vue.component('Dynamo', component);
     }
@@ -30,7 +30,7 @@ export async function install(Vue: VueConstructor, options: any) {
           canGoBack = canGoBack ===  undefined ? true : true ? true : false;
           const routeHistoryName =  options.router.currentRoute.meta.routeHistoryName;
 
-          if(options.appMode === 'native') {
+          if(appMode === 'native') {
             let routeHistory: IRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
             const currentRoute: Route = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
         
@@ -46,7 +46,7 @@ export async function install(Vue: VueConstructor, options: any) {
                 this.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
               };
             }    
-          } else if (options.appMode === 'web') {
+          } else if (appMode === 'web') {
             options.router.back();
           } else {
           }
@@ -56,7 +56,7 @@ export async function install(Vue: VueConstructor, options: any) {
           async $goBackToParent(routeHistoryName: string, parentRouteHistoryName: string): Promise<void> {
             console.log('$goBackToParent ');
 
-            if(options.appMode === 'native') {
+            if(appMode === 'native') {
               // clear out the child router's history
               options.store.dispatch('ComponentRouter/clearRouteHistory', {routeHistoryName});
           
@@ -68,7 +68,7 @@ export async function install(Vue: VueConstructor, options: any) {
               const newCurrentRoute: Route = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
               // @ts-ignore
               this.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName)
-            } else if (options.appMode === 'web') {
+            } else if (appMode === 'web') {
             } else {
             }
 
@@ -77,18 +77,19 @@ export async function install(Vue: VueConstructor, options: any) {
           },
         
           // @ts-ignore
-          async $goTo(location: string | Location, clearHistory?: string, onComplete?: Function, onAbort?: ErrorHandler): Promise<void> {
+          async $goTo(location: string | Location, clearHistory?: boolean, onComplete?: Function, onAbort?: ErrorHandler): Promise<void> {
             console.log('$goTo');
 
             let tmpLocation: Location = {};
-            clearHistory = !clearHistory ? 'false' : 'true';
+            // options.appMode === undefined || 'native' ? 'native' : 'web';
+            clearHistory = clearHistory === undefined || false ? false : true;
 
             if( typeof location === 'string') {
               // routeHistoryName = !routeHistoryName ? location : routeHistoryName;
               // parentRouteHistoryName = !parentRouteHistoryName ? routeHistoryName : parentRouteHistoryName;
 
               tmpLocation.name = location;
-              tmpLocation.params = Object.assign({}, { clearHistory });
+              tmpLocation.params = Object.assign({}, { clearHistory: clearHistory.toString() });
 
             } else {
               tmpLocation = location;

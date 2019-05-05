@@ -1,32 +1,33 @@
 <template>
   <Frame v-else-if="getIsNativeMode" :id="routeHistoryName">
     <StackLayout>
-      <component v-bind:is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" />
+      <component :is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" v-bind="routeParams" />
     </StackLayout>
   </Frame>  
 </template>
 <script lang="ts">
   import { Component, Vue, Prop } from 'vue-property-decorator';
-  import { Route } from 'vue-router';
+  import { ComponentOptions, AsyncComponent } from 'vue';
+  import { Route, RouteRecord } from 'vue-router';
   import { IRouteHistory } from "./component-router";
 
   @Component({
     name: 'Dynamo',
   })
   export default class Dynamo extends Vue {
-    private template: string = '';
+    private routeParams!: object;
+    private currentRoute!: RouteRecord;
 
     @Prop({ required: true }) public routeHistoryName!: string;
     @Prop({ required: true }) public defaultRoute!: string;
-    @Prop({ required: false }) public parentRouteHistoryName!: string;
     @Prop({ required: false }) public functionHandler!: object | Function;
     @Prop({ required: true }) public appMode!: string;
 
     public created() {
       // console.log('dynamo - created - routeHistoryName - ', this.routeHistoryName);
       // console.log('dynamo - created - defaultRoute - ', this.defaultRoute);
-      // console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
-      // console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
+      // // console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
+      // // console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
 
       if (this.appMode === 'native') {
         // @ts-ignore
@@ -38,15 +39,34 @@
       this.$emit(this.routeHistoryName + '-event-handler', e);
     }
 
-    get computedCurrentRoute(): Route {
-      let currentRoute!: Route;
+    private getMatchingRouteRecord = (routeHistory: Route[]): RouteRecord[] => {
+      const { matched }: { matched: RouteRecord[] } = routeHistory[routeHistory.length - 1];
+      const { path }: { path: string } = routeHistory[routeHistory.length - 1];
+      return matched.filter( (record: RouteRecord) => Object.keys(record).some((key: string) => record[key] && record[key] === path ));
+    }
+
+    get computedCurrentRoute(): ComponentOptions<Vue> | typeof Vue | AsyncComponent {
+      let routeHistory!: Route[];
+      
+
       // @ts-ignore
       if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0) {
         // @ts-ignore
-        currentRoute = this.$store.getters['ComponentRouter/getCurrentRoute'](this.routeHistoryName).default
-        return currentRoute;
+        // get the matching routeHisotry
+        routeHistory = this.$store.getters['ComponentRouter/getCurrentRoute'](this.routeHistoryName);
+
+        // get the matched route record
+        this.currentRoute = this.getMatchingRouteRecord(routeHistory)[0];
+
+        // get any passed route parameters so we can pass them into the component
+        if (routeHistory[routeHistory.length - 1].params) {
+          this.routeParams = routeHistory[routeHistory.length - 1].params;
+        }
+
+        // get the actual component from the RouteRecord
+        return this.currentRoute.components.default;
       } else {
-        return currentRoute;
+        return Vue;
       }
     }
 

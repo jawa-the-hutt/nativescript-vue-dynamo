@@ -1,16 +1,17 @@
 import { Vue } from 'vue-property-decorator';
-import { Route } from 'vue-router';
+import { ComponentOptions, AsyncComponent } from 'vue';
 import { IRouteHistory } from "./component-router";
 export default class Dynamo extends Vue {
-    private template;
+    private routeParams;
+    private currentRoute;
     routeHistoryName: string;
     defaultRoute: string;
-    parentRouteHistoryName: string;
     functionHandler: object | Function;
     appMode: string;
     created(): void;
     eventHandler(e: any): void;
-    readonly computedCurrentRoute: Route;
+    private getMatchingRouteRecord;
+    readonly computedCurrentRoute: ComponentOptions<Vue> | typeof Vue | AsyncComponent;
     readonly computedRouteHistory: IRouteHistory;
     readonly getIsNativeMode: boolean;
 }

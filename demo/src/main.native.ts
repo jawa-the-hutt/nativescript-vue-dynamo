@@ -6,7 +6,6 @@ import router, { routes } from '~/router';
 import Dynamo from '../../';
 
 Vue.use(Dynamo, { 
-  appMode: store.state.appMode, 
   store,
   router,
   routes,

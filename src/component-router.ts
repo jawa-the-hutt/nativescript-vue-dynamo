@@ -120,7 +120,7 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
               const index = state.routeHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
 
               if (index > -1 && state.routeHistory[index].routeHistory.length > 0 ) {
-                return getMatchingRouteRecord(state.routeHistory[index].routeHistory)[0].components; 
+                return state.routeHistory[index].routeHistory; // getMatchingRouteRecord(state.routeHistory[index].routeHistory); //[0].components; 
               } else {
                 return undefined;
               }
@@ -255,11 +255,11 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
   }
 }
 
-const getMatchingRouteRecord = (routeHistory: Route[]) => {
-  const matched: RouteRecord[] = routeHistory[routeHistory.length - 1].matched;
-  const path = routeHistory[routeHistory.length - 1].path;
-  return matched.filter( (record: RouteRecord) => Object.keys(record).some((key: string) => record[key] && record[key] === path ));
-}
+// const getMatchingRouteRecord = (routeHistory: Route[]) => {
+//   const matched: RouteRecord[] = routeHistory[routeHistory.length - 1].matched;
+//   const path = routeHistory[routeHistory.length - 1].path;
+//   return matched.filter( (record: RouteRecord) => Object.keys(record).some((key: string) => record[key] && record[key] === path ));
+// }
 
 export interface IRouteHistory {
   routeHistoryName: string;

@@ -9,20 +9,23 @@
   <Page>
     <ActionBar :title="navbarTitle" />
     <GridLayout>
-      <Label text="This is the second page" textWrap="true" horizontalAlignment="center" verticalAlignment="center"/>
+      <!-- <Label text="This is the second page" textWrap="true" horizontalAlignment="center" verticalAlignment="center"/> -->
+      <Label :text="msg" textWrap="true" horizontalAlignment="center" verticalAlignment="center"/>
     </GridLayout>
   </Page>
 </template>
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
+  import { Component, Vue, Prop } from 'vue-property-decorator';
 
   @Component({
     name: 'second',
   })
   export default class Second extends Vue {
     private navbarTitle: string = `Second.vue`;
+    @Prop() private msg!: string;
 
     public created() {
+      console.log('second.vue - created -  this.$options.props - ', this.$options.props);
       if (this.$store.state.appMode === 'native') {
         // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
         (this as any).$interceptGoBack();  

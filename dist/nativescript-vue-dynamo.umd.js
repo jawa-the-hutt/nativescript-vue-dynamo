@@ -86,7 +86,7 @@
                         try {
                             const index = state.routeHistory.findIndex(obj => obj.routeHistoryName === routeHistoryName);
                             if (index > -1 && state.routeHistory[index].routeHistory.length > 0) {
-                                return getMatchingRouteRecord(state.routeHistory[index].routeHistory)[0].components;
+                                return state.routeHistory[index].routeHistory;
                             }
                             else {
                                 return undefined;
@@ -204,11 +204,6 @@
     catch (err) {
         throw err;
     }
-};
-const getMatchingRouteRecord = (routeHistory) => {
-    const matched = routeHistory[routeHistory.length - 1].matched;
-    const path = routeHistory[routeHistory.length - 1].path;
-    return matched.filter((record) => Object.keys(record).some((key) => record[key] && record[key] === path));
 };/*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -232,7 +227,11 @@ function __decorate(decorators, target, key, desc) {
 }let Dynamo = class Dynamo extends vuePropertyDecorator.Vue {
     constructor() {
         super(...arguments);
-        this.template = '';
+        this.getMatchingRouteRecord = (routeHistory) => {
+            const { matched } = routeHistory[routeHistory.length - 1];
+            const { path } = routeHistory[routeHistory.length - 1];
+            return matched.filter((record) => Object.keys(record).some((key) => record[key] && record[key] === path));
+        };
     }
     created() {
         if (this.appMode === 'native') {
@@ -243,13 +242,17 @@ function __decorate(decorators, target, key, desc) {
         this.$emit(this.routeHistoryName + '-event-handler', e);
     }
     get computedCurrentRoute() {
-        let currentRoute;
+        let routeHistory;
         if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0) {
-            currentRoute = this.$store.getters['ComponentRouter/getCurrentRoute'](this.routeHistoryName).default;
-            return currentRoute;
+            routeHistory = this.$store.getters['ComponentRouter/getCurrentRoute'](this.routeHistoryName);
+            this.currentRoute = this.getMatchingRouteRecord(routeHistory)[0];
+            if (routeHistory[routeHistory.length - 1].params) {
+                this.routeParams = routeHistory[routeHistory.length - 1].params;
+            }
+            return this.currentRoute.components.default;
         }
         else {
-            return currentRoute;
+            return vuePropertyDecorator.Vue;
         }
     }
     get computedRouteHistory() {
@@ -266,9 +269,6 @@ __decorate([
 __decorate([
     vuePropertyDecorator.Prop({ required: true })
 ], Dynamo.prototype, "defaultRoute", void 0);
-__decorate([
-    vuePropertyDecorator.Prop({ required: false })
-], Dynamo.prototype, "parentRouteHistoryName", void 0);
 __decorate([
     vuePropertyDecorator.Prop({ required: false })
 ], Dynamo.prototype, "functionHandler", void 0);
@@ -367,7 +367,7 @@ var normalizeComponent_1 = normalizeComponent;/* script */
 const __vue_script__ = script;
 
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('Frame',{attrs:{"id":_vm.routeHistoryName}},[_c('StackLayout',[_c(_vm.computedCurrentRoute,{tag:"component",attrs:{"functionHandler":_vm.functionHandler},on:{"dynamo-event":_vm.eventHandler}})],1)],1)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('Frame',{attrs:{"id":_vm.routeHistoryName}},[_c('StackLayout',[_c(_vm.computedCurrentRoute,_vm._b({tag:"component",attrs:{"functionHandler":_vm.functionHandler},on:{"dynamo-event":_vm.eventHandler}},'component',_vm.routeParams,false))],1)],1)};
 var __vue_staticRenderFns__ = [];
 
   /* style */
@@ -401,7 +401,7 @@ var __vue_staticRenderFns__ = [];
     else {
         const appMode = options.appMode === undefined || 'native' ? 'native' : 'web';
         install.installed = true;
-        if (options.appMode === 'native') {
+        if (appMode === 'native') {
             componentRouter(options.store, options.router, options.routes, appMode, Vue);
             Vue.component('Dynamo', component);
         }
@@ -411,7 +411,7 @@ var __vue_staticRenderFns__ = [];
                     console.log(`$goBack`);
                     canGoBack = canGoBack === undefined ? true : true;
                     const routeHistoryName = options.router.currentRoute.meta.routeHistoryName;
-                    if (options.appMode === 'native') {
+                    if (appMode === 'native') {
                         let routeHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
                         const currentRoute = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
                         if (canGoBack && routeHistory.routeHistory.length > 1) {
@@ -423,19 +423,18 @@ var __vue_staticRenderFns__ = [];
                             }
                         }
                     }
-                    else if (options.appMode === 'web') {
+                    else if (appMode === 'web') {
                         options.router.back();
                     }
                 },
                 async $goBackToParent(routeHistoryName, parentRouteHistoryName) {
                     console.log('$goBackToParent ');
-                    if (options.appMode === 'native') {
+                    if (appMode === 'native') {
                         options.store.dispatch('ComponentRouter/clearRouteHistory', { routeHistoryName });
                         const parentRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
                         const newCurrentRoute = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
                         this.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName);
                     }
-                    else if (options.appMode === 'web') ;
                 },
                 async $goTo(location, clearHistory, onComplete, onAbort) {
                     console.log('$goTo');

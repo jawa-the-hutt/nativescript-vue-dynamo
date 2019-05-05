@@ -79,6 +79,7 @@ export const routes: RouteConfig[] = [
     // @ts-ignore
     // eslint-disable-next-line
     component: () => import(/* webpackChunkName: "second" */ '~/views/Second'),
+    props: true,
     meta: {
       title: 'Second',
       auth: true,
