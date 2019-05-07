@@ -3,7 +3,7 @@
     <div class="w-container">
       <span>This is the first page</span>
       <button id="parentButton" class="w-button" @click="parentButton">Parent</button>
-      <router-view 
+      <router-view
         :function-handler="functionHandler"
         @dynamo-event="eventHandler"
       />
@@ -13,38 +13,40 @@
 <template native>
   <Page>
     <ActionBar :title="navbarTitle">
-      <NavigationButton text="Go Back" android.systemIcon="ic_menu_back" @tap="$goBack()"/>
+      <NavigationButton v-show="$isAndroid" android.systemIcon="ic_menu_back" @tap="$goBack()"/>
+        <NavigationButton v-show="$isIOS" visibility="collapsed" />
+        <ActionItem v-show="$isIOS" ios.systemIcon="8" ios.position="left" @tap="$goBack()" />
     </ActionBar>
     <GridLayout rows="auto, *">
       <Button text="Parent" @tap="parentButton" row="0" />
-      <Dynamo
-        :routeHistoryName="'first'"
-        :defaultRoute="'dynamo-one'"
-        :appMode="$store.state.appMode"
-        :functionHandler="functionHandler"
-        @first-event-handler="eventHandler"
-        row="1"
-      />
-    </GridLayout>    
-      
+        <Dynamo
+          :routeHistoryName="'first'"
+          :defaultRoute="'dynamo-one'"
+          :functionHandler="functionHandler"
+          @first-event-handler="eventHandler"
+          row="1"
+        />
+    </GridLayout>
   </Page>
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
 
   @Component({
-    name: 'first'
+    name: 'first',
   })
   export default class First extends Vue {
     private navbarTitle: string = `First.vue`;
     public functionHandler: object = {};
     public eventName: string = '';
 
+    public notBackButton: boolean = false;
+
     public created() {
       if (this.$store.state.appMode === 'native') {
         this.eventName = 'firstEventHandler';
         // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
-        (this as any).$interceptGoBack();  
+        (this as any).$interceptGoBack();
       } else {
         this.eventName = 'firstEventHandler';
       }

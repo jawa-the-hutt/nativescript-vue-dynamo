@@ -8,7 +8,6 @@
     <Dynamo
       :routeHistoryName="'main'"
       :defaultRoute="defaultRoute"
-      :appMode="$store.state.appMode"
     />
   </Page>
 </template>

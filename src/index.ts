@@ -67,7 +67,7 @@ export async function install(Vue: VueConstructor, options: any) {
               // go back 2 since the newest entry in the parent router stack is the component holding the Dynamo component
               const newCurrentRoute: Route = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
               // @ts-ignore
-              this.$goTo(newCurrentRoute.name, parentRouteHistoryName, newCurrentRoute.meta.parentRouteHistoryName)
+              this.$goTo(newCurrentRoute.name)
             } else if (appMode === 'web') {
             } else {
             }
@@ -81,7 +81,6 @@ export async function install(Vue: VueConstructor, options: any) {
             console.log('$goTo');
 
             let tmpLocation: Location = {};
-            // options.appMode === undefined || 'native' ? 'native' : 'web';
             clearHistory = clearHistory === undefined || false ? false : true;
 
             if( typeof location === 'string') {
