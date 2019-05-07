@@ -12,7 +12,7 @@ Vue.use(Dynamo, {
 });
 
 // Set the following to `true` to hide the logs created by nativescript-vue
-Vue.config.silent = true;
+Vue.config.silent = false;
 // Set the following to `false` to not colorize the logs created by nativescript-vue
 // @ts-ignore
 Vue.config.debug = true;

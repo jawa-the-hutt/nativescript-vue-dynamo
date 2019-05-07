@@ -8,10 +8,11 @@ export default class Dynamo extends Vue {
     defaultRoute: string;
     functionHandler: object | Function;
     appMode: string;
+    private _appMode;
     created(): void;
     eventHandler(e: any): void;
     private getMatchingRouteRecord;
-    readonly computedCurrentRoute: ComponentOptions<Vue> | typeof Vue | AsyncComponent;
+    readonly computedCurrentRoute: ComponentOptions<Vue> | typeof Vue | AsyncComponent | undefined;
     readonly computedRouteHistory: IRouteHistory;
     readonly getIsNativeMode: boolean;
 }

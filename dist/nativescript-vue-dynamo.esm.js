@@ -241,8 +241,8 @@ let Dynamo = class Dynamo extends Vue {
         };
     }
     created() {
-        this.appMode = this.appMode === undefined || 'native' ? 'native' : 'web';
-        if (this.appMode === 'native') {
+        this._appMode = this.appMode === undefined ? 'native' : this.appMode === 'native' ? 'native' : 'web';
+        if (this._appMode === 'native') {
             this.$root.$goTo(this.defaultRoute);
         }
     }
@@ -253,14 +253,14 @@ let Dynamo = class Dynamo extends Vue {
         let routeHistory;
         if (this.computedRouteHistory && this.computedRouteHistory.routeHistory.length > 0) {
             routeHistory = this.$store.getters['ComponentRouter/getCurrentRoute'](this.routeHistoryName);
-            this.currentRoute = this.getMatchingRouteRecord(routeHistory)[0];
+            this.currentRoute = this.getMatchingRouteRecord(routeHistory);
             if (routeHistory[routeHistory.length - 1].params) {
                 this.routeParams = routeHistory[routeHistory.length - 1].params;
             }
-            return this.currentRoute.components.default;
+            return this.currentRoute[0].components.default;
         }
         else {
-            return Vue;
+            return undefined;
         }
     }
     get computedRouteHistory() {
@@ -268,7 +268,7 @@ let Dynamo = class Dynamo extends Vue {
         return routeHistory;
     }
     get getIsNativeMode() {
-        return this.appMode === 'native' ? true : false;
+        return this._appMode === 'native' ? true : false;
     }
 };
 __decorate([
@@ -281,7 +281,7 @@ __decorate([
     Prop({ required: false })
 ], Dynamo.prototype, "functionHandler", void 0);
 __decorate([
-    Prop({ required: true })
+    Prop({ required: false })
 ], Dynamo.prototype, "appMode", void 0);
 Dynamo = __decorate([
     Component({

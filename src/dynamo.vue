@@ -16,12 +16,14 @@
   })
   export default class Dynamo extends Vue {
     private routeParams!: object;
-    private currentRoute!: RouteRecord;
+    private currentRoute!: RouteRecord[];
 
     @Prop({ required: true }) public routeHistoryName!: string;
     @Prop({ required: true }) public defaultRoute!: string;
     @Prop({ required: false }) public functionHandler!: object | Function;
-    @Prop({ required: true }) public appMode!: string;
+    @Prop({ required: false }) public appMode!: string;
+
+    private _appMode!: string;
 
     public created() {
       // console.log('dynamo - created - routeHistoryName - ', this.routeHistoryName);
@@ -29,8 +31,9 @@
       // // console.log('dynamo - created - parentRouteHistoryName - ', this.parentRouteHistoryName);
       // // console.log('dynamo - created - getIsNativeMode - ', this.getIsNativeMode);
 
-      this.appMode =  this.appMode === undefined || 'native' ? 'native' : 'web';
-      if (this.appMode === 'native') {
+      
+      this._appMode =  this.appMode === undefined ? 'native' : this.appMode === 'native' ? 'native' : 'web';
+      if (this._appMode === 'native') {
         // @ts-ignore
         this.$root.$goTo(this.defaultRoute);
       }
@@ -46,7 +49,8 @@
       return matched.filter( (record: RouteRecord) => Object.keys(record).some((key: string) => record[key] && record[key] === path ));
     }
 
-    get computedCurrentRoute(): ComponentOptions<Vue> | typeof Vue | AsyncComponent {
+
+    get computedCurrentRoute(): ComponentOptions<Vue> | typeof Vue | AsyncComponent | undefined {
       let routeHistory!: Route[];
       
 
@@ -57,7 +61,7 @@
         routeHistory = this.$store.getters['ComponentRouter/getCurrentRoute'](this.routeHistoryName);
 
         // get the matched route record
-        this.currentRoute = this.getMatchingRouteRecord(routeHistory)[0];
+        this.currentRoute = this.getMatchingRouteRecord(routeHistory);
 
         // get any passed route parameters so we can pass them into the component
         if (routeHistory[routeHistory.length - 1].params) {
@@ -65,9 +69,9 @@
         }
 
         // get the actual component from the RouteRecord
-        return this.currentRoute.components.default;
+        return this.currentRoute[0].components.default;
       } else {
-        return Vue;
+        return undefined;
       }
     }
 
@@ -77,7 +81,7 @@
     }
 
     get getIsNativeMode(): boolean {
-      return this.appMode === 'native' ? true : false;
+      return this._appMode === 'native' ? true : false;
     }
   }
 
