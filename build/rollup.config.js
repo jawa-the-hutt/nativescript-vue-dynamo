@@ -45,7 +45,10 @@ const external = [
   "vue-router",
   "vuex",
   "clone",
-  "tns-core-modules/ui/gestures"
+  "tns-core-modules/ui/gestures",
+  "tns-core-modules/platform",
+  "tns-core-modules/application",
+  "tns-core-modules/ui/frame",
 ];
 const globals = {
   // Provide global variable names to replace your external imports
@@ -53,6 +56,9 @@ const globals = {
   clone: "clone",
   "vue-property-decorator": "vuePropertyDecorator",
   "tns-core-modules/ui/gestures": "gestures",
+  "tns-core-modules/platform": "platform",
+  "tns-core-modules/application": "application",
+  "tns-core-modules/ui/frame": "frame",
 };
 
 // Customize configs for individual targets

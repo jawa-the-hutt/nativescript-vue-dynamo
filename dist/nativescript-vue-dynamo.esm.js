@@ -1,3 +1,6 @@
+import { android } from 'tns-core-modules/application';
+import { topmost } from 'tns-core-modules/ui/frame';
+import { isAndroid } from 'tns-core-modules/platform';
 import clone from 'clone';
 import { Prop, Component, Vue } from 'vue-property-decorator';
 
@@ -420,7 +423,22 @@ async function install(Vue, options) {
             Vue.component('Dynamo', component);
         }
         Vue.mixin({
+            created() {
+                if (appMode === 'native') {
+                    this.$interceptGoBack();
+                }
+            },
             methods: {
+                async $interceptGoBack() {
+                    console.log(`$interceptGoBack`);
+                    if (isAndroid) {
+                        const activity = android.startActivity || android.foregroundActivity;
+                        activity.onBackPressed = async () => {
+                            console.log(`activity.onBackPressed `);
+                            this.$goBack(topmost().canGoBack());
+                        };
+                    }
+                },
                 async $goBack(canGoBack) {
                     console.log(`$goBack`);
                     canGoBack = canGoBack === undefined ? true : true;

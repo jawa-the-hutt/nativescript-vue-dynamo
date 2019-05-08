@@ -1,5 +1,9 @@
 import { VueConstructor, PluginFunction } from 'vue';
 import { Route, Location } from 'vue-router';
+import * as application from 'tns-core-modules/application';
+import { topmost } from 'tns-core-modules/ui/frame';
+import { isAndroid, isIOS } from "tns-core-modules/platform";
+
 import componentRouter, { IRouteHistory } from "./component-router";
 // Import vue component
 import component from './dynamo.vue';
@@ -23,7 +27,56 @@ export async function install(Vue: VueConstructor, options: any) {
     }
 
     Vue.mixin({
+      created() {
+        if(appMode === 'native') {
+          // @ts-ignore
+          this.$interceptGoBack();
+        }
+      },
       methods: {
+        // we need to make sure we intercept the Android back button so that we can update vuex 
+        async $interceptGoBack(): Promise<void> {
+          console.log(`$interceptGoBack`);
+      
+          // @ts-ignore
+          if (isAndroid) {
+            const activity = application.android.startActivity || application.android.foregroundActivity;
+            activity.onBackPressed = async () => {
+              console.log(`activity.onBackPressed `);
+              // @ts-ignore
+              this.$goBack(topmost().canGoBack());
+            };
+          } else {
+            // we're on IOS.  Need to figure out how to handle back navigation and intercept the events
+      
+            // if (this.$children == undefined || this.$children.length !== 1) return
+            // // console.log('We Have Children!')
+      
+            // // @ts-ignore
+            // if (this.$children[0].$el._tagName == 'nativepage') {
+            //   console.log('We Have NativePage!')
+      
+            //   // @ts-ignore
+            //   const nativePage = this.$children[0].$el._nativeView
+            //   if (nativePage != undefined) {
+            //     console.log('nativepage is there')
+      
+            //     nativePage.on('navigatedTo', data => {
+            //       this.notBackButton = false;
+            //     })
+            //     nativePage.on('navigatingFrom', data => {
+            //       if (this.notBackButton != true) {
+            //         console.log('going backward!')
+      
+            //         const top = topmost().canGoBack();
+            //         console.log('ios canGoBack - ', top);
+            //       }
+            //     })
+            //   }
+            // }
+          }
+        },
+
         // @ts-ignore
         async $goBack (canGoBack?: boolean): Promise<void> {
           console.log(`$goBack`);

@@ -1,4 +1,4 @@
-(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?f(exports,require('clone'),require('vue-property-decorator')):typeof define==='function'&&define.amd?define(['exports','clone','vue-property-decorator'],f):(g=g||self,f(g.NativescriptVueDynamo={},g.clone,g.vuePropertyDecorator));}(this,function(exports, clone, vuePropertyDecorator){'use strict';clone=clone&&clone.hasOwnProperty('default')?clone['default']:clone;const componentRouter = async (store, router, routes, appMode, Vue) => {
+(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?f(exports,require('tns-core-modules/application'),require('tns-core-modules/ui/frame'),require('tns-core-modules/platform'),require('clone'),require('vue-property-decorator')):typeof define==='function'&&define.amd?define(['exports','tns-core-modules/application','tns-core-modules/ui/frame','tns-core-modules/platform','clone','vue-property-decorator'],f):(g=g||self,f(g.NativescriptVueDynamo={},g.application,g.frame,g.platform,g.clone,g.vuePropertyDecorator));}(this,function(exports, application, frame, platform, clone, vuePropertyDecorator){'use strict';clone=clone&&clone.hasOwnProperty('default')?clone['default']:clone;const componentRouter = async (store, router, routes, appMode, Vue) => {
     console.log('starting componentRouter function');
     try {
         let recentRouteChange;
@@ -407,7 +407,22 @@ var __vue_staticRenderFns__ = [];
             Vue.component('Dynamo', component);
         }
         Vue.mixin({
+            created() {
+                if (appMode === 'native') {
+                    this.$interceptGoBack();
+                }
+            },
             methods: {
+                async $interceptGoBack() {
+                    console.log(`$interceptGoBack`);
+                    if (platform.isAndroid) {
+                        const activity = application.android.startActivity || application.android.foregroundActivity;
+                        activity.onBackPressed = async () => {
+                            console.log(`activity.onBackPressed `);
+                            this.$goBack(frame.topmost().canGoBack());
+                        };
+                    }
+                },
                 async $goBack(canGoBack) {
                     console.log(`$goBack`);
                     canGoBack = canGoBack === undefined ? true : true;

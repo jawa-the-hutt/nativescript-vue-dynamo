@@ -12,10 +12,12 @@
 </template>
 <template native>
   <Page>
-    <ActionBar :title="navbarTitle">
-      <NavigationButton v-show="$isAndroid" android.systemIcon="ic_menu_back" @tap="$goBack()"/>
-        <NavigationButton v-show="$isIOS" visibility="collapsed" />
-        <ActionItem v-show="$isIOS" ios.systemIcon="8" ios.position="left" @tap="$goBack()" />
+    <ActionBar v-if="$isAndroid" :title="navbarTitle">
+      <NavigationButton android.systemIcon="ic_menu_back" @tap="$goBack()"/>
+    </ActionBar>
+    <ActionBar v-else :title="navbarTitle">
+      <NavigationButton visibility="collapsed" />
+      <ActionItem ios.systemIcon="8" ios.position="left" @tap="$goBack()" />
     </ActionBar>
     <GridLayout rows="auto, *">
       <Button text="Parent" @tap="parentButton" row="0" />

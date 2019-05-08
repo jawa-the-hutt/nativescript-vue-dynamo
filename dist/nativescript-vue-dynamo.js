@@ -1,4 +1,4 @@
-var NativescriptVueDynamo=(function(exports,clone,vuePropertyDecorator){'use strict';clone=clone&&clone.hasOwnProperty('default')?clone['default']:clone;const componentRouter = async (store, router, routes, appMode, Vue) => {
+var NativescriptVueDynamo=(function(exports,application,frame,platform,clone,vuePropertyDecorator){'use strict';clone=clone&&clone.hasOwnProperty('default')?clone['default']:clone;const componentRouter = async (store, router, routes, appMode, Vue) => {
     console.log('starting componentRouter function');
     try {
         let recentRouteChange;
@@ -407,7 +407,22 @@ var __vue_staticRenderFns__ = [];
             Vue.component('Dynamo', component);
         }
         Vue.mixin({
+            created() {
+                if (appMode === 'native') {
+                    this.$interceptGoBack();
+                }
+            },
             methods: {
+                async $interceptGoBack() {
+                    console.log(`$interceptGoBack`);
+                    if (platform.isAndroid) {
+                        const activity = application.android.startActivity || application.android.foregroundActivity;
+                        activity.onBackPressed = async () => {
+                            console.log(`activity.onBackPressed `);
+                            this.$goBack(frame.topmost().canGoBack());
+                        };
+                    }
+                },
                 async $goBack(canGoBack) {
                     console.log(`$goBack`);
                     canGoBack = canGoBack === undefined ? true : true;
@@ -479,4 +494,4 @@ else if (typeof global !== "undefined" && typeof global['Vue'] !== 'undefined') 
 }
 if (GlobalVue) {
     GlobalVue.use(Dynamo$1);
-}exports.default=Dynamo$1;exports.install=install;return exports;}({},clone,vuePropertyDecorator));
+}exports.default=Dynamo$1;exports.install=install;return exports;}({},application,frame,platform,clone,vuePropertyDecorator));
