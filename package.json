@@ -1,6 +1,6 @@
 {
   "name": "nativescript-vue-dynamo",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Nativescript-Vue Dynamic Component Router",
   "main": "dist/nativescript-vue-dynamo.umd.js",
   "files": [
