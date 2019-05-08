@@ -3,8 +3,6 @@
   "version": "0.0.14",
   "description": "Nativescript-Vue Dynamic Component Router",
   "main": "dist/nativescript-vue-dynamo.umd.js",
-  "module": "dist/nativescript-vue-dynamo.esm.js",
-  "unpkg": "dist/nativescript-vue-dynamo.js",
   "files": [
     "dist/*",
     "src/*",
@@ -89,7 +87,7 @@
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-eslint-parser": "^6.0.3",
-    "vue-property-decorator": "^8.1.0",
+    "vue-property-decorator": "^8.1.1",
     "vue-template-compiler": "^2.6.10"
   }
 }

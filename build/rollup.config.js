@@ -44,13 +44,15 @@ const external = [
   "vue-class-component",
   "vue-router",
   "vuex",
-  "clone"
+  "clone",
+  "tns-core-modules/ui/gestures"
 ];
 const globals = {
   // Provide global variable names to replace your external imports
   // eg. jquery: '$'
   clone: "clone",
   "vue-property-decorator": "vuePropertyDecorator",
+  "tns-core-modules/ui/gestures": "gestures",
 };
 
 // Customize configs for individual targets

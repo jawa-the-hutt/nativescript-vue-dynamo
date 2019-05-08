@@ -1,5 +1,6 @@
 <template>
-  <StackLayout @swipe="onSwipe">
+  <!-- <StackLayout @swipe="onSwipe"> -->
+  <StackLayout>
     <Frame v-if="getIsNativeMode" :id="routeHistoryName">
       <StackLayout>
         <component :is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" v-bind="routeParams" />
@@ -12,13 +13,13 @@
   import { ComponentOptions, AsyncComponent } from 'vue';
   import { Route, RouteRecord } from 'vue-router';
   import { IRouteHistory } from "./component-router";
-  import { SwipeDirection } from 'tns-core-modules/ui/gestures';
+  // import { SwipeDirection } from 'tns-core-modules/ui/gestures';
 
   @Component({
     name: 'Dynamo',
   })
   export default class Dynamo extends Vue {
-    public notBackButton: boolean = true;
+    // public notBackButton: boolean = true;
 
     private routeParams!: object;
     private currentRoute!: RouteRecord[];
@@ -44,17 +45,17 @@
       }
     }
 
-    public onSwipe(args) {
-      let direction =
-        args.direction == SwipeDirection.down
-          ? "down"
-          : args.direction == SwipeDirection.up
-            ? "up"
-            : args.direction == SwipeDirection.left
-              ? "left"
-              : "right";
-      console.log("You performed a " + direction + " swipe");
-    }
+    // public onSwipe(args) {
+    //   let direction =
+    //     args.direction == SwipeDirection.down
+    //       ? "down"
+    //       : args.direction == SwipeDirection.up
+    //         ? "up"
+    //         : args.direction == SwipeDirection.left
+    //           ? "left"
+    //           : "right";
+    //   console.log("You performed a " + direction + " swipe");
+    // }
 
     public eventHandler(e) {
       this.$emit(this.routeHistoryName + '-event-handler', e);

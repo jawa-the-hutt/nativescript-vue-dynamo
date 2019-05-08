@@ -1,6 +1,5 @@
 import clone from 'clone';
 import { Prop, Component, Vue } from 'vue-property-decorator';
-import { SwipeDirection } from 'tns-core-modules/ui/gestures';
 
 const componentRouter = async (store, router, routes, appMode, Vue) => {
     console.log('starting componentRouter function');
@@ -235,7 +234,6 @@ function __decorate(decorators, target, key, desc) {
 let Dynamo = class Dynamo extends Vue {
     constructor() {
         super(...arguments);
-        this.notBackButton = true;
         this.getMatchingRouteRecord = (routeHistory) => {
             const { matched } = routeHistory[routeHistory.length - 1];
             const { path } = routeHistory[routeHistory.length - 1];
@@ -247,16 +245,6 @@ let Dynamo = class Dynamo extends Vue {
         if (this._appMode === 'native') {
             this.$root.$goTo(this.defaultRoute);
         }
-    }
-    onSwipe(args) {
-        let direction = args.direction == SwipeDirection.down
-            ? "down"
-            : args.direction == SwipeDirection.up
-                ? "up"
-                : args.direction == SwipeDirection.left
-                    ? "left"
-                    : "right";
-        console.log("You performed a " + direction + " swipe");
     }
     eventHandler(e) {
         this.$emit(this.routeHistoryName + '-event-handler', e);
@@ -391,7 +379,7 @@ var normalizeComponent_1 = normalizeComponent;
 const __vue_script__ = script;
 
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('StackLayout',{on:{"swipe":_vm.onSwipe}},[(_vm.getIsNativeMode)?_c('Frame',{attrs:{"id":_vm.routeHistoryName}},[_c('StackLayout',[_c(_vm.computedCurrentRoute,_vm._b({tag:"component",attrs:{"functionHandler":_vm.functionHandler},on:{"dynamo-event":_vm.eventHandler}},'component',_vm.routeParams,false))],1)],1):_vm._e()],1)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('StackLayout',[(_vm.getIsNativeMode)?_c('Frame',{attrs:{"id":_vm.routeHistoryName}},[_c('StackLayout',[_c(_vm.computedCurrentRoute,_vm._b({tag:"component",attrs:{"functionHandler":_vm.functionHandler},on:{"dynamo-event":_vm.eventHandler}},'component',_vm.routeParams,false))],1)],1):_vm._e()],1)};
 var __vue_staticRenderFns__ = [];
 
   /* style */
