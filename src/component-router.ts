@@ -51,7 +51,7 @@ const componentRouter = async (store: Store<any>, router: Router, routes: RouteC
                 const routeHistory = newRouteHistory[index].routeHistory;
 
                 if(routeHistory.length > 1 && to.fullPath === routeHistory[routeHistory.length - 2].fullPath
-                  && (!to.params || (to.params && routeHistory[routeHistory.length - 2].params && to.params.defaultRoute !== routeHistory[routeHistory.length - 2].params.defaultRoute))
+                  && (!to.params || (to.params && routeHistory[routeHistory.length - 2].params && to.params.defaultRoute === routeHistory[routeHistory.length - 2].params.defaultRoute))
                 ) {  
                   // we're going back from where we came from
                   routeHistory.pop();

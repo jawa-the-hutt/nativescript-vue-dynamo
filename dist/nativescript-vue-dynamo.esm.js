@@ -37,7 +37,8 @@ const componentRouter = async (store, router, routes, appMode, Vue) => {
                         if (!clearHistory) {
                             if (index > -1) {
                                 const routeHistory = newRouteHistory[index].routeHistory;
-                                if (routeHistory.length > 1 && to.fullPath === routeHistory[routeHistory.length - 2].fullPath) {
+                                if (routeHistory.length > 1 && to.fullPath === routeHistory[routeHistory.length - 2].fullPath
+                                    && (!to.params || (to.params && routeHistory[routeHistory.length - 2].params && to.params.defaultRoute === routeHistory[routeHistory.length - 2].params.defaultRoute))) {
                                     routeHistory.pop();
                                     if (routeHistory.length === 0) {
                                         newRouteHistory.splice(index, 1);
@@ -410,16 +411,21 @@ var __vue_staticRenderFns__ = [];
     undefined
   );
 
+let router;
+let store;
+let appMode;
 async function install(Vue, options) {
     if (install.installed) {
         console.log('not installed');
         return;
     }
     else {
-        const appMode = options.appMode === undefined || 'native' ? 'native' : 'web';
+        appMode = options.appMode === undefined || 'native' ? 'native' : 'web';
         install.installed = true;
         if (appMode === 'native') {
-            componentRouter(options.store, options.router, options.routes, appMode, Vue);
+            store = options.store;
+            router = options.router;
+            componentRouter(store, router, options.routes, appMode, Vue);
             Vue.component('Dynamo', component);
         }
         Vue.mixin({
@@ -430,72 +436,84 @@ async function install(Vue, options) {
             },
             methods: {
                 async $interceptGoBack() {
-                    console.log(`$interceptGoBack`);
-                    if (isAndroid) {
-                        const activity = android.startActivity || android.foregroundActivity;
-                        activity.onBackPressed = async () => {
-                            console.log(`activity.onBackPressed `);
-                            this.$goBack(topmost().canGoBack());
-                        };
-                    }
+                    interceptGoBack();
                 },
                 async $goBack(canGoBack) {
-                    console.log(`$goBack`);
-                    canGoBack = canGoBack === undefined ? true : true;
-                    const routeHistoryName = options.router.currentRoute.meta.routeHistoryName;
-                    if (appMode === 'native') {
-                        let routeHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
-                        const currentRoute = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
-                        if (canGoBack && routeHistory.routeHistory.length > 1) {
-                            this.$goTo(routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, routeHistoryName);
-                        }
-                        else {
-                            if (routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName && currentRoute.meta.parentRouteHistoryName !== routeHistoryName) {
-                                this.$goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
-                            }
-                        }
-                    }
-                    else if (appMode === 'web') {
-                        options.router.back();
-                    }
+                    goBack(canGoBack);
                 },
                 async $goBackToParent(routeHistoryName, parentRouteHistoryName) {
-                    console.log('$goBackToParent ');
-                    if (appMode === 'native') {
-                        options.store.dispatch('ComponentRouter/clearRouteHistory', { routeHistoryName });
-                        const parentRouteHistory = await options.store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
-                        const newCurrentRoute = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
-                        this.$goTo(newCurrentRoute.name);
-                    }
+                    goBackToParent(routeHistoryName, parentRouteHistoryName);
                 },
                 async $goTo(location, clearHistory, onComplete, onAbort) {
-                    console.log('$goTo');
-                    let tmpLocation = {};
-                    clearHistory = clearHistory === undefined || false ? false : true;
-                    if (typeof location === 'string') {
-                        tmpLocation.name = location;
-                        tmpLocation.params = Object.assign({}, { clearHistory: clearHistory.toString() });
-                    }
-                    else {
-                        tmpLocation = location;
-                    }
-                    if (onComplete && onAbort) {
-                        options.router.push(tmpLocation, onComplete, onAbort);
-                    }
-                    else if (onComplete && !onAbort) {
-                        options.router.push(tmpLocation, onComplete);
-                    }
-                    else if (!onComplete && onAbort) {
-                        options.router.push(tmpLocation, onAbort);
-                    }
-                    else {
-                        options.router.push(tmpLocation);
-                    }
-                },
+                    goTo(location, clearHistory, onComplete, onAbort);
+                }
             },
         });
     }
 }
+const interceptGoBack = async () => {
+    console.log(`$interceptGoBack`);
+    if (isAndroid) {
+        const activity = android.startActivity || android.foregroundActivity;
+        activity.onBackPressed = async () => {
+            console.log(`activity.onBackPressed `);
+            goBack(topmost().canGoBack());
+        };
+    }
+};
+const goBack = async (canGoBack) => {
+    console.log(`$goBack`);
+    canGoBack = canGoBack === undefined ? true : true;
+    const routeHistoryName = router.currentRoute.meta.routeHistoryName;
+    if (appMode === 'native') {
+        let routeHistory = await store.getters['ComponentRouter/getRouteHistoryByName'](routeHistoryName);
+        const currentRoute = routeHistory.routeHistory[routeHistory.routeHistory.length - 1];
+        if (canGoBack && routeHistory.routeHistory.length > 1) {
+            goTo(routeHistory.routeHistory[routeHistory.routeHistory.length - 2].name, routeHistoryName);
+        }
+        else {
+            if (routeHistory.routeHistory.length === 1 && currentRoute.meta.parentRouteHistoryName && currentRoute.meta.parentRouteHistoryName !== routeHistoryName) {
+                goBackToParent(routeHistoryName, currentRoute.meta.parentRouteHistoryName);
+            }
+        }
+    }
+    else if (appMode === 'web') {
+        router.back();
+    }
+};
+const goBackToParent = async (routeHistoryName, parentRouteHistoryName) => {
+    console.log('$goBackToParent ');
+    if (appMode === 'native') {
+        store.dispatch('ComponentRouter/clearRouteHistory', { routeHistoryName });
+        const parentRouteHistory = await store.getters['ComponentRouter/getRouteHistoryByName'](parentRouteHistoryName);
+        const newCurrentRoute = parentRouteHistory.routeHistory[parentRouteHistory.routeHistory.length - 2];
+        goTo(newCurrentRoute.name);
+    }
+};
+const goTo = async (location, clearHistory, onComplete, onAbort) => {
+    console.log('$goTo');
+    let tmpLocation = {};
+    clearHistory = clearHistory === undefined || false ? false : true;
+    if (typeof location === 'string') {
+        tmpLocation.name = location;
+        tmpLocation.params = Object.assign({}, { clearHistory: clearHistory.toString() });
+    }
+    else {
+        tmpLocation = location;
+    }
+    if (onComplete && onAbort) {
+        router.push(tmpLocation, onComplete, onAbort);
+    }
+    else if (onComplete && !onAbort) {
+        router.push(tmpLocation, onComplete);
+    }
+    else if (!onComplete && onAbort) {
+        router.push(tmpLocation, onAbort);
+    }
+    else {
+        router.push(tmpLocation);
+    }
+};
 class Dynamo$1 {
 }
 (function (install) {
@@ -513,4 +531,4 @@ if (GlobalVue) {
 }
 
 export default Dynamo$1;
-export { install };
+export { goBack, goBackToParent, goTo, install, interceptGoBack };

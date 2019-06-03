@@ -20,7 +20,7 @@
       <NavigationButton visibility="collapsed" />
     </ActionBar>
     <GridLayout rows="auto, auto, auto">
-      <Button text="First" @tap="$goTo({ path: '/first'})" row="0" /> 
+      <Button text="First" @tap="goToRoute" row="0" /> 
       <Button text="Second" @tap="$goTo({ name: 'second', params: { msg: 'Hello, this is a prop' }})" row="1" />
       <Button text="Logout" @tap="$logout('main')" row="2" />
     </GridLayout>
@@ -29,17 +29,21 @@
 </template>
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
+  import { goTo } from '../../../';
 
   @Component({
     name: 'home'
   })
   export default class Home extends Vue {
     private navbarTitle: string = `Home.vue`;
+    private goToRoute: Function = () => {
+      goTo({ path: '/first'})
+    }
 
     public created() {
       if (this.$store.state.appMode === 'native') {
         // set this to make sure backwards navigation through native API's will navigate the correct routeHistory
-        (this as any).$interceptGoBack();  
+        (this as any).$interceptGoBack();
       }
     }
 
