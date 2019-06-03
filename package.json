@@ -1,6 +1,6 @@
 {
   "name": "nativescript-vue-dynamo",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Nativescript-Vue Dynamic Component Router",
   "main": "dist/nativescript-vue-dynamo.umd.js",
   "module": "dist/nativescript-vue-dynamo.esm.js",
@@ -26,7 +26,7 @@
     "prep:patch": "npm version patch -m \"build %s\"",
     "prep:minor": "npm version minor -m \"build %s\"",
     "prep:major": "npm version major -m \"build %s\""
-    },
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jawa-the-hutt/nativescript-vue-dynamo.git"
