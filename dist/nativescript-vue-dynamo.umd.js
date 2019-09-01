@@ -228,6 +228,7 @@ function __decorate(decorators, target, key, desc) {
 }let Dynamo = class Dynamo extends vuePropertyDecorator.Vue {
     constructor() {
         super(...arguments);
+        this.componentKey = 0;
         this.getMatchingRouteRecord = (routeHistory) => {
             const { matched } = routeHistory[routeHistory.length - 1];
             const { path } = routeHistory[routeHistory.length - 1];
@@ -242,6 +243,10 @@ function __decorate(decorators, target, key, desc) {
     }
     eventHandler(e) {
         this.$emit(this.routeHistoryName + '-event-handler', e);
+    }
+    get computedComponentKey() {
+        this.componentKey += 1;
+        return this.componentKey;
     }
     get computedCurrentRoute() {
         let routeHistory;
@@ -369,7 +374,7 @@ var normalizeComponent_1 = normalizeComponent;/* script */
 const __vue_script__ = script;
 
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('StackLayout',[(_vm.getIsNativeMode)?_c('Frame',{attrs:{"id":_vm.routeHistoryName}},[_c('StackLayout',[_c(_vm.computedCurrentRoute,_vm._b({tag:"component",attrs:{"functionHandler":_vm.functionHandler},on:{"dynamo-event":_vm.eventHandler}},'component',_vm.routeParams,false))],1)],1):_vm._e()],1)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('StackLayout',[(_vm.getIsNativeMode)?_c('Frame',{attrs:{"id":_vm.routeHistoryName}},[_c('StackLayout',[_c(_vm.computedCurrentRoute,_vm._b({key:_vm.computedComponentKey,tag:"component",attrs:{"functionHandler":_vm.functionHandler},on:{"dynamo-event":_vm.eventHandler}},'component',_vm.routeParams,false))],1)],1):_vm._e()],1)};
 var __vue_staticRenderFns__ = [];
 
   /* style */

@@ -2,8 +2,8 @@
   <!-- <StackLayout @swipe="onSwipe"> -->
   <StackLayout>
     <Frame v-if="getIsNativeMode" :id="routeHistoryName">
-      <StackLayout>
-        <component :is="computedCurrentRoute" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" v-bind="routeParams" />
+      <StackLayout >
+        <component :is="computedCurrentRoute" :key="computedComponentKey" v-on:dynamo-event="eventHandler" :functionHandler="functionHandler" v-bind="routeParams" />
       </StackLayout>
     </Frame>
   </StackLayout>
@@ -23,6 +23,7 @@
 
     private routeParams!: object;
     private currentRoute!: RouteRecord[];
+    private componentKey: number = 0;
 
     @Prop({ required: true }) public routeHistoryName!: string;
     @Prop({ required: true }) public defaultRoute!: string;
@@ -65,6 +66,11 @@
       const { matched }: { matched: RouteRecord[] } = routeHistory[routeHistory.length - 1];
       const { path }: { path: string } = routeHistory[routeHistory.length - 1];
       return matched.filter( (record: RouteRecord) => Object.keys(record).some((key: string) => record[key] && record[key] === path ));
+    }
+
+    get computedComponentKey(): number {
+      this.componentKey += 1;
+      return this.componentKey;
     }
 
 
