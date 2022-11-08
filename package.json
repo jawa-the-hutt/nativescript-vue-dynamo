@@ -86,7 +86,7 @@
     "rollup-plugin-terser": "^4.0.4",
     "rollup-plugin-typescript": "^1.0.1",
     "rollup-plugin-typescript2": "^0.20.1",
-    "rollup-plugin-vue": "^5.0.0",
+    "rollup-plugin-vue": "^6.0.0",
     "tns-core-modules": "^6.0.7",
     "ts-jest": "^24.0.2",
     "typescript": "^3.4.3",
